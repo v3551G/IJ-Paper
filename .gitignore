@@ -1,0 +1,12 @@
+
+*.gz
+
+*.spl
+
+*.log
+
+*.blg
+
+*.bbl
+
+*.aux
