@@ -20,6 +20,7 @@
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{amsmath,empheq, amsfonts}
+\usepackage{subcaption}
 
 %% The amsthm package provides extended theorem environments
 %% \usepackage{amsthm}
@@ -291,8 +292,57 @@ combination of the samples $\phi(x_i)$ in the feature space:
 
 \subsection{Selection of the best support vectors}
 
+Having established the data model and optimized classification accuracy for uncontaminated datasets, let us return to the problem at hand: the development of a robust pruning strategy. This implies that prediction formula should be partitioned in a \textit{relevant} (the support vectors, found by the pruning algorithm) - and \textit{irrelevant} part.  An overview of existing pruning methods can be found in Hoegaerts et. al \cite{hoegaerts2004comparison}. A first approach was suggest by Suykens et. al \cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum which results from the solution to the linear system.  The motivation comes from the fact that the LS-SVM support values are proportional to the errors at the datapoints. Thus omitting the points that contribute least to the training error. An example of the support value spectrum can be seen on Figure \ref{fig:BadAlpha}. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. However blindly taking the points with largest support value spectrum could lead to sub-optimal results. Firstly, when outliers are present, you want to be certain that these are not chosen. Secondly, points are chosen independently towards each other. This results in clumping of sv's. The first problem is address by running a kernelized minimum covariance determinant, which detects and omits potential outliers. The second problem is solved by introducing a "region of interest" (ROI), which consist of the points with the $\beta$ percentage highest absolute value $|\alpha_k|$. From the ROI, $h$ landmark points are determined, where $h$ is the desired amount of support vectors.
+
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[b]{0.3\textwidth}
+		\label{fig:BadAlpha}
+		\caption{Example bad Alpha spectrum}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.3\textwidth}
+		\label{fig:GoodPruning}
+		\caption{Example good SV selection}
+	\end{subfigure}
+\end{figure}
+
+\subsubsection{Entropy}
+Selection of the landmark points is based on quadratic Renyi entropy~\cite{girolami2002orthogonal} and the fixed size LS-SVM~\cite{suykens2002least}. The landmarks points are chosen to maximize the quadratic Renyi Entropy:
+\begin{equation}
+H_R = -\mathrm{log}\int p(x)^2 dx.
+\end{equation}
+The quadratic Renyi Entropy is approximated by the following equation\cite{girolami2002orthogonal}:
+\begin{equation}
+\int \hat{p}(x)^2dx = \frac{1}{N^2} 1_v^\mathrm{T}\Omega 1_v,
+\end{equation}
+where $1_v = [1;1;...;1]$ and a normalized kernel is assumed with respect to density estimation. In the fixed-size LS-SVM approach, one chooses a fixed working set of size $M$ which is initialized randomly. Afterwards, random points are swapped in and out. If the entropy increases, the swapped point is accepted, otherwise the original subset is kept. This process continues until the change in entropy is small or a fixed number of iterations is reached. 
+
+In contrast to the original fixed-size LS-SVM formulation, which is used to find a representative subset for the Nystr\"{o}m approximation \cite{suykens2002least}. We propose to first determine to region of interest, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, the fixed-size LS-SVM algorithm is used to select the $h$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The improved sv selection for the toy-problem is visible on Figure \ref{fig:GoodPruning}.
+
+\subsubsection{Determinantal point process}
+Selection of landmark points is based on determinantal point processes (DPPs)~\cite{kulesza2012determinantal}. DPPs are particularly interesting for set selection problems where diversity is preferred. A point process $\mathcal{P}$ on a ground set $\mathcal{Y} = {1,2,...,N}$ is a probability measure over point patterns of $\mathcal{C}$ , which are finite subsets of $\mathcal{Y}$. When $\mathcal{C}$ is a random subset, drawn according to the DPP $\mathcal{P}$, we have:
+\begin{equation}
+\label{eq:origDPP}
+	\mathcal{P}(C \subseteq \mathcal{Y}) = \mathrm{det}(K_{\mathcal{C}}),
+\end{equation}
+where $K \preceq I$ is a positive symmetric semidefinite matrix with all eigenvalues smaller then or equal to 1, containing the index elements of $\mathcal{Y}$. $K_{\mathcal{C}} = [K_{i,j}]_{i,j \in \mathcal{C}}$ contains the selected rows and columns of $K$ and $\mathrm{det}(K_{\emptyset}) = 1$. From equation \eqref{eq:origDPP} follows:
+\begin{align}
+	\mathcal{P}(i \in \mathcal{Y}) &= K_{i,i} \\
+	\mathcal{P}(i,j \in \mathcal{Y}) &= K_{i,i}K_{j,j} - K_{i,j}K_{j,i}\\
+	&= \mathcal{P}(i \in \mathcal{Y})\mathcal{P}(j \in \mathcal{Y}) - K_{i,j}^2.
+\end{align}
+The diagonal elements of the kernel matrix give the marginal probability of inclusion for individual elements of $\mathcal{Y}$, whereas the off-diagonal elements determine the (anti-)correlation between pairs of elements. Thus for large values of $K_{i,j}$, or a high similarity, points are unlikely the appear together. 
+
+In our case, we would like to build a DPP based on the kernel matrix $K$, which is done using L-ensembles~\cite{borodin2009determinantal}. The probability of observing a subset $C \subseteq \mathcal{Y}$ is now equal to:
+\begin{equation}
+	\mathrm{Pr}(\mathcal{C}) = \frac{\mathrm{det}(K_{\mathcal{C},\mathcal{C}})}{\mathrm{det}(K + I)},
+\end{equation}
+where $I$ is the identity matrix, and $K$ a positive semidefinite matrix  indexed by the elements of $\mathcal{Y}$. In contrast to equation \eqref{eq:origDPP}, $K$ only has to be positive semidefinite, while the eigenvalues previously where bounded above. When conditioning on a fixed cardinality $k = |\mathcal{C}|$, one gets the k-DPP~\cite{kulesza2011k}.
+
+
+
 \subsection{Information transfer}
-Having established the data model and optimized classification accuracy for uncontaminated datasets, let us return to the problem at hand: the development of a robust pruning strategy. This implies that prediction formula should be partitioned in a \textit{relevant} (the support vectors, found by the pruning algorithm) - and \textit{irrelevant} part. The information contained in the prune candidates can then be transferred to the support vectors - an idea originally introduced in [???]. Starting from equation \ref{eq:prediction} with the appropriate matrix dimensions:
+ The information contained in the prune candidates can then be transferred to the support vectors - an idea originally introduced in [???]. Starting from equation \ref{eq:prediction} with the appropriate matrix dimensions:
 \begin{equation}
 \hat{y}_{(1,n_2) } = \mathbf{\beta}_{(1,n_1)} K_{(n_1, n_2)} + b_{(1,1)} \ \mathbf{1}_{(1, n2)} 
 \end{equation}
@@ -318,6 +368,8 @@ Which is implemented using equation \ref{eq:gpuprediction} given the knowledge t
 The only problem that remains is the section of the most relevant support vectors....
 
 \paragraph{Algorithm 3--- Sparse K-MCD based LS-SVM}
+
+summary all steps algorithm
 
 \section{Experiments} 
 \subsection{Simulation results} 
@@ -346,8 +398,9 @@ We thank Johan Speybrouck for providing us the industrial datasets and Tim Wynan
 
 %% References with bibTeX database:
 
-\bibliographystyle{model1-num-names}
-\bibliography{sample.bib}
+%\bibliographystyle{model1-num-names}
+\bibliographystyle{plain}
+\bibliography{sample}
 
 %% Authors are advised to submit their bibtex database files. They are
 %% requested to list a bibtex style file in the manuscript if they do
@@ -355,15 +408,14 @@ We thank Johan Speybrouck for providing us the industrial datasets and Tim Wynan
 
 %% References without bibTeX database:
 
-% \begin{thebibliography}{00}
-
-%% \bibitem must have the following form:
-%%   \bibitem{key}...
-%%
-
-% \bibitem{}
-
-% \end{thebibliography}
+%\begin{thebibliography}{00}
+%
+%%% \bibitem must have the following form:
+%%%   \bibitem{key}...
+%%%
+%
+%
+%\end{thebibliography}
 
 
 \end{document}
