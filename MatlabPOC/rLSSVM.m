@@ -147,26 +147,33 @@ classdef rLSSVM
         end
         
         function train(this, dModel, C)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
             w1 = this.trainSingleClass(dModel.x(dModel.y>0, :), dModel.z(dModel.y>0, :));
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process -1 class
             w2 = this.trainSingleClass(dModel.x(dModel.y<0, :), dModel.z(dModel.y<0, :));
-            %%%%    Normalize weights to perform class balancing        
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%%    Normalize weights to perform class balancing                    
+            %w1 = w1 * (max(w2) / max(w1)); %% 100 vs 10 = 10, w1 * 10                        
             w1 = w1 * (sum(w2) / sum(w1)); %% 100 vs 10 = 10, w1 * 10                        
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%%    Put everything together
             weights = nan(size(dModel.y));
             weights(dModel.y>0) = w1;
             weights(dModel.y<0) = w2;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 4, Solve LS-SVM's SoE
-            %%%            
+            %%%     Step 4, Solve LS-SVM's SoE            
             solution = this.trainWeightedLSSVM(dModel.x, dModel.y, weights, C);
             
             figure; scatter(dModel.x(:, 1), dModel.x(:, 2), [], solution(2:end), 'filled'); colorbar; title('LS-SVM solution');
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 5, prune per class
-            %%%
+            %%%     Step 5, determine SVS's per class           
             alphas = solution(2:end);
             
             supportVectorMask1 = this.pModel(alphas(dModel.y>0));

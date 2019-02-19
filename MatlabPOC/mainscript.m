@@ -10,7 +10,7 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Retrain or info transfer (per class?)
-    rModel = Retrain();                 
+    %rModel = Retrain();                 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
@@ -18,11 +18,11 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Kernel used
-    kModel = RbfKernel(10);
+    kModel = RbfKernel(1);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used
-    dModel = YinYangDataModel(500, 0.1);         
+    dModel = YinYangDataModel(1000, 0.1);         
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Build our classifier
