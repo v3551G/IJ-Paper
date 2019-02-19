@@ -335,9 +335,12 @@ The diagonal elements of the kernel matrix give the marginal probability of incl
 
 In our case, we would like to build a DPP based on the kernel matrix $K$, which is done using L-ensembles~\cite{borodin2009determinantal}. The probability of observing a subset $C \subseteq \mathcal{Y}$ is now equal to:
 \begin{equation}
-	\mathrm{Pr}(\mathcal{C}) = \frac{\mathrm{det}(K_{\mathcal{C},\mathcal{C}})}{\mathrm{det}(K + I)},
+	\mathrm{Pr}(\mathcal{C}) = \frac{\mathrm{det}(K_{\mathcal{C}})}{\mathrm{det}(K + I)},
 \end{equation}
 where $I$ is the identity matrix, and $K$ a positive semidefinite matrix  indexed by the elements of $\mathcal{Y}$. In contrast to equation \eqref{eq:origDPP}, $K$ only has to be positive semidefinite, while the eigenvalues previously where bounded above. When conditioning on a fixed cardinality $k = |\mathcal{C}|$, one gets the k-DPP~\cite{kulesza2011k}.
+
+The landmark selection algorithm consists of the following steps:
+We propose to first determine to region of interest, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, a $k$-DPP~\cite{kulesza2011k}, where $k = h$, is used to sample the $h$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The improved sv selection for the toy-problem is visible on Figure \ref{fig:GoodPruning}.
 
 
 
