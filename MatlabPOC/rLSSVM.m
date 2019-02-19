@@ -166,8 +166,11 @@ classdef rLSSVM
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 5, prune per class
-            %%%            
-            supportVectorMask = this.prune(solution);
+            %%%
+            alphas = solution(2:end);
+            
+            supportVectorMask1 = this.pModel(alphas(dModel.y>0));
+            supportVectorMask2 = this.pModel(alphas(dModel.y<0));
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 6, retrain or info transfer
