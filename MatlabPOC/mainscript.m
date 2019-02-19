@@ -1,8 +1,9 @@
 
 
-    %close all;
+    close all;
     clear;
     clc;
+    C = 1;
     
     rng default;
     
@@ -12,7 +13,7 @@
     dModel = YinYangDataModel(500, 0.1);         
     
     ourSvm = rLSSVM(kModel, pModel);    
-    ourSvm.train(dModel);
+    ourSvm.train(dModel, C);
     %misclass = ourSvm.train(dModel); %, pModel);
     
     
