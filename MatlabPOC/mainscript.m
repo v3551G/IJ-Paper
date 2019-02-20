@@ -1,5 +1,3 @@
-
-
     close all;
     clear;
     clc;

@@ -59,7 +59,7 @@
 
 %% Title, authors and addresses
 
-\title{Robust Least Squares Support Vector Machines for Classification}
+\title{Sparse Robust Least Squares Support Vector Machines for Classification}
 
 %% use the tnoteref command within \title for footnotes;
 %% use the tnotetext command for the associated footnote;
@@ -136,7 +136,64 @@ Contribution
 \end{enumerate}
 We are/should be robust against high degrees of contamination in non-linear classification problems. \\
 
-The remainder of this paper is organized as follows. In section 2 we introduce our weighted least squares support vector machine (LS-SVM). In section 3 we propose our robust outlier detection routine, followed by our support vector sparseness routine (??). The extensive simulation results of both theoretical and real, industrial datasets listed in section 4 conform the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section 5. 
+The remainder of this paper is organized as follows. In section 2 we introduce our weighted least squares support vector machine (LS-SVM). In section 3 we propose our robust outlier detection routine, followed by our support vector sparseness routine (??). The extensive simulation results of both theoretical and real, industrial datasets listed in section 4 conform the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section 5. \\
+
+Literature overview: \\
+
+Robustified least squares support vector classification~\cite{debruyne2009robustified}
+	\begin{itemize}
+		\item Weighted LS-SVM classification where weights are equal to spatial rank with respect to the other feature vectors in the group (classwise)
+		\item Sort weigths and keep certain percentage (hard rejection) based on 10-fold cross validation
+		\item Artifical experiments: Normal (linear separable) + Cauchy distributions (non-linear necessary). 50  train, 1000 test, 50 simulations, outliers is other class behind.
+	\end{itemize}
+	
+Sparse algorithm for robust LSSVM in primal space~\cite{chen2018sparse}
+	\begin{itemize}
+		\item Primal formulation of LS-SVM with truncated loss (error is upper bounded), sparseness is obtained by Nystrum approximation (landmark points)
+		\item Artifical experiments: linear classification with outliers behind classes, number of datasets for classification 
+	\end{itemize}	
+A robust least squares support vector machine for regression and classification with noise~\cite{yang2014robust}
+	\begin{itemize}
+		\item Again truncated loss function in objective function, now solved with concave-convex procedure and the newton algorithm. No pruning
+		\item Artifical experiments: Cross dataset. UCI datasets
+	\end{itemize}
+Robust twin support vector machine for pattern classification~\cite{qi2013robust}
+	\begin{itemize}
+		\item SVM implementation, not interesting
+		\item Artifical experiments: linear + RBF classification with outliers behind classes,UCI datasets
+	\end{itemize}
+	
+Sparse least square support vector machine via coupled compressive pruning~\cite{yang2014sparse}
+\begin{itemize}
+	\item No iterative pruning => 1 shot
+	\item normal UCI benchmark datasets, compare with "A comparison of pruning alogrithms for sparse least square support vector machines"
+\end{itemize}
+
+Reducing the number of support vectors of SVM classifiers using the smoothed separable case approximation~\cite{geebelen2012reducing}
+\begin{itemize}
+	\item SVM implementation, not interesting
+	\item Flipping of labels in UCI dataset
+\end{itemize}
+
+A comparison of pruning algorithms for sparse least squares support vector machines~\cite{hoegaerts2004comparison}
+\begin{itemize}
+	\item Compares pruning of different methods on 4 Regression datasets.
+\end{itemize}
+
+Weighted least squares support vector machines: robustness and sparse approximation~\cite{suykens2002weighted}
+\begin{itemize}
+	\item Robust + sparse LS-SVM implementation, only for regression + iterative
+	\item Robustness = weighted LS-SVM where you reweigh based on the errors of the previous model (truncated weights)
+	\item sparseness is based on pruning by the absolute values of alpha
+\end{itemize}
+
+A weighted Lq adaptive least squares support vector machine classifiers--Robust and sparse approximation~\cite{liu2011weighted}
+\begin{itemize}
+	\item Robustness: alpha value for each datapoint and each feature. Kernel matrix is inner product between single elements instead of the vector. Solve problem where you put L1-norm on these alphas
+	\item Experiments on UCI datasets
+\end{itemize}
+
+
 
 \section{Weighted LS-SVM for classification}
 \subsection{LS-SVM classification}

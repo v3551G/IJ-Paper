@@ -6,7 +6,7 @@ classdef EntropyBasedPruning < handle
     end
     
     methods
-        function selectSVs(this, kModel)
+        function idx = selectSVs(this, kModel)
            % Start random and optimize
             N = size(X,1);
             idx = randperm(N,h);
