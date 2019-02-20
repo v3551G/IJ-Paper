@@ -1,4 +1,4 @@
- IJ-Paper
+IJ-Paper, based on the work of I.Vranckx and J. Schreurs  [@ kuleuven, esat.kuleuven.be]
+Robust least squares support vector pruning based on kernel MCD
 
-Congrats with your first commit ;)
->>>>>>> 64f285c9355a150e1c0cef88822b1427a8d7fe98
+
