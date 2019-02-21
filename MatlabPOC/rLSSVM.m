@@ -50,7 +50,7 @@ classdef rLSSVM
             loc = mean(signal(refinedSubset));
             scat = std(signal(refinedSubset));            
             sdo = abs( signal - loc ) ./ scat;
-            before = sum(sdo);
+            %before = sum(sdo);
             hmask = 1 - (sdo ./ max(sdo)); % zeros(size(sdo));
             hmask(refinedSubset) = 1;
             
@@ -68,7 +68,7 @@ classdef rLSSVM
             for i = 1:15
                 w = ones(n,1)./sqrt(diag(K) - 2*K'*gamma + gamma'*K*gamma);
                 gamma = w./sum(w);
-            end
+            end            
             % Calculate distance to spatial median
             dist = diag(K) - 2*sum(K.*repmat(gamma',n,1),2) + gamma'*K*gamma;
             %assert(sum((samples - gamma'*samples).^2,2)<=eps);                        
@@ -121,21 +121,20 @@ classdef rLSSVM
             %%% the cost function based on mahalanobis distances
             
             scores = smd;
-            sdo = max(abs( (scores - repmat(mean(scores(cstepmask, :)), size(scores, 1), 1)) ./ repmat(std(scores(cstepmask, :)), size(scores, 1), 1)), [], 2);
-            
-            p = sum(lmask);
-            c = max(chi2inv(0.5, p), max(sdo(cstepmask)));
-            weights = zeros(size(sdo));
-            weights(sdo<=c) = 1;
-            weights(sdo>c) = (c ./ sdo(sdo>c)).^2; 
-            %figure; plot([z, weights]);
+            sdo = max(abs( (scores - repmat(mean(scores(cstepmask, :)), size(scores, 1), 1)) ./ repmat(std(scores(cstepmask, :)), size(scores, 1), 1)), [], 2);            
+            p = sum(lmask);            
+            c = max(chi2inv(0.5, p), max(sdo(cstepmask)));            
+            weights = false(size(sdo));
+            weights(sdo<=c) = true; 
+            weights(sdo>c) = false; % (c ./ sdo(sdo>c)).^2;                         
+            %figure; bar([z, weights]);
        end
        
-       function solution = trainWeightedLSSVM(this, x, y, weights, C)
+       function solution = trainWeightedLSSVM(this, x, y, C)
             n = numel(y);
             K = this.kModel.compute(x, x);
             upper = [0, y' ];            
-            lower = [y , (y * y') .* K  + diag(weights ./ C)];            
+            lower = [y , (y * y') .* K  + diag(1 ./ C)];            
             right = [0; ones(n, 1)];            
             %%%%   Solution is in the form of [b; alphas]            
             solution = ([ upper; lower ] \ right) .* [1; y];    
@@ -160,26 +159,37 @@ classdef rLSSVM
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Normalize weights to perform class balancing                    
             %w1 = w1 * (max(w2) / max(w1)); %% 100 vs 10 = 10, w1 * 10                        
-            w1 = w1 * (sum(w2) / sum(w1)); %% 100 vs 10 = 10, w1 * 10                        
+            %w1 = w1 * (sum(w2) / sum(w1)); %% 100 vs 10 = 10, w1 * 10                        
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Put everything together
-            weights = nan(size(dModel.y));
+            weights = false(size(dModel.y));
             weights(dModel.y>0) = w1;
             weights(dModel.y<0) = w2;
             
+            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 4, Solve LS-SVM's SoE            
-            solution = this.trainWeightedLSSVM(dModel.x, dModel.y, weights, C);
-            
-            figure; scatter(dModel.x(:, 1), dModel.x(:, 2), [], solution(2:end), 'filled'); colorbar; title('LS-SVM solution');
+            solution = this.trainWeightedLSSVM(dModel.x(weights, :), dModel.y(weights), C);
+            alphas = zeros(size(weights));
+            alphas(weights) = solution(2:end);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 5, determine SVS's per class           
-            alphas = solution(2:end);
+            %%%     Step 5, determine SVS's per class            
+            figure;             
+            scatter(dModel.x(weights, 1), dModel.x(weights, 2), [], alphas(weights), 'filled'); 
+            colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
             
-            supportVectorMask1 = this.pModel(alphas(dModel.y>0));
-            supportVectorMask2 = this.pModel(alphas(dModel.y<0));
+            c1 = find(dModel.y>0 & weights);
+            c2 = find(dModel.y<0 & weights);
+            
+            svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
+            svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
+            
+            figure; 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
+            plot(dModel.x(c1(svIndices1), 1), dModel.x(c1(svIndices1), 2), '*r');  
+            plot(dModel.x(c2(svIndices2), 1), dModel.x(c2(svIndices2), 2), '*g');  grid on;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 6, retrain or info transfer
@@ -192,7 +202,7 @@ classdef rLSSVM
         function weights  = trainSingleClass(this, x, z)
             
             hInitial = 0.5;
-            hCstep = 0.75;
+            hCstep = 0.85;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 1
