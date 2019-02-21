@@ -24,11 +24,8 @@ classdef rLSSVM < handle
             end
         end
         
-        %%%%    TODO: fatsoeneren
-        function weights = sdoWeights(this, x, refinedSubset)
-            
-            K = this.kModel.compute(x, x);
-            
+        function weights = sdoWeights(this, x, refinedSubset)            
+            K = this.kModel.compute(x, x);            
             hindices = find(refinedSubset>0);            
             r = nan(numel(hindices) * (numel(hindices)-1) / 2, size(K, 2)); 
             index = 1;
@@ -52,7 +49,6 @@ classdef rLSSVM < handle
             loc = mean(signal(refinedSubset));
             scat = std(signal(refinedSubset));            
             sdo = abs( signal - loc ) ./ scat;
-            %before = sum(sdo);
             hmask = 1 - (sdo ./ max(sdo)); % zeros(size(sdo));
             hmask(refinedSubset) = 1;
             
@@ -81,7 +77,7 @@ classdef rLSSVM < handle
         
        
        function weights = kernelCSteps(this, x, cstepmask, hInitial, hCstep)                       
-           hRange = hInitial: 0.1:hCstep;
+            hRange = hInitial: 0.1:hCstep;
             %%%% Given the initial subset, run kernel C-steps until
             %%%% convergence            
             for hIndex = 1:numel(hRange)            
@@ -94,7 +90,6 @@ classdef rLSSVM < handle
                     [alphah, Lh] = svd(this.center(Kx));                
                     Ld = diag(Lh);
                     lmask = logical(Ld > 10^(-4));
-                    %lmask = logical(Ld > 1.0); % % 10^(-4));
                     Ld = Ld(lmask);
                     alphah = alphah(:, lmask);        
                     alphah = alphah ./ repmat(sqrt(Ld'), size(alphah, 1), 1);   
@@ -129,16 +124,15 @@ classdef rLSSVM < handle
             weights = false(size(sdo));
             weights(sdo<=c) = true; 
             weights(sdo>c) = false; % (c ./ sdo(sdo>c)).^2;                         
-            %figure; bar([z, weights]);
        end
        
        function solution = trainWeightedLSSVM(this, xTrain, yTrain, C)
+            %%%%   Solution is in the form of [b; alphas]         
             n = numel(yTrain);
             K = this.kModel.compute(xTrain, xTrain);
             upper = [0, yTrain' ];
             lower = [yTrain , (yTrain * yTrain') .* K  + (1 ./ C) * eye(n,n) ];
-            right = [0; ones(n, 1)];            
-            %%%%   Solution is in the form of [b; alphas]            
+            right = [0; ones(n, 1)];                            
             solution = ([ upper; lower ] \ right) .* [1; yTrain];
        end
     end
@@ -155,7 +149,6 @@ classdef rLSSVM < handle
             %%%%    How many outliers do we expect in out dataset
             hInitial = 0.5;
             hCstep = 0.85;
-            
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
@@ -192,7 +185,11 @@ classdef rLSSVM < handle
             c2 = find(dModel.y<0 & weights & alphas<0);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 5b, balance alphas to compensate for class skew
+            %%%
+            %%%     TODO: Step 5b, balance alphas to compensate for class skew            
+            
+            %%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
             svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
@@ -207,6 +204,7 @@ classdef rLSSVM < handle
             %%%            
             %efficency = prunedLsSvmModel.classify(...);
             
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    That's all, folks!
             
             this.supportVectorData = [];

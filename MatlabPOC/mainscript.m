@@ -7,10 +7,6 @@
     rng default;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Retrain or info transfer (per class?)
-    %rModel = Retrain();                 
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
     %pModel = EntropyBasedPruning(10, RbfKernel(0.1));
     pModel = DPPBasedPruning(10, RbfKernel(1));
