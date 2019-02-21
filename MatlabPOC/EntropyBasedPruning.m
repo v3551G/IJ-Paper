@@ -5,7 +5,7 @@ classdef EntropyBasedPruning < handle
     properties
         nbrOfSupportVectors;
         kModel;
-        roi = 0.25;
+        roi = 0.5;
     end
     
     methods

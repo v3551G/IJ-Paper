@@ -182,7 +182,9 @@ classdef rLSSVM < handle
             colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
             
             c1 = find(dModel.y>0 & weights & alphas>0);
+            c11 = find(dModel.y>0);
             c2 = find(dModel.y<0 & weights & alphas<0);
+            c21 = find(dModel.y<0);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%
@@ -202,13 +204,28 @@ classdef rLSSVM < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 6, info transfer
             %%%            
-            %efficency = prunedLsSvmModel.classify(...);
+            
+            K = this.kModel.compute(dModel.x);
+            
+            mask = false(size(dModel.y));
+            mask(c11) = true;
+            mask(svIndices1) = false;
+            
+            delta_alpha = pinv(K(:,svIndices1))*K(:,mask)*alphas(mask, :);
+            svAlphas1 =  alphas(svIndices1, :) + delta_alpha;
+            
+            mask = false(size(dModel.y));
+            mask(c21) = true;
+            mask(svIndices2) = false;
+            
+            delta_alpha = pinv(K(:,svIndices2))*K(:,mask)*alphas(mask, :);
+            svAlphas2 =  alphas(svIndices2, :) + delta_alpha;            
+            
+            this.supportVectorData = [dModel.x(svIndices1, :); dModel.x(svIndices2, :);];
+            this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%%    That's all, folks!
-            
-            this.supportVectorData = [];
-            this.prunedAlphas = [];
+            %%%%    That's all, folks!            
         end
         
         function weights  = trainSingleClass(this, x, hInitial, hCstep)
@@ -219,7 +236,7 @@ classdef rLSSVM < handle
         function prediction = predict(this, xTest)
             K = this.kModel.compute(this.supportVectorData, xTest); %%   note: has dimensions [m, n]
             m = size(K, 2);
-            prediction = sign([ones(1, m); K]' * this.prunedAlphas);
+            prediction = ([ones(1, m); K]' * this.prunedAlphas);
         end
     end
     
