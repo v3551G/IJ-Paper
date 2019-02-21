@@ -23,9 +23,9 @@ classdef DPPBasedPruning < handle
             
             M = this.kModel.compute(x(candidateIndices, :));
             L.M = M;
-            [L.V,L.D] = eig(M);
-            %L.V = real(V);
-            %L.D = real(diag(D));
+            [V,D] = eig(M);
+            L.V = real(V);
+            L.D = real(diag(D));
             svsSolutionsIndices = candidateIndices(sample_dpp(L, this.nbrOfSupportVectors));
         end
     end
