@@ -1,12 +1,12 @@
-classdef rLSSVM
+classdef rLSSVM < handle
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
     
     properties (Access = private)
         kModel;
         pModel;
-        supportVectors;
-        alphas;
+        supportVectorData;
+        prunedAlphas;
     end
     
     methods (Access = private)
@@ -209,8 +209,8 @@ classdef rLSSVM
             
             %%%%    That's all, folks!
             
-            this.supportVectors = [];
-            this.alphas = [];
+            this.supportVectorData = [];
+            this.prunedAlphas = [];
         end
         
         function weights  = trainSingleClass(this, x, hInitial, hCstep)
@@ -219,9 +219,9 @@ classdef rLSSVM
         end
     
         function prediction = predict(this, xTest)
-            K = this.kModel.compute(this.supportVectors, xTest); %%   note: has dimensions [m, n]
+            K = this.kModel.compute(this.supportVectorData, xTest); %%   note: has dimensions [m, n]
             m = size(K, 2);
-            prediction = sign([ones(1, m); K]' * this.alphas);
+            prediction = sign([ones(1, m); K]' * this.prunedAlphas);
         end
     end
     
