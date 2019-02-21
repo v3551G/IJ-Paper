@@ -7,13 +7,15 @@
     rng default;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Pruning strategy used
-    %pModel = EntropyBasedPruning(10, RbfKernel(0.1));
-    pModel = DPPBasedPruning(10, RbfKernel(1));
+    %%% Kernel used
+    %kModel = RbfKernel(1);
+    %kModel = LinKernel();
+    kModel = PolyKernel(5);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Kernel used
-    kModel = RbfKernel(1);
+    %%% Pruning strategy used
+    %pModel = EntropyBasedPruning(10, kModel);
+    pModel = DPPBasedPruning(10, kModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used

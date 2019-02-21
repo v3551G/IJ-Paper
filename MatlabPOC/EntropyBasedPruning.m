@@ -5,6 +5,7 @@ classdef EntropyBasedPruning < handle
     properties
         nbrOfSupportVectors;
         kModel;
+        roi = 0.25;
     end
     
     methods
@@ -19,7 +20,7 @@ classdef EntropyBasedPruning < handle
         
         function svsSolutionsIndices = prune(this, x, a)            
             [~, candidateIndices] = sort(a, 'descend');
-            candidateIndices(ceil(numel(candidateIndices)*0.5):end)=[];
+            candidateIndices(ceil(numel(candidateIndices)*this.roi):end)=[];
             
             svs = x(candidateIndices(1:this.nbrOfSupportVectors), :);
             svsSolutionsIndices = candidateIndices(1:this.nbrOfSupportVectors);
