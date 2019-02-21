@@ -10,11 +10,13 @@ kModel = RbfKernel(1);
 dModel = YinYangDataModel(1000, 0.1);         
 X = dModel.x(dModel.y>0, :);
 
-Nc=20;
+Nc=10;
 gamma = 0.1;
 
 k = RbfKernel(1/10);
 %%%%%%%%%%%%%%%%%%%%%%%%%%  deftige implementatie
+%%Entropy is a measure of unpredictability of information
+%%content. The lower the probability of an event, the higher the entropy
 
 svs = X(1:Nc, :);
 prevCrit = -inf;
@@ -31,11 +33,11 @@ for iteration = 1:50*size(X, 1)
        lam = diag(lam);
    end
    crit = -log((sum(U,1)/ size(U, 1)).^2 * lam);   
-   if (crit<=prevCrit)
+   if (crit<prevCrit)
        %%%  Entropy is worse, reverse the set
        svs = svsCopy;
    else
-       %%%  Entropy is bettter, adjust criteria;
+       %%%  Entropy is bettter, adjust criteria;       
        prevCrit = crit;
        entropy(counter) = crit;
        counter = counter +1;
