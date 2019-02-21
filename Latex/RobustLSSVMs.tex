@@ -22,6 +22,9 @@
 \usepackage{amsmath,empheq, amsfonts}
 \usepackage{subcaption}
 
+\usepackage{amsthm}
+\newtheorem*{remark}{Remark}
+
 %% The amsthm package provides extended theorem environments
 %% \usepackage{amsthm}
 
@@ -363,6 +366,11 @@ Having established the data model and optimized classification accuracy for unco
 	\end{subfigure}
 \end{figure}
 
+\noindent
+------- TODO -------- \\
+Something about how it is important to first be outlier-free before doing landmark selection. When you want to maximize entropy or promote diversity, you will always select outliers.\\
+---------------------
+
 \subsubsection{Entropy}
 Selection of the landmark points is based on quadratic Renyi entropy~\cite{girolami2002orthogonal} and the fixed size LS-SVM~\cite{suykens2002least}. The landmarks points are chosen to maximize the quadratic Renyi Entropy:
 \begin{equation}
@@ -376,6 +384,12 @@ where $1_v = [1;1;...;1]$ and a normalized kernel is assumed with respect to den
 
 In contrast to the original fixed-size LS-SVM formulation, which is used to find a representative subset for the Nystr\"{o}m approximation \cite{suykens2002least}. We propose to first determine to region of interest, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, the fixed-size LS-SVM algorithm is used to select the $h$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The improved sv selection for the toy-problem is visible on Figure \ref{fig:GoodPruning}.
 
+
+\begin{remark}
+	It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}. NOG AANPASSEN
+\end{remark}
+
+
 \subsubsection{Determinantal point process}
 Selection of landmark points is based on determinantal point processes (DPPs)~\cite{kulesza2012determinantal}. DPPs are particularly interesting for set selection problems where diversity is preferred. A point process $\mathcal{P}$ on a ground set $\mathcal{Y} = {1,2,...,N}$ is a probability measure over point patterns of $\mathcal{C}$ , which are finite subsets of $\mathcal{Y}$. When $\mathcal{C}$ is a random subset, drawn according to the DPP $\mathcal{P}$, we have:
 \begin{equation}
@@ -386,6 +400,7 @@ where $K \preceq I$ is a positive symmetric semidefinite matrix with all eigenva
 \begin{align}
 	\mathcal{P}(i \in \mathcal{Y}) &= K_{i,i} \\
 	\mathcal{P}(i,j \in \mathcal{Y}) &= K_{i,i}K_{j,j} - K_{i,j}K_{j,i}\\
+	\label{eq:KDPP}
 	&= \mathcal{P}(i \in \mathcal{Y})\mathcal{P}(j \in \mathcal{Y}) - K_{i,j}^2.
 \end{align}
 The diagonal elements of the kernel matrix give the marginal probability of inclusion for individual elements of $\mathcal{Y}$, whereas the off-diagonal elements determine the (anti-)correlation between pairs of elements. Thus for large values of $K_{i,j}$, or a high similarity, points are unlikely the appear together. 
@@ -398,6 +413,10 @@ where $I$ is the identity matrix, and $K$ a positive semidefinite matrix  indexe
 
 The landmark selection algorithm consists of the following steps:
 We propose to first determine to region of interest, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, a $k$-DPP~\cite{kulesza2011k}, where $k = h$, is used to sample the $h$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The improved sv selection for the toy-problem is visible on Figure \ref{fig:GoodPruning}.
+
+\begin{remark}
+It is important to first omit outliers, before continuing with the DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
+\end{remark}
 
 
 
