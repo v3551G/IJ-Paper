@@ -130,14 +130,14 @@ classdef rLSSVM
             %figure; bar([z, weights]);
        end
        
-       function solution = trainWeightedLSSVM(this, x, y, C)
-            n = numel(y);
-            K = this.kModel.compute(x, x);
-            upper = [0, y' ];            
-            lower = [y , (y * y') .* K  + diag(1 ./ C)];            
+       function solution = trainWeightedLSSVM(this, xTrain, yTrain, C)
+            n = numel(yTrain);
+            K = this.kModel.compute(xTrain, xTrain);
+            upper = [0, yTrain' ];
+            lower = [yTrain , (yTrain * yTrain') .* K  + (1 ./ C) * eye(n,n) ];
             right = [0; ones(n, 1)];            
             %%%%   Solution is in the form of [b; alphas]            
-            solution = ([ upper; lower ] \ right) .* [1; y];    
+            solution = ([ upper; lower ] \ right) .* [1; yTrain];
        end
     end
     
