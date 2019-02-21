@@ -47,7 +47,19 @@ figure; plot(entropy);
 figure; 
 plot(X(:, 1), X(:, 2), '.'); hold on;
 plot(svs(:, 1), svs(:, 2), '*r'); 
-title('ours');
+title('ours, entropy');
+
+
+% sample
+L = k.compute(X);
+dpp_sample = sample_dpp(decompose_kernel(L), Nc);
+%ind_sample = randsample(N*N,length(dpp_sample));
+
+figure; 
+plot(X(:, 1), X(:, 2), '.'); hold on;
+plot(X(dpp_sample, 1), X(dpp_sample, 2), '*r'); 
+title('ours, dpp');
+
 
 
 
