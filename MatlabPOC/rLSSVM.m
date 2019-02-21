@@ -55,7 +55,7 @@ classdef rLSSVM
             hmask(refinedSubset) = 1;
             
             weights = hmask;
-            figure; scatter(x(:, 1), x(:, 2), [], weights, 'filled'); grid on;
+            figure; scatter(x(:, 1), x(:, 2), [], log(weights), 'filled'); grid on;
             colorbar;
             title('obv univ. SDO');
         end
@@ -74,7 +74,7 @@ classdef rLSSVM
             %assert(sum((samples - gamma'*samples).^2,2)<=eps);                        
             [~, hIndices] = sort(dist);            
             initialSubsetMask = false(size(hIndices));
-            initialSubsetMask(hIndices(1:ceil(h * n)))=true;
+            initialSubsetMask(hIndices(1:ceil(h * n))) = true;
         end 
         
        
@@ -114,10 +114,12 @@ classdef rLSSVM
             end
             
             %%%%%%%%%   Convert Hard rejection to outlying weights
+            %%%
             %%% Stahel-Donoho with cellwise weights -> Hubert cost
             %%% function, eq. 2, pg 3  
+            %%% Note that we're not using Stahel-Donoho weights but rather
+            %%% the cost function based on mahalanobis distances
             
-            %scores = (e.^2)./ repmat(Ld', size(e, 1), 1);                                        
             scores = smd;
             sdo = max(abs( (scores - repmat(mean(scores(cstepmask, :)), size(scores, 1), 1)) ./ repmat(std(scores(cstepmask, :)), size(scores, 1), 1)), [], 2);
             
