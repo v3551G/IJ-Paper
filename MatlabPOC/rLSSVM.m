@@ -2,9 +2,11 @@ classdef rLSSVM
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties
+    properties (Access = private)
         kModel;
         pModel;
+        supportVectors;
+        alphas;
     end
     
     methods (Access = private)
@@ -172,8 +174,7 @@ classdef rLSSVM
             %%%%    Put everything together
             weights = false(size(dModel.y));
             weights(dModel.y>0) = w1;
-            weights(dModel.y<0) = w2;
-            
+            weights(dModel.y<0) = w2;            
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 4, Solve LS-SVM's SoE            
@@ -182,13 +183,16 @@ classdef rLSSVM
             alphas(weights) = solution(2:end);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 5, determine SVS's per class            
+            %%%     Step 5a, determine SVS's per class            
             figure;             
             scatter(dModel.x(weights, 1), dModel.x(weights, 2), [], alphas(weights), 'filled'); 
             colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
             
             c1 = find(dModel.y>0 & weights & alphas>0);
             c2 = find(dModel.y<0 & weights & alphas<0);
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%     Step 5b, balance alphas to compensate for class skew
             
             svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
             svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
@@ -199,20 +203,27 @@ classdef rLSSVM
             plot(dModel.x(c2(svIndices2), 1), dModel.x(c2(svIndices2), 2), '*g');  grid on;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 6, retrain or info transfer
+            %%%     Step 6, info transfer
             %%%            
             %efficency = prunedLsSvmModel.classify(...);
             
             %%%%    That's all, folks!
+            
+            this.supportVectors = [];
+            this.alphas = [];
         end
         
         function weights  = trainSingleClass(this, x, hInitial, hCstep)
             initisalSubset  = this.spatialMedian(x, hInitial);
             weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep);            
         end
+    
+        function prediction = predict(this, xTest)
+            K = this.kModel.compute(this.supportVectors, xTest); %%   note: has dimensions [m, n]
+            m = size(K, 2);
+            prediction = sign([ones(1, m); K]' * this.alphas);
+        end
     end
-    
-    
     
     
 end
