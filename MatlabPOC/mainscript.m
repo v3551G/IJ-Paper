@@ -2,7 +2,7 @@
     clear;
     clc;
     
-    C = 1;
+    C = 0.1;
     
     rng default;
     
@@ -12,7 +12,7 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
-    pModel = EntropyBasedPruning();
+    pModel = EntropyBasedPruning(10, RbfKernel(0.1));
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Kernel used
@@ -20,7 +20,7 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used
-    dModel = YinYangDataModel(1000, 0.1);         
+    dModel = YinYangDataModel(1500, 0.1);         
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Build our classifier

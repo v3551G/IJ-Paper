@@ -11,6 +11,9 @@ classdef RbfKernel < handle
         end
         
         function K = compute(this, Xtrain, Xtest)     
+            if nargin<3
+                Xtest = Xtrain;
+            end      
             n=size(Xtrain, 1);    
             m=size(Xtest, 1);    
             Ka = repmat(sum(Xtrain.^2,2), 1, m);
