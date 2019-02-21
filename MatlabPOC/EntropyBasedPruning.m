@@ -10,7 +10,10 @@ classdef EntropyBasedPruning < handle
     methods
         
         function this = EntropyBasedPruning(nbrOfSupportVectors, kModel)
-            this.nbrOfSupportVectors = nbrOfSupportVectors;
+            %%%%    nbrOfSupportVectors is split in two, so it must be
+            %%%%    dividable by 2!
+            assert(mod(nbrOfSupportVectors, 2)==0);
+            this.nbrOfSupportVectors = nbrOfSupportVectors / 2;
             this.kModel = kModel;
         end
         

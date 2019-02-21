@@ -78,8 +78,8 @@ classdef rLSSVM
         end 
         
        
-       function weights = kernelCSteps(this, x, cstepmask, hInitial, hCstep, z)                       
-           hRange = hInitial: 0.05:hCstep;
+       function weights = kernelCSteps(this, x, cstepmask, hInitial, hCstep)                       
+           hRange = hInitial: 0.1:hCstep;
             %%%% Given the initial subset, run kernel C-steps until
             %%%% convergence            
             for hIndex = 1:numel(hRange)            
@@ -148,13 +148,20 @@ classdef rLSSVM
         end
         
         function train(this, dModel, C)
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%%    How many outliers do we expect in out dataset
+            hInitial = 0.5;
+            hCstep = 0.85;
+            
+            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
-            w1 = this.trainSingleClass(dModel.x(dModel.y>0, :), dModel.z(dModel.y>0, :));
+            w1 = this.trainSingleClass(dModel.x(dModel.y>0, :), hInitial, hCstep);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process -1 class
-            w2 = this.trainSingleClass(dModel.x(dModel.y<0, :), dModel.z(dModel.y<0, :));
+            w2 = this.trainSingleClass(dModel.x(dModel.y<0, :), hInitial, hCstep);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Normalize weights to perform class balancing                    
@@ -180,8 +187,8 @@ classdef rLSSVM
             scatter(dModel.x(weights, 1), dModel.x(weights, 2), [], alphas(weights), 'filled'); 
             colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
             
-            c1 = find(dModel.y>0 & weights);
-            c2 = find(dModel.y<0 & weights);
+            c1 = find(dModel.y>0 & weights & alphas>0);
+            c2 = find(dModel.y<0 & weights & alphas<0);
             
             svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
             svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
@@ -199,29 +206,9 @@ classdef rLSSVM
             %%%%    That's all, folks!
         end
         
-        function weights  = trainSingleClass(this, x, z)
-            
-            hInitial = 0.5;
-            hCstep = 0.85;
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 1
-            %%%
+        function weights  = trainSingleClass(this, x, hInitial, hCstep)
             initisalSubset  = this.spatialMedian(x, hInitial);
-            
-%             figure; 
-%             plot(x(initisalSubset, 1), x(initisalSubset, 2), '.g'); hold on;
-%             plot(x(~initisalSubset, 1), x(~initisalSubset, 2), '.r');
-%             title('Before');
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 2
-            %%%
-            weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep, z);
-            
-            figure; 
-            scatter(x(:, 1), x(:, 2), [], weights, 'filled'); grid on; colorbar;           
-            title('LS-SVM Weight vector'); 
+            weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep);            
         end
     end
     

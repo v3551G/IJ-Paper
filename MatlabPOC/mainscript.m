@@ -2,7 +2,7 @@
     clear;
     clc;
     
-    C = 0.1;
+    C = 1;
     
     rng default;
     
@@ -12,7 +12,8 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
-    pModel = EntropyBasedPruning(10, RbfKernel(0.1));
+    %pModel = EntropyBasedPruning(10, RbfKernel(0.1));
+    pModel = DPPBasedPruning(10, RbfKernel(1));
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Kernel used
