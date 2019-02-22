@@ -9,7 +9,7 @@
     %% Simulate the breaking of an svm in the linear case
     clear;
     
-    C = 120;
+    C = 1e4;
     
     kModel = LinKernel();
     pModel = DPPBasedPruning(100, kModel);
@@ -49,6 +49,7 @@
     ourSvm = rLSSVM(kModel, pModel);    
     ourSvm.train(dModel, C);
     ourSvm.plot(dModel);
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Benchmark our classifier on unseen data
     %misclass = ourSvm.train(dModel); %, pModel);
@@ -58,7 +59,7 @@
     lsSvm.plot(dModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Wine classification test
+    %% Wine classification test
     
     dModel = RedwineDataModel(1000, 0);    
     ourSvm = rLSSVM(kModel, pModel);    

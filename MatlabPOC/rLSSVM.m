@@ -182,17 +182,17 @@ classdef rLSSVM < handle
             scatter(dModel.x(weights, 1), dModel.x(weights, 2), [], alphas(weights), 'filled'); 
             colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
             
-            c1 = find(dModel.y>0 & weights & alphas>0);
-            c11 = dModel.y>0;
-            c2 = find(dModel.y<0 & weights & alphas<0);
-            c21 = dModel.y<0;
-            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%
             %%%     TODO: Step 5b, balance alphas to compensate for class skew            
             
             %%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
+            c1 = find(dModel.y>0 & weights & alphas>0);            
+            c2 = find(dModel.y<0 & weights & alphas<0);
+            c11 = dModel.y>0 & weights;
+            c21 = dModel.y<0 & weights;
             
             svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
             svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
@@ -203,32 +203,32 @@ classdef rLSSVM < handle
             plot(dModel.x(c2(svIndices2), 1), dModel.x(c2(svIndices2), 2), '*g');  grid on;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 6, info transfer
+            %%%     Step 6, information transfer
             %%%            
             
             %%%%    Retrain
-            supportIndices = [c1(svIndices1); c2(svIndices2)];
-            this.supportVectorData = dModel.x(supportIndices, :);            
-            this.prunedAlphas = this.trainWeightedLSSVM(this.supportVectorData, dModel.y(supportIndices), C);
+%             supportIndices = [c1(svIndices1); c2(svIndices2)];
+%             this.supportVectorData = dModel.x(supportIndices, :);            
+%             this.prunedAlphas = this.trainWeightedLSSVM(this.supportVectorData, dModel.y(supportIndices), C);
             
-%             K = this.kModel.compute(dModel.x);
-%             
-%             mask = false(size(dModel.y));
-%             mask(c11) = true;
-%             mask(svIndices1) = false;
-%             
-%             delta_alpha = pinv(K(:, c1(svIndices1)))*K(:,mask)*alphas(mask, :);
-%             svAlphas1 =  alphas(c1(svIndices1), :) + delta_alpha;
-%             
-%             mask = false(size(dModel.y));
-%             mask(c21) = true;
-%             mask(svIndices2) = false;
-%             
-%             delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
-%             svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;            
-%             
-%             this.supportVectorData = [dModel.x(c1(svIndices1), :); dModel.x(c2(svIndices2), :);];
-%             this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
+             K = this.kModel.compute(dModel.x);
+             
+             mask = false(size(dModel.y));
+             mask(c11) = true;
+             mask(c1(svIndices1)) = false;
+
+             delta_alpha = pinv(K(:, c1(svIndices1)))*K(:,mask)*alphas(mask, :);
+             svAlphas1 =  alphas(c1(svIndices1), :) + delta_alpha;
+             
+             mask = false(size(dModel.y));
+             mask(c21) = true;
+             mask(c2(svIndices2)) = false;
+
+             delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
+             svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;            
+             
+             this.supportVectorData = [dModel.x(c1(svIndices1), :); dModel.x(c2(svIndices2), :);];
+             this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    That's all, folks!            
