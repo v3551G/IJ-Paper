@@ -243,7 +243,7 @@ classdef rLSSVM < handle
                 plot(dModel.x(:, 1), dModel.x(:, 2), '.');
             end
             plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
-            grid on;
+            title('prototype svm');
             colormap(bluewhitered);
             colorbar;
         end

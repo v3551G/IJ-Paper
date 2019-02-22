@@ -2,25 +2,33 @@
     clear;
     clc;
     
-    C = 1;
-    
     rng default;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Simulate the breaking of an svm in the linear case
-    close all;
+    clear;
+    
+    C = 100;
     
     kModel = LinKernel();
-    dModel = NormalDataModel(1500, 0.1);         
+    pModel = DPPBasedPruning(100, kModel);
+    dModel = NormalDataModel(1500, 0.1);      
     dModel.plot();    
+    
     ourSvm = rLSSVM(kModel, pModel);    
     ourSvm.train(dModel, C);
     ourSvm.plot(dModel);
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Kernel used
+    lsSvm = LSSVM(kModel);
+    lsSvm.train(dModel, C);
+    lsSvm.plot(dModel);
     
-    close all;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Kernel used    
+    clear;
+    
+    C = 1;
+    
     kModel = RbfKernel(0.5);
     %kModel = LinKernel();
     %kModel = PolyKernel(5);
@@ -28,7 +36,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
     %pModel = EntropyBasedPruning(10, kModel);
-    pModel = DPPBasedPruning(20, kModel);
+    pModel = DPPBasedPruning(100, kModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used
@@ -44,7 +52,9 @@
     %%% Benchmark our classifier on unseen data
     %misclass = ourSvm.train(dModel); %, pModel);
     
-    
+    lsSvm = LSSVM(kModel);
+    lsSvm.train(dModel, C);
+    lsSvm.plot(dModel);
     
     
     
