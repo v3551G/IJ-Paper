@@ -24,17 +24,19 @@ classdef LSSVM < handle
         
         function plot(this, dModel)
             [rr, cc] = meshgrid(-4:0.05:4);    
-            output = this.predict([rr(:), cc(:)], dModel);    
+            output = sign(this.predict([rr(:), cc(:)], dModel));    
             z=reshape(output, size(rr)); 
             figure; 
             contourf(rr, cc, z, [0 0]); hold on;
-            if nargin==2
+            if (nargin==2)
                 plot(dModel.x(:, 1), dModel.x(:, 2), '.');
             end
-            plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
+            if (size(dModel.x, 1)~=size(this.supportVectorData, 1))
+                plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
+            end
             colormap(bluewhitered);
             title('normal svm');
-            colorbar;
+            %colorbar;
         end
         
         function prediction = predict(this, xTest, dModel)

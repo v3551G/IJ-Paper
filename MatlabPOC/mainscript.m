@@ -12,7 +12,7 @@
     C = 1e4;
     
     kModel = LinKernel();
-    pModel = DPPBasedPruning(100, kModel);
+    pModel = DPPBasedPruning(8, kModel);
     dModel = NormalDataModel(1500, 0.10);      
     dModel.plot();    
     
@@ -28,7 +28,7 @@
     %% Kernel used    
     clear;
     
-    C = 121;
+    C = 120;
     
     kModel = RbfKernel(0.5);
     %kModel = LinKernel();
@@ -37,7 +37,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
     %pModel = EntropyBasedPruning(10, kModel);
-    pModel = DPPBasedPruning(100, kModel);
+    pModel = DPPBasedPruning(10, kModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used
@@ -60,6 +60,12 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Wine classification test
+    clear;
+    
+    C = 120;
+    
+    kModel = RbfKernel(0.05);
+    pModel = DPPBasedPruning(4, kModel);
     
     dModel = RedwineDataModel(1000, 0);    
     ourSvm = rLSSVM(kModel, pModel);    

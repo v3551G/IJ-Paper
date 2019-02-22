@@ -78,7 +78,7 @@ classdef rLSSVM < handle
         
        
        function weights = kernelCSteps(this, x, cstepmask, hInitial, hCstep)                       
-            hRange = hInitial: 0.05:hCstep;
+            hRange = hInitial:0.05:hCstep;
             %%%% Given the initial subset, run kernel C-steps until
             %%%% convergence            
             for hIndex = 1:numel(hRange)            
@@ -117,6 +117,7 @@ classdef rLSSVM < handle
             %%% function, eq. 2, pg 3  
             %%% Note that we're not using Stahel-Donoho weights but rather
             %%% the cost function based on mahalanobis distances
+            %%% *edit: Fuck it, we're using hard rejection, Iwein
             
             scores = smd;
             sdo = max(abs( (scores - repmat(mean(scores(cstepmask, :)), size(scores, 1), 1)) ./ repmat(std(scores(cstepmask, :)), size(scores, 1), 1)), [], 2);            
@@ -241,7 +242,7 @@ classdef rLSSVM < handle
     
         function plot(this, dModel)
             [rr, cc] = meshgrid(-4:0.01:4);             
-            output = this.predict([rr(:), cc(:)], dModel);    
+            output = sign(this.predict([rr(:), cc(:)], dModel));    
             z=reshape(output, size(rr)); 
             figure; 
             contourf(rr, cc, z, [0 0]); hold on;            
@@ -249,7 +250,7 @@ classdef rLSSVM < handle
             plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
             title('prototype svm');
             colormap(bluewhitered);
-            colorbar;
+            %colorbar;
         end
         
         function prediction = predict(this, xTest, dModel)

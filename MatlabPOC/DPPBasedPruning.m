@@ -5,7 +5,7 @@ classdef DPPBasedPruning < handle
     properties
         nbrOfSupportVectors;
         kModel;
-        roi = 0.5;
+        roi = 0.75;
     end
     
     methods
