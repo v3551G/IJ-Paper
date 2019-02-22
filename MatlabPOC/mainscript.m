@@ -1,6 +1,6 @@
     
     close all;
-    clear; 
+    clear all; 
     clc;
     
     %rng default;

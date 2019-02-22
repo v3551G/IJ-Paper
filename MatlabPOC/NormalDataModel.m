@@ -14,7 +14,7 @@ classdef NormalDataModel < DataModel
             m=ceil(n*0.5);            
             cRegular1 = mvnrnd([-1 +1], [2 1.5; 1.5 2], m);
             cRegular2 = mvnrnd([+1 -1], [1 0.5; 0.5 1.5], m);
-            cOutliers = mvnrnd([-2 4.5], 0.1*eye(2), floor(n*eps));
+            cOutliers = mvnrnd([-3 4.5], 0.1*eye(2), floor(n*eps));
             
             x=[cRegular1; cRegular2];
             y=[+1 * ones(m, 1); -1 * ones(m, 1)];
