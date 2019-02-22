@@ -16,3 +16,5 @@
 *.asv
 
 MatlabPOC/kentopy\.avi
+
+*.gz(busy)
