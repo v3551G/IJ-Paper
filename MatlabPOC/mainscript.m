@@ -36,6 +36,7 @@
     figure; 
     contourf(rr, cc, z); hold on;
     plot(dModel.x(:, 1), dModel.x(:, 2), '.');
+    colormap(bluewhitered);
     colorbar;
     
     

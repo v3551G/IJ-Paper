@@ -182,9 +182,9 @@ classdef rLSSVM < handle
             colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
             
             c1 = find(dModel.y>0 & weights & alphas>0);
-            c11 = find(dModel.y>0);
+            c11 = dModel.y>0;
             c2 = find(dModel.y<0 & weights & alphas<0);
-            c21 = find(dModel.y<0);
+            c21 = dModel.y<0;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%
