@@ -11,6 +11,9 @@ classdef DataModel < handle
         z;
         %%% Use robust or naive standarization?
         robStandarization = true;
+        %%% Keep normalization parameters so we can normalize the testdata
+        mu;
+        sigma;
     end
     
     methods
@@ -21,21 +24,26 @@ classdef DataModel < handle
             if (this.robStandarization)
                 %%%%%   Standarize the incoming dataset with the univariate MCD
                 %%%%%   estimator            
-                mu = nan(1, p);
-                sigma = nan(1, p);            
+                this.mu = nan(1, p);
+                this.sigma = nan(1, p);            
                 for featureIndex=1:p            
                     [tmcd,smcd] = unimcd(this.x(:, featureIndex), ceil(n*0.5));
-                    mu(featureIndex) = tmcd;
-                    sigma(featureIndex) = smcd;
+                    this.mu(featureIndex) = tmcd;
+                    this.sigma(featureIndex) = smcd;
                     assert(smcd>1e-10);
                 end
             else
                 %%%%%   Naive standarization
-                mu = mean(this.x);
-                sigma = std(this.x);
+                this.mu = mean(this.x);
+                this.sigma = std(this.x);
             end
             
-            this.x = (this.x - repmat(mu, n, 1)) ./ repmat(sigma, n, 1);
+            this.x = this.normalize(this.x);
+        end
+        
+        function result = normalize(this, x)            
+            n = size(x, 1);
+            result = (x - repmat(this.mu, n, 1)) ./ repmat(this.sigma, n, 1);
         end
         
         function plot(this)

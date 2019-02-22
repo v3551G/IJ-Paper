@@ -13,7 +13,7 @@
     
     kModel = LinKernel();
     pModel = DPPBasedPruning(100, kModel);
-    dModel = NormalDataModel(1500, 0.1);      
+    dModel = NormalDataModel(1500, 0.10);      
     dModel.plot();    
     
     ourSvm = rLSSVM(kModel, pModel);    
@@ -28,7 +28,7 @@
     %% Kernel used    
     clear;
     
-    C = 120;
+    C = 121;
     
     kModel = RbfKernel(0.5);
     %kModel = LinKernel();
@@ -57,9 +57,21 @@
     lsSvm.train(dModel, C);
     lsSvm.plot(dModel);
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Wine classification test
     
+    dModel = RedwineDataModel(1000, 0);    
+    ourSvm = rLSSVM(kModel, pModel);    
+    ourSvm.train(dModel, C);
     
+    testdata = csvread('datasets\winequality-red.csv');    
+    testLabels = zeros(size(testdata, 1), 1);
+    mask = testdata(:, 12)>6;
+    testLabels(mask) = +1; 
+    testLabels(~mask) = -1;
+    testdata = testdata(:, 1:11);
     
-    
+    response = sign(ourSvm.predict(testdata, dModel));
+    misclass = sum(response~=testLabels) ./ numel(testLabels)
     
     

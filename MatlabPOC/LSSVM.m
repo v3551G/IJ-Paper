@@ -24,7 +24,7 @@ classdef LSSVM < handle
         
         function plot(this, dModel)
             [rr, cc] = meshgrid(-4:0.05:4);    
-            output = this.predict([rr(:), cc(:)]);    
+            output = this.predict([rr(:), cc(:)], dModel);    
             z=reshape(output, size(rr)); 
             figure; 
             contourf(rr, cc, z, [0 0]); hold on;
@@ -37,8 +37,8 @@ classdef LSSVM < handle
             colorbar;
         end
         
-        function prediction = predict(this, xTest)
-            K = this.kModel.compute(this.supportVectorData, xTest); %%   note: has dimensions [m, n]
+        function prediction = predict(this, xTest, dModel)
+            K = this.kModel.compute(this.supportVectorData, dModel.normalize(xTest)); %%   note: has dimensions [m, n]
             m = size(K, 2);
             prediction = ([ones(1, m); K]' * this.prunedAlphas);
         end

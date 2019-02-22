@@ -62,6 +62,7 @@ classdef rLSSVM < handle
             K = this.kModel.compute(x, x);
             assert(size(K, 1)==size(K, 2));
             n = size(K, 1);
+            assert(n>0);
             gamma = ones(n,1)./n;
             for i = 1:15
                 w = ones(n,1)./sqrt(diag(K) - 2*K'*gamma + gamma'*K*gamma);
@@ -182,9 +183,9 @@ classdef rLSSVM < handle
             colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
             
             c1 = find(dModel.y>0 & weights & alphas>0);
-            c11 = dModel.y>0;
+            c11 = dModel.y>0 & weights;
             c2 = find(dModel.y<0 & weights & alphas<0);
-            c21 = dModel.y<0;
+            c21 = dModel.y<0 & weights;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%
@@ -234,22 +235,20 @@ classdef rLSSVM < handle
         end
     
         function plot(this, dModel)
-            [rr, cc] = meshgrid(-4:0.01:4);    
-            output = this.predict([rr(:), cc(:)]);    
+            [rr, cc] = meshgrid(-4:0.01:4);             
+            output = this.predict([rr(:), cc(:)], dModel);    
             z=reshape(output, size(rr)); 
             figure; 
-            contourf(rr, cc, z, [0 0]); hold on;
-            if nargin==2
-                plot(dModel.x(:, 1), dModel.x(:, 2), '.');
-            end
+            contourf(rr, cc, z, [0 0]); hold on;            
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.');            
             plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
             title('prototype svm');
             colormap(bluewhitered);
             colorbar;
         end
         
-        function prediction = predict(this, xTest)
-            K = this.kModel.compute(this.supportVectorData, xTest); %%   note: has dimensions [m, n]
+        function prediction = predict(this, xTest, dModel)
+            K = this.kModel.compute(this.supportVectorData, dModel.normalize(xTest)); %%   note: has dimensions [m, n]
             m = size(K, 2);
             prediction = ([ones(1, m); K]' * this.prunedAlphas);
         end
