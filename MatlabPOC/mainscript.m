@@ -1,4 +1,4 @@
-    close all;
+    
     clear;
     clc;
     
@@ -7,7 +7,20 @@
     rng default;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Kernel used
+    %% Simulate the breaking of an svm in the linear case
+    close all;
+    
+    kModel = LinKernel();
+    dModel = NormalDataModel(1500, 0.1);         
+    dModel.plot();    
+    ourSvm = rLSSVM(kModel, pModel);    
+    ourSvm.train(dModel, C);
+    ourSvm.plot(dModel);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Kernel used
+    
+    close all;
     kModel = RbfKernel(0.5);
     %kModel = LinKernel();
     %kModel = PolyKernel(5);
@@ -25,19 +38,11 @@
     %%% Build our classifier
     ourSvm = rLSSVM(kModel, pModel);    
     ourSvm.train(dModel, C);
-    
+    ourSvm..plot();
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Benchmark our classifier on unseen data
     %misclass = ourSvm.train(dModel); %, pModel);
     
-    [rr, cc] = meshgrid(-3:0.05:3);    
-    output = ourSvm.predict([rr(:), cc(:)]);    
-    z=reshape(output, size(rr)); 
-    figure; 
-    contourf(rr, cc, z); hold on;
-    plot(dModel.x(:, 1), dModel.x(:, 2), '.');
-    colormap(bluewhitered);
-    colorbar;
     
     
     

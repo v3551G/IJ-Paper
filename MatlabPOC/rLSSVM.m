@@ -211,17 +211,17 @@ classdef rLSSVM < handle
             mask(c11) = true;
             mask(svIndices1) = false;
             
-            delta_alpha = pinv(K(:,svIndices1))*K(:,mask)*alphas(mask, :);
-            svAlphas1 =  alphas(svIndices1, :) + delta_alpha;
+            delta_alpha = pinv(K(:, c1(svIndices1)))*K(:,mask)*alphas(mask, :);
+            svAlphas1 =  alphas(c1(svIndices1), :) + delta_alpha;
             
             mask = false(size(dModel.y));
             mask(c21) = true;
             mask(svIndices2) = false;
             
-            delta_alpha = pinv(K(:,svIndices2))*K(:,mask)*alphas(mask, :);
-            svAlphas2 =  alphas(svIndices2, :) + delta_alpha;            
+            delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
+            svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;            
             
-            this.supportVectorData = [dModel.x(svIndices1, :); dModel.x(svIndices2, :);];
+            this.supportVectorData = [dModel.x(c1(svIndices1), :); dModel.x(c2(svIndices2), :);];
             this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -233,6 +233,21 @@ classdef rLSSVM < handle
             weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep);            
         end
     
+        function plot(this, dModel)
+            [rr, cc] = meshgrid(-4:0.01:4);    
+            output = this.predict([rr(:), cc(:)]);    
+            z=reshape(output, size(rr)); 
+            figure; 
+            contourf(rr, cc, z); hold on;
+            if nargin==2
+                plot(dModel.x(:, 1), dModel.x(:, 2), '.');
+            end
+            plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), '*r');
+            grid on;
+            colormap(bluewhitered);
+            colorbar;
+        end
+        
         function prediction = predict(this, xTest)
             K = this.kModel.compute(this.supportVectorData, xTest); %%   note: has dimensions [m, n]
             m = size(K, 2);
