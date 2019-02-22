@@ -221,7 +221,7 @@ classdef rLSSVM < handle
             delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
             svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;            
             
-            this.supportVectorData = [dModel.x(c1(svIndices1), :); dModel.x(c2(svIndices2), :);];
+            this.supportVectorData = [dModel.x(c2(svIndices1), :); dModel.x(c2(svIndices2), :);];
             this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

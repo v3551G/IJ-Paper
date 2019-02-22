@@ -38,7 +38,7 @@
     %%% Build our classifier
     ourSvm = rLSSVM(kModel, pModel);    
     ourSvm.train(dModel, C);
-    ourSvm..plot();
+    ourSvm.plot(dModel);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Benchmark our classifier on unseen data
     %misclass = ourSvm.train(dModel); %, pModel);
