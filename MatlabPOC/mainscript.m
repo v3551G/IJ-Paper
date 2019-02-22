@@ -1,14 +1,15 @@
     
-    clear;
+    close all;
+    clear; 
     clc;
     
-    rng default;
+    %rng default;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Simulate the breaking of an svm in the linear case
     clear;
     
-    C = 100;
+    C = 120;
     
     kModel = LinKernel();
     pModel = DPPBasedPruning(100, kModel);
@@ -27,7 +28,7 @@
     %% Kernel used    
     clear;
     
-    C = 1;
+    C = 120;
     
     kModel = RbfKernel(0.5);
     %kModel = LinKernel();

@@ -148,7 +148,7 @@ classdef rLSSVM < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    How many outliers do we expect in out dataset
             hInitial = 0.5;
-            hCstep = 0.85;
+            hCstep = 0.80;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
@@ -238,7 +238,7 @@ classdef rLSSVM < handle
             output = this.predict([rr(:), cc(:)]);    
             z=reshape(output, size(rr)); 
             figure; 
-            contourf(rr, cc, z); hold on;
+            contourf(rr, cc, z, [0 0]); hold on;
             if nargin==2
                 plot(dModel.x(:, 1), dModel.x(:, 2), '.');
             end

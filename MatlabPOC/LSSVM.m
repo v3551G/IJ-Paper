@@ -23,11 +23,11 @@ classdef LSSVM < handle
         end
         
         function plot(this, dModel)
-            [rr, cc] = meshgrid(-4:0.01:4);    
+            [rr, cc] = meshgrid(-4:0.05:4);    
             output = this.predict([rr(:), cc(:)]);    
             z=reshape(output, size(rr)); 
             figure; 
-            contourf(rr, cc, z); hold on;
+            contourf(rr, cc, z, [0 0]); hold on;
             if nargin==2
                 plot(dModel.x(:, 1), dModel.x(:, 2), '.');
             end
