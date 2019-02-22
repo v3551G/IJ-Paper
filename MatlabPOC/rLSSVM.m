@@ -77,7 +77,7 @@ classdef rLSSVM < handle
         
        
        function weights = kernelCSteps(this, x, cstepmask, hInitial, hCstep)                       
-            hRange = hInitial: 0.1:hCstep;
+            hRange = hInitial: 0.05:hCstep;
             %%%% Given the initial subset, run kernel C-steps until
             %%%% convergence            
             for hIndex = 1:numel(hRange)            
@@ -242,7 +242,7 @@ classdef rLSSVM < handle
             if nargin==2
                 plot(dModel.x(:, 1), dModel.x(:, 2), '.');
             end
-            plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), '*r');
+            plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
             grid on;
             colormap(bluewhitered);
             colorbar;
