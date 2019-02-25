@@ -130,72 +130,23 @@ outliers or non-Gaussian error distributions with heavy tails
 \newpage
 \section{Introduction}
 
-Contribution
+The least-squares support vector machines (LS-SVM) is powerful method for solving pattern recognition and regression problems. The LS-SVM maps the data to a higher dimensional space in which one constructs an optimal separating hyperplane. It has been applied to many real-world problems such as optimal control~\cite{suykens2001optimal}, financial time series prediction~\cite{van2001financial}, system identification~\cite{goethals2005identification}, electrical load forecasting~\cite{espinoza2006fixed} and may others. However the LS-SVM has two main disadvantages. It is sensitive to outliers which have large support values which result from the solution to the linear system. Where the LS-SVM support values are proportional to the errors at the datapoints. The second disadvantage is that the solution lacks sparseness, which is essential for real-time prediction with big-data.
+
+To reduce the influence of outliers, Suykens et al. proposed the weighted LS-SVM~\cite{suykens2002weighted}. By iteratively assigning small weights to outliers and retraining, the method diminishes the effect of extreme values. Other solution where proposed by Yant et. al~\cite{yang2014robust}, where a truncated loss function is used in the objective function. Which is solved by a concave-convex procedure and the newton algorithm. And robustified least squares support vector classification~\cite{debruyne2009robustified}, which proposed a weighted LS-SVM classification where weights are equal to spatial rank with respect to the other feature vectors in the group.
+
+In comparison to the standard Support Vector Machines (SVM) it only requires solving a linear system, but it lacks sparseness in the number of solution terms. To solve this problem, Suykens et. al~\cite{suykens2000sparse} proposes a method that iteratively prunes the datapoints with the lowest support value and retrains. Yang et.al propose a one-step compressive pruning strategy to reduce the number of support vectors~\cite{yang2014sparse}. Fixed-size LS-SVM sparsifies the LS-SVM by selecting important point or landmark points based on the quadratic Renyi Entropy criterion~\cite{suykens2002least}. However the landmark points are fixed in advance and don't take into account information of the classification itself, which could lead to sub-optimal results. This is in contrast to the sparse LS-SVM~\cite{suykens2000sparse}, which chooses datapoints based on the impact on the classification boundary. A comparison of different pruning methods can be found in~\cite{hoegaerts2004comparison}. 
+
+In this paper, we propose a method to solve the two problems at once.
+Our mean contributions consist off:
 \begin{enumerate}
 	\item Weighted LS-SVM variant voor classificatie (new?).
 	\item Kernel Concentration steps (new)
 	\item Soft reweighting based on Stahel-Donoho outlyingness
 	\item New Pruning stategy based on information transfer and Entropy (?)
 \end{enumerate}
-We are/should be robust against high degrees of contamination in non-linear classification problems. \\
+We are/should be robust against high degrees of contamination in non-linear classification problems. Other methods that try to tackle both problems at once are found in~\cite{chen2018sparse}, where a primal formulation of LS-SVM with a truncated loss is introduced, sparseness is obtained by the Nystrom approximation. A second method is the weighted LS-SVM of Suykens et. al~\cite{suykens2002weighted}. \\
 
-The remainder of this paper is organized as follows. In section 2 we introduce our weighted least squares support vector machine (LS-SVM). In section 3 we propose our robust outlier detection routine, followed by our support vector sparseness routine (??). The extensive simulation results of both theoretical and real, industrial datasets listed in section 4 conform the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section 5. \\
-
-Literature overview: \\
-
-Robustified least squares support vector classification~\cite{debruyne2009robustified}
-	\begin{itemize}
-		\item Weighted LS-SVM classification where weights are equal to spatial rank with respect to the other feature vectors in the group (classwise)
-		\item Sort weigths and keep certain percentage (hard rejection) based on 10-fold cross validation
-		\item Artifical experiments: Normal (linear separable) + Cauchy distributions (non-linear necessary). 50  train, 1000 test, 50 simulations, outliers is other class behind.
-	\end{itemize}
-	
-Sparse algorithm for robust LSSVM in primal space~\cite{chen2018sparse}
-	\begin{itemize}
-		\item Primal formulation of LS-SVM with truncated loss (error is upper bounded), sparseness is obtained by Nystrum approximation (landmark points)
-		\item Artifical experiments: linear classification with outliers behind classes, number of datasets for classification 
-	\end{itemize}	
-A robust least squares support vector machine for regression and classification with noise~\cite{yang2014robust}
-	\begin{itemize}
-		\item Again truncated loss function in objective function, now solved with concave-convex procedure and the newton algorithm. No pruning
-		\item Artifical experiments: Cross dataset. UCI datasets
-	\end{itemize}
-Robust twin support vector machine for pattern classification~\cite{qi2013robust}
-	\begin{itemize}
-		\item SVM implementation, not interesting
-		\item Artifical experiments: linear + RBF classification with outliers behind classes,UCI datasets
-	\end{itemize}
-	
-Sparse least square support vector machine via coupled compressive pruning~\cite{yang2014sparse}
-\begin{itemize}
-	\item No iterative pruning => 1 shot
-	\item normal UCI benchmark datasets, compare with "A comparison of pruning alogrithms for sparse least square support vector machines"
-\end{itemize}
-
-Reducing the number of support vectors of SVM classifiers using the smoothed separable case approximation~\cite{geebelen2012reducing}
-\begin{itemize}
-	\item SVM implementation, not interesting
-	\item Flipping of labels in UCI dataset
-\end{itemize}
-
-A comparison of pruning algorithms for sparse least squares support vector machines~\cite{hoegaerts2004comparison}
-\begin{itemize}
-	\item Compares pruning of different methods on 4 Regression datasets.
-\end{itemize}
-
-Weighted least squares support vector machines: robustness and sparse approximation~\cite{suykens2002weighted}
-\begin{itemize}
-	\item Robust + sparse LS-SVM implementation, only for regression + iterative
-	\item Robustness = weighted LS-SVM where you reweigh based on the errors of the previous model (truncated weights)
-	\item sparseness is based on pruning by the absolute values of alpha
-\end{itemize}
-
-A weighted Lq adaptive least squares support vector machine classifiers--Robust and sparse approximation~\cite{liu2011weighted}
-\begin{itemize}
-	\item Robustness: alpha value for each datapoint and each feature. Kernel matrix is inner product between single elements instead of the vector. Solve problem where you put L1-norm on these alphas
-	\item Experiments on UCI datasets
-\end{itemize}
-
+The remainder of this paper is organized as follows. In section 2 we introduce our weighted least squares support vector machine (LS-SVM). In section 3 we propose our robust outlier detection routine, followed by our support vector sparseness routine (??). The extensive simulation results of both theoretical and real, industrial datasets listed in section 4 conform the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section 5. 
 
 
 \section{Weighted LS-SVM for classification}
