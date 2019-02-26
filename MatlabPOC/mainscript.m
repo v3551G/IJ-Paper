@@ -36,8 +36,8 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
-    %pModel = EntropyBasedPruning(10, kModel);
-    pModel = DPPBasedPruning(10, kModel);
+    pModel = EntropyBasedPruning(10, kModel);
+    %pModel = DPPBasedPruning(10, kModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used

@@ -169,7 +169,12 @@ classdef rLSSVM < handle
             %%%%    Put everything together
             weights = false(size(dModel.y));
             weights(dModel.y>0) = w1;
-            weights(dModel.y<0) = w2;            
+            weights(dModel.y<0) = w2;         
+            
+            % Visualize
+            figure; scatter(dModel.x(:,1),dModel.x(:,2),'filled');hold on;
+            scatter(dModel.x(weights,1),dModel.x(weights,2),'filled')
+            title('Outlier Detection')
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 4, Solve LS-SVM's SoE            
@@ -190,18 +195,19 @@ classdef rLSSVM < handle
             %%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-            c1 = find(dModel.y>0 & weights & alphas>0);            
-            c2 = find(dModel.y<0 & weights & alphas<0);
-            c11 = dModel.y>0 & weights;
-            c21 = dModel.y<0 & weights;
+%             c1 = find(dModel.y>0 & weights & alphas>0);            
+%             c2 = find(dModel.y<0 & weights & alphas<0);
+            c11 = find(dModel.y>0 & weights);
+            c21 = find(dModel.y<0 & weights);
             
-            svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
-            svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
+            svIndices1 = this.pModel.prune(dModel.x(c11, :), abs(alphas(c11)));
+            svIndices2 = this.pModel.prune(dModel.x(c21, :), abs(alphas(c21)));
             
             figure; 
             plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
-            plot(dModel.x(c1(svIndices1), 1), dModel.x(c1(svIndices1), 2), '*r');  
-            plot(dModel.x(c2(svIndices2), 1), dModel.x(c2(svIndices2), 2), '*g');  grid on;
+            plot(dModel.x(c11(svIndices1), 1), dModel.x(c11(svIndices1), 2), '*r');  
+            plot(dModel.x(c21(svIndices2), 1), dModel.x(c21(svIndices2), 2), '*g');  grid on;
+            title('Landmark selection')
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 6, information transfer
@@ -214,22 +220,29 @@ classdef rLSSVM < handle
             
              K = this.kModel.compute(dModel.x);
              
-             mask = false(size(dModel.y));
-             mask(c11) = true;
-             mask(c1(svIndices1)) = false;
-
-             delta_alpha = pinv(K(:, c1(svIndices1)))*K(:,mask)*alphas(mask, :);
-             svAlphas1 =  alphas(c1(svIndices1), :) + delta_alpha;
+%              mask = false(size(dModel.y));
+%              mask(c11) = true;
+%              mask(c1(svIndices1)) = false;
+% 
+%              delta_alpha = pinv(K(:, c1(svIndices1)))*K(:,mask)*alphas(mask, :);
+%              svAlphas1 =  alphas(c1(svIndices1), :) + delta_alpha;
+%              
+%              mask = false(size(dModel.y));
+%              mask(c21) = true;
+%              mask(c2(svIndices2)) = false;
+% 
+%              delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
+%              svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;          
+            supportVectorMask = false(size(dModel.y));
+            supportVectorMask(c11(svIndices1)) = true;
+            supportVectorMask(c21(svIndices2)) = true;
+            delta_alpha = pinv(K(:,supportVectorMask))*K(:,~supportVectorMask)*alphas(~supportVectorMask, :);
+            svAlphas =  alphas(supportVectorMask, :) + delta_alpha;
+            this.supportVectorData = dModel.x(supportVectorMask,:);
+            this.prunedAlphas = [solution(1); svAlphas];
              
-             mask = false(size(dModel.y));
-             mask(c21) = true;
-             mask(c2(svIndices2)) = false;
-
-             delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
-             svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;            
-             
-             this.supportVectorData = [dModel.x(c1(svIndices1), :); dModel.x(c2(svIndices2), :);];
-             this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
+%              this.supportVectorData = [dModel.x(c1(svIndices1), :); dModel.x(c2(svIndices2), :);];
+%              this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    That's all, folks!            
