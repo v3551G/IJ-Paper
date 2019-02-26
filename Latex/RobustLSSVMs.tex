@@ -403,6 +403,24 @@ summary all steps algorithm
 
 \section{Experiments} 
 \subsection{Simulation results} 
+
+\subsubsection{Linear example}
+
+Two Gaussians close, the reverse labels behind at large distance. See Robustified LS-SVM~\cite{debruyne2009robustified}
+
+\subsubsection{Non-Linear example}
+
+Yin-Yang, Two spiral dataset or Cross Dataset~\cite{yang2014robust}
+
+\subsubsection{UCI}
+
+Robust: Banana, Celveland heart, Glass, Heartstatlog, liver disorder, monk PIMA, ripley, Transfusion, Vehicle~\cite{yang2014robust}
+
+Robust + sparse: Splice, Pendigits (choose two digits 3 vs 4), Satimage (1 vs 6), USPS (1 vs 2), Mushrooms, Protein (1 vs 2).\cite{chen2018sparse}
+Outliers = 30 \% samples that where far away from decision hyperplane, then randomly sample 1/3 of them and flip labels. datasets are in https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/ 
+
+Robust: Wine dataset + Linear, Glass, Biscuit Dough, Alon colon cancer, Hepatocellular carcinoma dataset~\cite{debruyne2009robustified}. However mostly linear
+
 \subsection{Industrial data results} 
 
 \section{Conclusions and future work}
