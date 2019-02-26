@@ -149,7 +149,7 @@ classdef rLSSVM < handle
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    How many outliers do we expect in out dataset
-            hInitial = 0.5;
+            hInitial = 0.15;
             hCstep = 0.80;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
