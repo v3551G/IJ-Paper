@@ -149,15 +149,14 @@ We are/should be robust against high degrees of contamination in non-linear clas
 The remainder of this paper is organized as follows. In section 2 we introduce our weighted least squares support vector machine (LS-SVM). In section 3 we propose our robust outlier detection routine, followed by our support vector sparseness routine (??). The extensive simulation results of both theoretical and real, industrial datasets listed in section 4 conform the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section 5. 
 
 
-\section{Weighted LS-SVM for classification}
-\subsection{LS-SVM classification}
-A binary classifier's goals is to learn a prediction model that assigns the correct label to an unseen test sample. Restated more formally, we seek an SVM-based classifier that fits an optimal hyperplane between the two classes, where the optimal hyperplane maximizes the distance to the closest point of either class. Maximizing the hyperplane margin $||w||^{-1}$, one obtains a classifier with good generalisation properties. More naturally formulated, this inherent principle leads to a (much) better classification performance on (unseen) test data, for example compared with density based estimators. \\
+\section{LS-SVM for classification}
+A binary classifier's goal is to learn a prediction model that assigns the correct label $y \in \{+1, -1\}$ to an unseen test sample. Restated more formally, we seek an SVM-based classifier that fits an optimal hyperplane between the two classes, where the hyperplane maximizes the distance to the closest point(s) of either class. This margin $||w||^{-1}$ maximization leads directly to a classifier with good generalisation properties, i.e: it will result in good classification performance on (unseen) test data, for example compared with density based estimators. \\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 %%%%%%%%%%%%%
 %%%%%%%%%%%%%	AANPASSEN AAN WEIGHTED LEAST SQUARES PRINCIPE
 
-Given an $p$-variate trainingsset $x \in \mathbb{R}^p$ and the binary class label $y_i \in[+1,-1]$ for observation $x_i$ with index $i$, the following constrained optimization must be solved to obtain the WEIGHTED LS-SVM representation:
+Given an $p$-variate trainingsset $x \in \mathbb{R}^p$ and the binary class label $y_i \in[+1,-1]$ for observation $x_i$ with index $i$, the following constrained optimization must be solved to obtain the LS-SVM representation of a support vector machine:
 
 \begin{equation}
 min \  J(w,b,e_i) = \frac{1}{2} w^T w + \frac{\gamma}{2} \sum_{i=1}^{n} e_i^2
@@ -169,16 +168,16 @@ y_i[w^T \varphi(x_i) + b] = 1-e_i
 \label{eq:lsconstraint}
 \end{equation}
 
-Here $w^T \varphi(x_i) + b$ is the hyperplane based decision function of the classifier with corresponding parameters $w$ and $b$. The weight vector $WEIGHT$ denotes the normalized outlier weight for each observation, $\gamma$ is used to control the over/under-fitting trade-off and $\varphi(.)$ is the transformation from input space $\mathbb{R}^p$ to the kernel feature space. \\
+Here $w^T \varphi(x_i) + b$ is the hyperplane based decision function of the classifier with corresponding parameters $w$ and $b$, where the scalar $\gamma$ is used to control the over/under-fitting trade-off. Finally,  $\varphi(.)$ is the transformation from input space $\mathbb{R}^p$ to the kernel feature space, abbreviated as $\mathcal{H}$. \\
 
 The specified constraint states that every given multivariate sample should be lie on the correct side of hyperplane. Stated differently, the classifier should predict the class label of each sample correctly, where each observation $x_i$ has an corresponding error $e_i$ due to the constraint equality sign. This, in turn, implies that a LS-SVM loses its support vector sparseness compared to ordinary SVM's. \\
 
-This constrained optimization problem is solved by the optimality conditions of its Lagrangian as follows:
+This constrained optimization problem is solved by the optimality conditions of its Lagrangian $\alpha$ as follows:
 \begin{equation}
 L(w,b,e;\alpha) = J(w,b,e) - \sum_{i=1}^{n} \alpha_i(y_i [ w^T \varphi(x_i) + b]-1 + e_i)
 \label{eq:lagrangian}
 \end{equation}
-Here, $\alpha_i$ is the Lagrange multiplier whose value can be either positive or negative, which is also different from the standard SVM proposed by Vapnik. 
+%Here, $\alpha_i$ is the Lagrange multiplier whose value can be either positive or negative, which is also different from the standard SVM proposed by Vapnik. 
 As a direct consequence of the equality sign in the given constraint the specified Lagrangian is now solvable trough a linear system of equations:
 \begin{align}
 \frac{\partial L}{\partial w} &= 0 \rightarrow w = \sum_{i=1}^{n} \alpha_i y_i \varphi(x_i) \\
@@ -186,12 +185,12 @@ As a direct consequence of the equality sign in the given constraint the specifi
 \frac{\partial L}{\partial e} &= 0 \rightarrow \alpha = \gamma e \\
 \frac{\partial L}{\partial \alpha_i} &= 0 \rightarrow y_i [w^T \varphi(x_i) + b ] = 1 - e_i 	
 \end{align}
-Combining the first and last equation and defining 
+Combining the first and last equation and defining $\Omega{(i,j)}$ for two observations with index $i$ and $j$ as:
 \begin{align}
-\Omega_{ij} &= y_i y_j \varphi(x_i)^T \varphi(x_j) \\
+\Omega{(i,j)} &= y_i y_j \varphi(x_i)^T \varphi(x_j) \\
 &= y_i y_j K(x_i, x_j)
 \end{align}
-...yields the following set of linear equations.
+Yields the following set of linear equations, where the kernel matrix $K$ is obtained by ... [...MEER UITLEG OVER KENREL MATRIX, TYPES TRANSFORMATIE] ... observations transformed to $\mathcal{H}$.
 
 \begin{equation}
 	\begin{bmatrix}
@@ -208,7 +207,7 @@ Combining the first and last equation and defining
 		\mathbf{1}_{(n,1)}
 	\end{bmatrix}	
 \end{equation}
-The least squares solution of the aforementioned system of equations is then used to  obtain the Lagrange coefficients $\alpha$ and offset $b$, where the decision function is:
+The least squares solution of the aforementioned system of equations is then used to  obtain the Lagrange coefficients $\alpha$ and offset $b$, where the decision function used for test set prediction is defined as:
 \begin{equation}
 	\hat{y}(x) = \sum_{1}^{n} \alpha_i y_i K(x, x_j) + b	
 	\label{eq:classification}
@@ -218,85 +217,138 @@ Or, written in a more convenient matrix notation, short-writing $\beta_i= (\alph
 	\hat{y}(x) = \mathbf{\beta} K + b \mathbf{1}
 	\label{eq:prediction}
 \end{equation}
-$\hat{y}_i$ is the predicted output of the ith training data point. Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i = 1$, and that the derivation for least squares support vector regression follows the same reasoning %\cite{Choi2009}.
+$\hat{y}_i$ is the predicted output of the ith training data point. Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i = 1$, and that the derivation for least squares support vector regression follows the same reasoning (DOES IT??) %\cite{Choi2009}.
 
 \newpage
-\section{(Proposed method) Robust classification by Kernelized minimum covariance determinant}
 
-Uitleggen wat MCD is, waar het gebruikt wordt en dat dit het hart van ons algoritme is.
-This concentration step uses the Mahalanobis distance between an observation and the center of the training data in that space as a outlying measure in order to detect outliers.\\
-
-The Minimum Covariance Determinant (MCD) method (Rousseeuw, 1984) is a highly robust
-estimator of multivariate location and scatter. Given an nxp data matrix X = (x1, . . . , xn)T with xi = (xi1, . . . , xip)T , its objective is to find h observations (with ceil(n + p + 1)/2) 6 h 6 n) whose covariance matrix has the lowest determinant. The MCD estimate of location $\mu$ is then the average of these h points, and the scatter estimate $\Sigma$ is a multiple of their covariance matrix. In addition to being highly resistant to outliers, the MCD is affine equivariant, i.e. the estimates behave properly under affine transformations of the data. Although the MCD was already introduced in 1984, its practical use only became feasible
-since the introduction of the computationally efficient FASTMCD algorithm of Rousseeuw and
-Van Driessen (1999). Since then the MCD has been applied in various fields such as quality
-control, medicine, finance, image analysis and chemistry, see e.g. Hubert et al. (2008) and Hubert
-and Debruyne (2010) for references. The MCD is also being used as a basis to develop
-robust and computationally efficient multivariate techniques, such as e.g. principal component
-analysis (Croux and Haesbroeck, 2000; Hubert et al., 2005), factor analysis (Pison et al., 2003),
-classification (Hubert and Van Driessen, 2004), clustering (Hardin and Rocke, 2004), and multivariate regression (Rousseeuw et al., 2004). For a review see (Hubert et al., 2008).
-In this article we will present a deterministic algorithm for robust location and scatter, coined Kernel-MCD (kMCD) \\
-
-In this section we briefly describe the FASTMCD algorithm and the spatial median estimator, as our new algorithm will use aspects of both.
-
-\subsection{Introducing the kernel minimum covariance determinant method}
-
-A major component of the FASTMCD algorithm is the concentration step (C-step), which works
-as follows. Given initial estimates $\mu_{old}$ for the center and $\Sigma_{old}$ for the scatter matrix,
-
+\section{Proposed method}
+Korte paragraaf met schema of uitleg van het algoritme:
 \begin{enumerate}
-	\item Compute the distances $d_{old(i)} = D(x_i, \mu_{old}, \Sigma_{old})$ for i = 1, . . . , n.
-	\item Sort these distances
-	\item compute $\mu_{new}, \Sigma_{new}$
-	\item iterate....
-\end{enumerate}
+	\item Outlier detection by kernel Csteps
+	\item solve system of equations
+	\item Imposing sparseness
+	\item Samping strategy: 
+	\begin{enumerate}
+		\item Entropy (?)
+		\item DPP
+	\end{enumerate}
+\end{enumerate} 
 
-In Theorem 1 of Rousseeuw and Van Driessen (1999) it was proved that the determinants converge to a steady-state solution. Therefore, if we apply C-steps iteratively, the sequence of
-determinants obtained in this way must converge in a finite number of steps. \\
-
-
-The expectation of observations in kernel feature space is defined as:
-
+\subsection{Concentration steps in kernel feature space}
+Recall the empirical center of all $n$ observations in kernel feature space $\mathcal{H}$ is defined as:
 \begin{equation}
-\mathop{\mathbb{E}}[\phi(x)] = \int \phi(x) P(x) dx
+	\label{eq:center}
+	c_n = \frac{1}{n} \sum_{i=1}^{n}\phi(x_i)
 \end{equation}
-
-Where $P(x)$ denotes the probability distribution of the training samples. Since the
-distribution $P(x)$ is usually unknown, one can estimate this expectation by the empirical
-center of the training dataset, defined as:
-
+Likewise, the Mahalanobis distance in $\mathcal{H}$ is defined as:
 \begin{equation}
-	c_n = \frac{1}{n} \sum_{i=1}^{n} \phi(x_i)
+	\label{eq:smd}
+	||\phi(x) - c_n||^2_{\Sigma} = (\phi(x) - c_n) \Sigma^{-1} (\phi(x) - c_n)
 \end{equation}
-The Mahalanobis distance between a sample $\phi(x)$ and the empirical
-center $c_n$ is defined as:
+Where the biased covariance matrix is obtained by:
 \begin{equation}
-	d^2 = (\phi(x) - c_n) \Sigma^{-1} (\phi(x) - c_n)
+	\Sigma = \frac{1}{n} \sum_{i=1}^{n} (\phi(x_i) - c_n) (\phi(x_i) - c_n)^T
+	\label{eq:sigma}
 \end{equation}
-Here, $\Sigma$ is the biased covariance matrix of the observations in kernel feature space, formally defined as:
+As we do not explicit know the mapping function $\phi(.)$, equation \ref{eq:smd} cannot be calculated. This problem is circumvented by performing a singular value decomposition of the covariance matrix:
 \begin{equation}
-	\Sigma = \frac{1}{n} \sum_{i=1}^{n}	\big( (\phi(x_i) - c_n) (\phi(x_i) - c_n)^T \big)
-	\label{eq:kernel_covariance}
+	\Sigma = V^T D V
 \end{equation}
-Without any explicit knowledge of the mapping function $\phi(.)$, the covariance matrix
-cannot be expressed in terms of the data $\phi(x)$ in the feature space. To overcome this problem, we use the singular value decomposition of the covariance matrix $\Sigma = V^T D V$. $V$ denotes the matrix of eigenvectors $v_k$ of $\Sigma$ and $D$ is the matrix of corresponding singular values $\lambda_k$, for $k = 1, 2, ..., n$, where each $(\lambda_k, v_k)$ pair satisfies   
+[WHERE V IS IS EIGENVECTOR MATRIX OF SIZE NXN? D=SIGNULAR VVALUES, ....]
+Where the relation between eigenvalues and eigenvectors follows the identity:
 \begin{equation}
-	\lambda_k v_k = \Sigma v_k
+	\label{eq:eigenrelation}
+	\Sigma v^k = \lambda^k v^k
+\end{equation} 
+From the definition of equation \ref{eq:sigma}, it can be seen that each eigenvector is a linear combination of the observations $\phi(x_i)$ in kernel feature space:
+\begin{equation}
+v^k = \sum_{1}^{n} \alpha_i^k ( \phi(x_i) - c_n) 
 \end{equation}
-From the definition of the covariance matrix, equation \ref{eq:kernel_covariance}, it can be seen that each eigenvector is a linear
-combination of the samples $\phi(x_i)$ in the feature space:
-
-%\paragraph{Algorithm 1---Kernel MCD based LS-SVM}
-
-
-
-
-
-%\subsection{Kernel Minimum Covariance determinant}
-%\subsection{Kernel Stahel-Donoho outlyingness}
-%\subsection{Pruning of support vectors}
-
-\paragraph{Algorithm 2--- Reweighted K-MCD based LS-SVM}
+If we substitute the above in equation \ref{eq:eigenrelation}, it follows that:
+\begin{equation}
+	n \lambda^k \alpha^k = \tilde{K} \alpha^k
+\end{equation}
+Here, $\tilde{K}$ denotes the kernel matrix centered in kernel feature space. The weights $\alpha$ are now determined by solving the eigen decomposition problem. \\
+By refectoring $\Sigma^{-1}$ as $V^T D^{-1/2} D^{-1/2} V$ and exploiting reductant operations in the Mahalanobis distance formula, [NADER] proofs that equation \ref{eq:smd} can be calculated in $\mathcal{H}$ as:
+\begin{equation}
+	||\phi(x) - c_n||^2_{\Sigma} = \sum_{k=1}^{n} (\lambda^k)^{-1} \big( \sum_{k=1}^{n} \alpha^k [...]    \big)^2
+\end{equation}	
+%\section{(Proposed method) Robust classification by Kernelized minimum covariance determinant}
+%
+%Uitleggen wat MCD is, waar het gebruikt wordt en dat dit het hart van ons algoritme is.
+%This concentration step uses the Mahalanobis distance between an observation and the center of the training data in that space as a outlying measure in order to detect outliers.\\
+%
+%The Minimum Covariance Determinant (MCD) method (Rousseeuw, 1984) is a highly robust
+%estimator of multivariate location and scatter. Given an nxp data matrix X = (x1, . . . , xn)T with xi = (xi1, . . . , xip)T , its objective is to find h observations (with ceil(n + p + 1)/2) 6 h 6 n) whose covariance matrix has the lowest determinant. The MCD estimate of location $\mu$ is then the average of these h points, and the scatter estimate $\Sigma$ is a multiple of their covariance matrix. In addition to being highly resistant to outliers, the MCD is affine equivariant, i.e. the estimates behave properly under affine transformations of the data. Although the MCD was already introduced in 1984, its practical use only became feasible
+%since the introduction of the computationally efficient FASTMCD algorithm of Rousseeuw and
+%Van Driessen (1999). Since then the MCD has been applied in various fields such as quality
+%control, medicine, finance, image analysis and chemistry, see e.g. Hubert et al. (2008) and Hubert
+%and Debruyne (2010) for references. The MCD is also being used as a basis to develop
+%robust and computationally efficient multivariate techniques, such as e.g. principal component
+%analysis (Croux and Haesbroeck, 2000; Hubert et al., 2005), factor analysis (Pison et al., 2003),
+%classification (Hubert and Van Driessen, 2004), clustering (Hardin and Rocke, 2004), and multivariate regression (Rousseeuw et al., 2004). For a review see (Hubert et al., 2008).
+%In this article we will present a deterministic algorithm for robust location and scatter, coined Kernel-MCD (kMCD) \\
+%
+%In this section we briefly describe the FASTMCD algorithm and the spatial median estimator, as our new algorithm will use aspects of both.
+%
+%\subsection{Introducing the kernel minimum covariance determinant method}
+%
+%A major component of the FASTMCD algorithm is the concentration step (C-step), which works
+%as follows. Given initial estimates $\mu_{old}$ for the center and $\Sigma_{old}$ for the scatter matrix,
+%
+%\begin{enumerate}
+%	\item Compute the distances $d_{old(i)} = D(x_i, \mu_{old}, \Sigma_{old})$ for i = 1, . . . , n.
+%	\item Sort these distances
+%	\item compute $\mu_{new}, \Sigma_{new}$
+%	\item iterate....
+%\end{enumerate}
+%
+%In Theorem 1 of Rousseeuw and Van Driessen (1999) it was proved that the determinants converge to a steady-state solution. Therefore, if we apply C-steps iteratively, the sequence of
+%determinants obtained in this way must converge in a finite number of steps. \\
+%
+%
+%The expectation of observations in kernel feature space is defined as:
+%
+%\begin{equation}
+%\mathop{\mathbb{E}}[\phi(x)] = \int \phi(x) P(x) dx
+%\end{equation}
+%
+%Where $P(x)$ denotes the probability distribution of the training samples. Since the
+%distribution $P(x)$ is usually unknown, one can estimate this expectation by the empirical
+%center of the training dataset, defined as:
+%
+%\begin{equation}
+%	c_n = \frac{1}{n} \sum_{i=1}^{n} \phi(x_i)
+%\end{equation}
+%The Mahalanobis distance between a sample $\phi(x)$ and the empirical
+%center $c_n$ is defined as:
+%\begin{equation}
+%	d^2 = (\phi(x) - c_n) \Sigma^{-1} (\phi(x) - c_n)
+%\end{equation}
+%Here, $\Sigma$ is the biased covariance matrix of the observations in kernel feature space, formally defined as:
+%\begin{equation}
+%	\Sigma = \frac{1}{n} \sum_{i=1}^{n}	\big( (\phi(x_i) - c_n) (\phi(x_i) - c_n)^T \big)
+%	\label{eq:kernel_covariance}
+%\end{equation}
+%Without any explicit knowledge of the mapping function $\phi(.)$, the covariance matrix
+%cannot be expressed in terms of the data $\phi(x)$ in the feature space. To overcome this problem, we use the singular value decomposition of the covariance matrix $\Sigma = V^T D V$. $V$ denotes the matrix of eigenvectors $v_k$ of $\Sigma$ and $D$ is the matrix of corresponding singular values $\lambda_k$, for $k = 1, 2, ..., n$, where each $(\lambda_k, v_k)$ pair satisfies   
+%\begin{equation}
+%	\lambda_k v_k = \Sigma v_k
+%\end{equation}
+%From the definition of the covariance matrix, equation \ref{eq:kernel_covariance}, it can be seen that each eigenvector is a linear
+%combination of the samples $\phi(x_i)$ in the feature space:
+%
+%%\paragraph{Algorithm 1---Kernel MCD based LS-SVM}
+%
+%
+%
+%
+%
+%%\subsection{Kernel Minimum Covariance determinant}
+%%\subsection{Kernel Stahel-Donoho outlyingness}
+%%\subsection{Pruning of support vectors}
+%
+%\paragraph{Algorithm 2--- Reweighted K-MCD based LS-SVM}
 
 \newpage
 \section{Imposing support vector sparseness}
