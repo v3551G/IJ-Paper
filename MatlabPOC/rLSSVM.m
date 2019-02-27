@@ -195,10 +195,22 @@ classdef rLSSVM < handle
             %%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-%             c1 = find(dModel.y>0 & weights & alphas>0);            
-%             c2 = find(dModel.y<0 & weights & alphas<0);
+            c1 = find(dModel.y>0 & weights & alphas>0);            
+            c2 = find(dModel.y<0 & weights & alphas<0);
             c11 = find(dModel.y>0 & weights);
             c21 = find(dModel.y<0 & weights);
+            
+            figure; 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
+            plot(dModel.x(c11, 1), dModel.x(c11, 2), '*r');  
+            plot(dModel.x(c21, 1), dModel.x(c21, 2), '*g');  grid on;
+            title('C11 & C12')
+            
+            figure; 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
+            plot(dModel.x(c1, 1), dModel.x(c1, 2), '*r');  
+            plot(dModel.x(c2, 1), dModel.x(c2, 2), '*g');  grid on;
+            title('C1 & C2')
             
             svIndices1 = this.pModel.prune(dModel.x(c11, :), abs(alphas(c11)));
             svIndices2 = this.pModel.prune(dModel.x(c21, :), abs(alphas(c21)));
