@@ -62,7 +62,7 @@
 
 %% Title, authors and addresses
 
-\title{Sparse Robust Least Squares Support Vector Machines for Classification}
+\title{Sparse, Robust Least Squares Support Vector Machines for the Classification of noisy datasets}
 
 %% use the tnoteref command within \title for footnotes;
 %% use the tnotetext command for the associated footnote;
@@ -224,9 +224,10 @@ $\hat{y}_i$ is the predicted output of the ith training data point. Note that $\
 \newpage
 
 \section{Proposed method}
+We first start by laying out the main methodology of our proposed robust, sparse SVM algorithm. \\
 Korte paragraaf met schema of uitleg van het algoritme:
 \begin{enumerate}
-	\item Outlier detection by kernel Csteps
+	\item Outlier detection by kernel Csteps: [WAT IS DE IMPACT VAN OUTLIERS EN WAAROM??]
 	\item solve system of equations
 	\item Imposing sparseness
 	\item Samping strategy: 
@@ -234,9 +235,30 @@ Korte paragraaf met schema of uitleg van het algoritme:
 		\item Entropy (?)
 		\item DPP
 	\end{enumerate}
+	\item information transfer.
 \end{enumerate} 
 
 \subsection{Concentration steps in kernel feature space}
+
+Having established the LS-SVM model, let us first turn our attention towards the detection of possible outliers in the dataset [..WHY??]. \\
+
+Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This  multivariate estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as the a refinement step of a proposed estimator that inherit the robustness of the MCD, but offers an improved statistical efficiency [REF: DetS, detMM]. Deterministic variants and well know MCD usages are described in [detMCD, RobPCA] respectively. 
+
+Given a trainingset $X_{n, p}$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest
+possible determinant, where the estimated amount of regular observations $h < n$ is fixed before the algorithm starts. The MCD estimate of location $\hat{\mu}_p$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{p,p}$. Noteworthy is that the FastMCD (Rousseeuw and Van Driessen, 1999) is the first algorithm tries to find the MCD, which uses so-called concentration steps (C-steps). These C-steps, applied in a iterative fashion results in a decreasing covariance matrix determinant. It consists of the following steps:
+
+\begin{enumerate}
+	\item Center the matrix of observations $X_{n, p}$ by $\mu_p$
+	\item Calculate the ...
+	\item Calculate the inverse covariance matrix $\Sigma_{p,p}^{-1}$
+	\item Obtain the squared Mahalanobis distances $...$
+	\item Sort the Mahalanobis distances in ascending order
+	\item Re-define the $h$-subset and caculate the estimation of location and scatter respectively as follows:
+	\item Re-iterate until a specified nuber of steps or until no convergence is obtained: $\det(\Sigma_{p,p}(t))=\det(\Sigma_{p,p}(t-1))$ 
+\end{enumerate}
+
+In order to employ this algorithm for the detection of outlier in kernel feature space, we adapt this reasoning, formulas to kernel feature space as follows:\\
+
 Recall the empirical center of all $n$ observations in kernel feature space $\mathcal{H}$ is defined as:
 \begin{equation}
 	\label{eq:center}
