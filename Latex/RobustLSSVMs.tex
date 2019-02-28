@@ -238,28 +238,40 @@ Korte paragraaf met schema of uitleg van het algoritme:
 	\item information transfer.
 \end{enumerate} 
 
+\newpage
 \subsection{Concentration steps in kernel feature space}
 
-Having established the LS-SVM model, let us first turn our attention towards the detection of possible outliers in the dataset [..WHY??]. \\
+Having introduced the LS-SVM model, let us first turn our attention towards the detection of possible outliers in the dataset [..WHY??]. \\
 
 Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This  multivariate estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as the a refinement step of a proposed estimator that inherit the robustness of the MCD, but offers an improved statistical efficiency [REF: DetS, detMM]. Deterministic variants and well know MCD usages are described in [detMCD, RobPCA] respectively. 
 
-Given a trainingset $X_{n, p}$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest
-possible determinant, where the estimated amount of regular observations $h < n$ is fixed before the algorithm starts. The MCD estimate of location $\hat{\mu}_p$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{p,p}$. Noteworthy is that the FastMCD (Rousseeuw and Van Driessen, 1999) is the first algorithm tries to find the MCD, which uses so-called concentration steps (C-steps). These C-steps, applied in a iterative fashion results in a decreasing covariance matrix determinant. It consists of the following steps:
+\subsection{Introducing the C-step}
 
-\begin{enumerate}
-	\item Center the matrix of observations $X_{n, p}$ by $\mu_p$
-	\item Calculate the ...
-	\item Calculate the inverse covariance matrix $\Sigma_{p,p}^{-1}$
-	\item Obtain the squared Mahalanobis distances $...$
-	\item Sort the Mahalanobis distances in ascending order
-	\item Re-define the $h$-subset and caculate the estimation of location and scatter respectively as follows:
-	\item Re-iterate until a specified nuber of steps or until no convergence is obtained: $\det(\Sigma_{p,p}(t))=\det(\Sigma_{p,p}(t-1))$ 
+Given a trainingset $X$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest
+possible determinant, where the estimated amount of regular observations $h < n$ is fixed before the algorithm starts. The MCD estimate of location $c_h$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. The FastMCD-algorithm (Rousseeuw and Van Driessen, 1999) [is the first algorithm tries to find the MCD], which uses so-called concentration steps (C-steps). These C-steps, applied in a iterative fashion results in a decreasing covariance matrix determinant and consists of the following steps: \\
+
+Given an initial estimation for the location $c_h$ and scatter $\hat{\Sigma}_h$, based on $h$ observations, the following procedure is applied iteratively:
+\begin{enumerate}	
+	\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
+	\begin{equation}
+			||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
+	\end{equation}	
+	\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
+	\item Obtain a new estimation of location and scatter:
+	\begin{align}
+			c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
+ 		\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
+	\end{align}
+	
+	\item Re-iterate until a specified nuber of steps or until no convergence is obtained:
+	\begin{equation}
+		\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
+	\end{equation}
 \end{enumerate}
 
-In order to employ this algorithm for the detection of outlier in kernel feature space, we adapt this reasoning, formulas to kernel feature space as follows:\\
+\subsection{Introducing the C-step in kernel feature space}
 
-Recall the empirical center of all $n$ observations in kernel feature space $\mathcal{H}$ is defined as:
+To use C-steps in kernel feature space  $\mathcal{H}$, we integrate the mapping function $\phi(.)$ in the required formula's, as follows: 
 \begin{equation}
 	\label{eq:center}
 	c_n = \frac{1}{n} \sum_{i=1}^{n}\phi(x_i)
@@ -292,87 +304,17 @@ If we substitute the above in equation \ref{eq:eigenrelation}, it follows that:
 \begin{equation}
 	n \lambda^k \alpha^k = \tilde{K} \alpha^k
 \end{equation}
-Here, $\tilde{K}$ denotes the kernel matrix centered in kernel feature space. The weights $\alpha$ are now determined by solving the eigen decomposition problem. \\
-By refectoring $\Sigma^{-1}$ as $V^T D^{-1/2} D^{-1/2} V$ and exploiting reductant operations in the Mahalanobis distance formula, [NADER] proofs that equation \ref{eq:smd} can be calculated in $\mathcal{H}$ as:
+Here, $\tilde{K}$ denotes the symmetric kernel matrix of $h$ rows, centered in $\mathcal{H}$. The weights $\alpha$ are determined by solving the eigen decomposition problem. \\
+By refactoring $\Sigma^{-1}$ as $V^T D^{-1/2} D^{-1/2} V$ and exploiting reductant operations in the Mahalanobis distance formula, [NADER] proofs that equation \ref{eq:smd} can be calculated in $\mathcal{H}$ as:
 \begin{equation}
 	||\phi(x) - c_n||^2_{\Sigma} = \sum_{k=1}^{n} (\lambda^k)^{-1} \big( \sum_{k=1}^{n} \alpha^k [...]    \big)^2
 \end{equation}	
-%\section{(Proposed method) Robust classification by Kernelized minimum covariance determinant}
-%
-%Uitleggen wat MCD is, waar het gebruikt wordt en dat dit het hart van ons algoritme is.
-%This concentration step uses the Mahalanobis distance between an observation and the center of the training data in that space as a outlying measure in order to detect outliers.\\
-%
-%The Minimum Covariance Determinant (MCD) method (Rousseeuw, 1984) is a highly robust
-%estimator of multivariate location and scatter. Given an nxp data matrix X = (x1, . . . , xn)T with xi = (xi1, . . . , xip)T , its objective is to find h observations (with ceil(n + p + 1)/2) 6 h 6 n) whose covariance matrix has the lowest determinant. The MCD estimate of location $\mu$ is then the average of these h points, and the scatter estimate $\Sigma$ is a multiple of their covariance matrix. In addition to being highly resistant to outliers, the MCD is affine equivariant, i.e. the estimates behave properly under affine transformations of the data. Although the MCD was already introduced in 1984, its practical use only became feasible
-%since the introduction of the computationally efficient FASTMCD algorithm of Rousseeuw and
-%Van Driessen (1999). Since then the MCD has been applied in various fields such as quality
-%control, medicine, finance, image analysis and chemistry, see e.g. Hubert et al. (2008) and Hubert
-%and Debruyne (2010) for references. The MCD is also being used as a basis to develop
-%robust and computationally efficient multivariate techniques, such as e.g. principal component
-%analysis (Croux and Haesbroeck, 2000; Hubert et al., 2005), factor analysis (Pison et al., 2003),
-%classification (Hubert and Van Driessen, 2004), clustering (Hardin and Rocke, 2004), and multivariate regression (Rousseeuw et al., 2004). For a review see (Hubert et al., 2008).
-%In this article we will present a deterministic algorithm for robust location and scatter, coined Kernel-MCD (kMCD) \\
-%
-%In this section we briefly describe the FASTMCD algorithm and the spatial median estimator, as our new algorithm will use aspects of both.
-%
-%\subsection{Introducing the kernel minimum covariance determinant method}
-%
-%A major component of the FASTMCD algorithm is the concentration step (C-step), which works
-%as follows. Given initial estimates $\mu_{old}$ for the center and $\Sigma_{old}$ for the scatter matrix,
-%
-%\begin{enumerate}
-%	\item Compute the distances $d_{old(i)} = D(x_i, \mu_{old}, \Sigma_{old})$ for i = 1, . . . , n.
-%	\item Sort these distances
-%	\item compute $\mu_{new}, \Sigma_{new}$
-%	\item iterate....
-%\end{enumerate}
-%
-%In Theorem 1 of Rousseeuw and Van Driessen (1999) it was proved that the determinants converge to a steady-state solution. Therefore, if we apply C-steps iteratively, the sequence of
-%determinants obtained in this way must converge in a finite number of steps. \\
-%
-%
-%The expectation of observations in kernel feature space is defined as:
-%
-%\begin{equation}
-%\mathop{\mathbb{E}}[\phi(x)] = \int \phi(x) P(x) dx
-%\end{equation}
-%
-%Where $P(x)$ denotes the probability distribution of the training samples. Since the
-%distribution $P(x)$ is usually unknown, one can estimate this expectation by the empirical
-%center of the training dataset, defined as:
-%
-%\begin{equation}
-%	c_n = \frac{1}{n} \sum_{i=1}^{n} \phi(x_i)
-%\end{equation}
-%The Mahalanobis distance between a sample $\phi(x)$ and the empirical
-%center $c_n$ is defined as:
-%\begin{equation}
-%	d^2 = (\phi(x) - c_n) \Sigma^{-1} (\phi(x) - c_n)
-%\end{equation}
-%Here, $\Sigma$ is the biased covariance matrix of the observations in kernel feature space, formally defined as:
-%\begin{equation}
-%	\Sigma = \frac{1}{n} \sum_{i=1}^{n}	\big( (\phi(x_i) - c_n) (\phi(x_i) - c_n)^T \big)
-%	\label{eq:kernel_covariance}
-%\end{equation}
-%Without any explicit knowledge of the mapping function $\phi(.)$, the covariance matrix
-%cannot be expressed in terms of the data $\phi(x)$ in the feature space. To overcome this problem, we use the singular value decomposition of the covariance matrix $\Sigma = V^T D V$. $V$ denotes the matrix of eigenvectors $v_k$ of $\Sigma$ and $D$ is the matrix of corresponding singular values $\lambda_k$, for $k = 1, 2, ..., n$, where each $(\lambda_k, v_k)$ pair satisfies   
-%\begin{equation}
-%	\lambda_k v_k = \Sigma v_k
-%\end{equation}
-%From the definition of the covariance matrix, equation \ref{eq:kernel_covariance}, it can be seen that each eigenvector is a linear
-%combination of the samples $\phi(x_i)$ in the feature space:
-%
-%%\paragraph{Algorithm 1---Kernel MCD based LS-SVM}
-%
-%
-%
-%
-%
-%%\subsection{Kernel Minimum Covariance determinant}
-%%\subsection{Kernel Stahel-Donoho outlyingness}
-%%\subsection{Pruning of support vectors}
-%
-%\paragraph{Algorithm 2--- Reweighted K-MCD based LS-SVM}
+The centered kernel matrix $\tilde{K}$ is obtained by [REF: K-PCA]:
+\begin{equation}
+	\tilde{K}_h = ...
+\end{equation}
+
+\subsection{The proposed C-step in kernel feature space}
 
 \newpage
 \section{Imposing sparseness}
