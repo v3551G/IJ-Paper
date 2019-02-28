@@ -46,13 +46,14 @@ classdef DataModel < handle
             result = (x - repmat(this.mu, n, 1)) ./ repmat(this.sigma, n, 1);
         end
         
-        function plot(this)
-            figure; 
+        function fh = plot(this)
+            fh = figure(); 
             plot(this.x(this.z>0, 1), this.x(this.z>0, 2), '.g'); hold on;
             plot(this.x(this.z<0, 1), this.x(this.z<0, 2), '.b');
             plot(this.x(this.z==0, 1), this.x(this.z==0, 2), '.r');
-            grid on;
-            title(['Generated data model ']);
+            %grid on;
+            set(fh, 'Color', 'w');
+            %title('Generated data model ');
         end
     end
     

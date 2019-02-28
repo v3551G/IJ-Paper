@@ -108,6 +108,9 @@ classdef rLSSVM < handle
                         break;
                     end
                 end
+                %fh = figure(); plot(x(:, 1), x(:, 2), '.'); hold on; plot(x(cstepmask, 1), x(cstepmask, 2), 'p');
+                %xlim([-4, 4]); ylim([-4, 4]); set(fh, 'Color', 'w'); 
+                %export_fig('c2output.pdf');
             end
             
             %%%%%%%%%   Convert Hard rejection to outlying weights
@@ -148,8 +151,8 @@ classdef rLSSVM < handle
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    How many outliers do we expect in out dataset
-            hInitial = 0.15;
-            hCstep = 0.80;
+            hInitial = 0.35;
+            hCstep = 0.65;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
@@ -261,7 +264,14 @@ classdef rLSSVM < handle
         
         function weights  = trainSingleClass(this, x, hInitial, hCstep)
             initisalSubset  = this.spatialMedian(x, hInitial);
+            fh = figure(); plot(x(:, 1), x(:, 2), '.'); hold on; plot(x(initisalSubset, 1), x(initisalSubset, 2), 'p');
+            xlim([-4, 4]); ylim([-4, 4]); set(fh, 'Color', 'w');
+            %export_fig('c2input.pdf');
+            
             weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep);            
+            fh = figure(); plot(x(:, 1), x(:, 2), '.'); hold on; plot(x(weights, 1), x(weights, 2), 'p');
+            xlim([-4, 4]); ylim([-4, 4]); set(fh, 'Color', 'w');
+            %export_fig('c2output.pdf');
         end
     
         function plot(this, dModel)
