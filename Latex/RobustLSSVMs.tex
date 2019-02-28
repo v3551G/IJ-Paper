@@ -296,21 +296,22 @@ Where the centering of the kernel matrix of $n$ observations, given the $h$-subs
 
 \subsection{The proposed C-step in kernel feature space}
 
-We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) / \hat{\sigma}_{mcd}$ where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD[REF]. This reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$. The following procedure is then applied per subset to find the regular observation list:
+We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) / \hat{\sigma}_{mcd}$ where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD[REF]. This reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and the following procedure is applied (per subset) to derive at an outlier free support vector candidate set: 
 
 \begin{itemize}
 	\item [Step 1] Calculate the spatial median in $\mathcal{H}$, as introduced in [MICHIEL]. The spatial median can be written as a linear combination of the feature vectors. Denote $\gamma = (\gamma_1, \dots, \gamma_n)^T$ the vector of coefficients, where it is know that $\sum_{i=1}^{n} \phi(x_i) \gamma_i$ equals the spatial median in feature space. Initialise $\gamma = (1/n, 1/n, \dots)$ and recursively compute the normalized coefficients $\gamma = w / \sum_{i=1}^{n}w_i$, where $w_i$ for the observation with index $i$ is calculated as:
 	\begin{equation}
 		w_i = \frac{1}{\sqrt{ K_{i,i} - 2 \gamma^T K_{., i} + \gamma^T K \gamma}}
 	\end{equation}
-	We apply fifteen iterations to obtain a good approximation.	
-	\item [Step 2] Find the $h$ observations with closest Euclidean distance to the spacial median, measured in $\mathcal{H}$, by [REF: The Kernel Trick for Distances]:	
-	\begin{equation}
-		d_i = K(i,i) - 2\sum_{j=1}^{n}sum(K(i, j) gamma(j) + gamma'*K*gamma;
-	\end{equation} 
-	\begin{equation}
-		dist = diag(K) - 2*sum(K.*repmat(gamma',n,1),2) + gamma'*K*gamma;
-	\end{equation} 
+	Ten iterations are used to obtain a good approximation.	
+	\item [Step 2] Calculate the Euclidean distance for each observation to the spatial median:
+	\begin{align}
+	d_i &= || \phi(x_i) - \sum_{j=1}^N \gamma_j \phi(x_j)||^2 \\
+	&= || \phi(x_i)||^2 + || \sum_{j=1}^N \gamma_j \phi(x_j)||^2 - 2 <\phi(x_i),\sum_{j=1}^N \gamma_j \phi(x_j)> \\
+	&= K(x_i,x_i) + \sum_{j=1}^N \sum_{k=1}^N \gamma_j \gamma_k K(x_j,x_k) - 2 \sum_{j=1}^N\gamma_j K(x_i,x_j)
+	\end{align}
+	\item [Step 3] 	Sort these distances is ascending order. Define the initial $h$-subset of $h_{init}$ observations with the lowest distance.	
+
 	\item [Step 4] Apply kernel C-step for a fixed amount of iterations as follows:
 	\begin{enumerate}	
 		\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
@@ -329,7 +330,8 @@ We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) 
 		\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
 		\end{equation}
 	\end{enumerate}
-	\item [Step 5] Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
+	\item [Step 5] If the $h$-subset size is lower then $h_{end}$, increase the $h$-subset size by (say) 5\% and go back to step 4. 
+	\item [Step 6] Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
 	\begin{equation}
 	w_i =
 	\begin{cases}
@@ -364,7 +366,7 @@ The different steps of this algorithm are shown in figure [REF], where it can be
 	\end{subfigure}
 
 	\caption{
-		Figure \subref {fig:dmodel} depicts a normally distributed classification problem, where both classes (blue, green) contain $10\%$ disjoint outliers from the same material group, shown in red. After splitting the dataset by their class labels [STEP2?], the $h_ {init} $ closest points from the spatial median are used as initial subsets for the C-step algorithm [STEP3?], here shown as green points in figure b, c respectively. After iterative execution we obtain the re-weighted results [STAP5?] (figures d and e). Support vectors are then determined from the detected regular observation list by a landmark selection algorithm (section [REF]).}
+		Figure \subref {fig:dmodel} depicts a normal distributed, binary classification problem. Both classes (blue, green) contain $10\%$ outliers from the same material group, shown in red. After splitting the dataset by their class labels [STEP2?], the $h_ {init} $ closest points from the spatial median are used as initial subsets for the C-step algorithm [STEP3?], depicted in green for both classes (figure b, c). After iterative kernel C-steps we obtain the re-weighted results  [STAP5?], shown in figures d and e. Support vectors are then determined from the detected regular observation list by a landmark selection algorithm (section [REF]).}
 \end{figure}
  
 
