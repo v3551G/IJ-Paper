@@ -264,12 +264,16 @@ classdef rLSSVM < handle
         
         function weights  = trainSingleClass(this, x, hInitial, hCstep)
             initisalSubset  = this.spatialMedian(x, hInitial);
-            fh = figure(); plot(x(:, 1), x(:, 2), '.'); hold on; plot(x(initisalSubset, 1), x(initisalSubset, 2), 'p');
+            fh = figure(); 
+            plot(x(:, 1), x(:, 2), '.', 'MarkerSize', 12); hold on; 
+            plot(x(initisalSubset, 1), x(initisalSubset, 2), '.g', 'MarkerSize', 12);
             xlim([-4, 4]); ylim([-4, 4]); set(fh, 'Color', 'w');
             %export_fig('c2input.pdf');
             
             weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep);            
-            fh = figure(); plot(x(:, 1), x(:, 2), '.'); hold on; plot(x(weights, 1), x(weights, 2), 'p');
+            fh = figure(); 
+            plot(x(:, 1), x(:, 2), '.', 'MarkerSize', 12); hold on; 
+            plot(x(weights, 1), x(weights, 2), '.g', 'MarkerSize', 12);
             xlim([-4, 4]); ylim([-4, 4]); set(fh, 'Color', 'w');
             %export_fig('c2output.pdf');
         end

@@ -3,7 +3,7 @@
     clear all; 
     clc;
     
-    %rng default;
+    rng default;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Simulate the breaking of an svm in the linear case
@@ -14,7 +14,7 @@
     kModel = LinKernel();
     pModel = DPPBasedPruning(8, kModel);
     dModel = NormalDataModel(1500, 0.10);      
-    dModel.plot();    
+    fh=dModel.plot();    
     
     ourSvm = rLSSVM(kModel, pModel);    
     ourSvm.train(dModel, C);
