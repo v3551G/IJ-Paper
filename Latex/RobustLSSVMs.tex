@@ -1,3 +1,4 @@
+% !TeX spellcheck = en_GB
 
 \documentclass[preprint,12pt]{elsarticle}
 %% Use the option review to obtain double line spacing
@@ -191,21 +192,21 @@ Combining the first and last equation and defining $\Omega{(i,j)}$ for two obser
 \Omega{(i,j)} &= y_i y_j \varphi(x_i)^T \varphi(x_j) \\
 &= y_i y_j K(x_i, x_j)
 \end{align}
-Yields the following set of linear equations, where the kernel matrix $K$ is obtained by ... [...MEER UITLEG OVER KENREL MATRIX, TYPES TRANSFORMATIE] ... observations transformed to $\mathcal{H}$.
+Yields the following set of linear equations, where the kernel matrix $K$ transforms observations to the high dimensional kernel feature space $\mathcal{H}$.
 
 \begin{equation}
 	\begin{bmatrix}
-		0_{(1,1)} & y_{(n,1)}^T \\
-		y_{(n,1)} & \Omega_{(n,n)} + \gamma^{-1} I_{(n,n)} 
+		0 & y^T \\
+		y & \Omega + \gamma^{-1} \mathbf{I}
 		\end{bmatrix}	
 		\begin{bmatrix}
-		b_{(1,1)} \\
-		\alpha_{(n,1)}
+		b \\
+		\alpha
 		\end{bmatrix}
 		=
 		\begin{bmatrix}
-		0_{(1,1)} \\
-		\mathbf{1}_{(n,1)}
+		0 \\
+		\mathbf{1}
 	\end{bmatrix}	
 \end{equation}
 The least squares solution of the aforementioned system of equations is then used to  obtain the Lagrange coefficients $\alpha$ and offset $b$, where the decision function used for test set prediction is defined as:
@@ -223,57 +224,52 @@ $\hat{y}_i$ is the predicted output of the ith training data point. Note that $\
 \newpage
 
 \section{Proposed method}
-We first start by laying out the main methodology of our proposed robust, sparse SVM algorithm. \\
-Korte paragraaf met schema of uitleg van het algoritme:
-\begin{enumerate}
-	\item Outlier detection by kernel Csteps: [WAT IS DE IMPACT VAN OUTLIERS EN WAAROM??]
-	\item solve system of equations
-	\item Imposing sparseness
-	\item Samping strategy: 
-	\begin{enumerate}
-		\item Entropy (?)
-		\item DPP
-	\end{enumerate}
-	\item information transfer.
-\end{enumerate} 
-
-\newpage
+%We first start by laying out the main methodology of our proposed robust, sparse SVM algorithm. \\
+%Korte paragraaf met schema of uitleg van het algoritme:
+%\begin{enumerate}
+%	\item Outlier detection by kernel Csteps: [WAT IS DE IMPACT VAN OUTLIERS EN WAAROM??]
+%	\item solve system of equations
+%	\item Imposing sparseness
+%	\item Samping strategy: 
+%	\begin{enumerate}
+%		\item Entropy (?)
+%		\item DPP
+%	\end{enumerate}
+%	\item information transfer.
+%\end{enumerate} 
+%
+%\newpage
 \subsection{Concentration steps in kernel feature space}
 
-Having introduced the LS-SVM model, let us first turn our attention towards the detection of possible outliers in the dataset [..WHY??]. \\
+Having introduced the LS-SVM model, our attention first goes to the detection of outliers in the dataset. Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This Mahalanobis distance based estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as the a refinement step of an initial estimator. This two-step mechanism inherits the robustness of the MCD, but offers an improved statistical efficiency [see e.g. REF: DetS, detMM]. Deterministic variants and well know PCA-based applications are described in [detMCD, RobPCA] respectively. \\
 
-Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This Mahalanobis distance based estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as the a refinement step of a proposed estimator that inherit the robustness of the MCD, but offers an improved statistical efficiency [REF: DetS, detMM]. Deterministic variants and well know MCD usages are described in [detMCD, RobPCA] respectively. 
+Given a trainingset $X$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest possible determinant, where the amount of regular observations $h < n$ is specified before the algorithm starts. The MCD-estimate of location $c_h$ is then the average of these $h$ points (the $h$-subset), whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. \\
 
-\subsection{Introducing the C-step}
+In order to find the MCD-estimate, the FastMCD-algorithm (Rousseeuw and Van Driessen, 1999) uses so-called concentration steps (C-steps). These iterative algorithm steps result in a decreasing covariance matrix determinant: a goodness-of-fit metric [BLABLABLA]. Based on its robustness properties, simplicity and proven convergence, we propose to modify the algorithm in way that it can work in kernel feature space, where it is used to for the detection of non-linear outliers.\\
 
-Given a trainingset $X$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest
-possible determinant, where the amount of regular observations $h < n$ is specified before the algorithm starts. The MCD-estimate of location $c_h$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. \\
-In order to find the MCD-estimate, the FastMCD-algorithm (Rousseeuw and Van Driessen, 1999) uses so-called concentration steps (C-steps). These iterative algorithm steps result in a decreasing covariance matrix determinant: a goodness-of-fit metric . Based on its robustness properties, simplicity and proven convergence, we propose to use this algorithm to detect regular observations.
-
-To enable C-steps in kernel feature space  $\mathcal{H}$, we integrate the mapping function $\phi(.)$ in the required algorithm formula's, as follows: 
+To enable the C-steps methodology $\mathcal{H}$, we integrate the mapping function $\phi(.)$ in the required algorithm formula's: 
 \begin{equation}
 	\label{eq:center}
-	c_n = \frac{1}{n} \sum_{i=1}^{n}\phi(x_i)
+	c_h = \frac{1}{h} \sum_{i=1}^{h}\phi(x_i)
 \end{equation}
 Likewise, the Mahalanobis distance in $\mathcal{H}$ is defined as:
 \begin{equation}
 	\label{eq:smd}
-	||\phi(x) - c_n||^2_{\Sigma} = (\phi(x) - c_n) \Sigma^{-1} (\phi(x) - c_n)
+	||\phi(x) - c_h||^2_{\Sigma_h} = (\phi(x) - c_h) \Sigma^{-1}_h (\phi(x) - c_h)
 \end{equation}
-Where the biased covariance matrix is obtained by:
+Where the biased covariance matrix of the $h$-subset is calculated as:
 \begin{equation}
-	\Sigma = \frac{1}{n} \sum_{i=1}^{n} (\phi(x_i) - c_n) (\phi(x_i) - c_n)^T
+	\Sigma_h = \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T
 	\label{eq:sigma}
 \end{equation}
-As we do not explicit know the mapping function $\phi(.)$, equation \ref{eq:smd} cannot be calculated. This problem is circumvented by performing a singular value decomposition of the covariance matrix:
+As we do not explicit know the mapping function $\phi(.)$, equation \ref{eq:smd} cannot be calculated, a problem circumvented by the singular value decomposition of the covariance matrix:
 \begin{equation}
-	\Sigma = V^T D V
+	\Sigma_h = V^T D V
 \end{equation}
-[WHERE V IS IS EIGENVECTOR MATRIX OF SIZE NXN? D=SIGNULAR VVALUES, ....]
-Where the relation between eigenvalues and eigenvectors follows the identity:
+Where $V$ is the matrix of eigenvectors $v^k$ and $D$ resembles the diagonal matrix of eigenvalues $\lambda^k$ for $k=1,2, \dots, h$. The relation between eigenvalues and eigenvectors follows the identity:
 \begin{equation}
 	\label{eq:eigenrelation}
-	\Sigma v^k = \lambda^k v^k
+	\Sigma_h v^k = \lambda^k v^k
 \end{equation} 
 From the definition of equation \ref{eq:sigma}, it can be seen that each eigenvector is a linear combination of the observations $\phi(x_i)$ in kernel feature space:
 \begin{equation}
@@ -284,13 +280,17 @@ If we substitute the above in equation \ref{eq:eigenrelation}, it follows that:
 	n \lambda^k \alpha^k = \tilde{K} \alpha^k
 \end{equation}
 Here, $\tilde{K}$ denotes the symmetric kernel matrix of $h$ rows, centered in $\mathcal{H}$. The weights $\alpha$ are determined by solving the eigen decomposition problem. \\
-By refactoring $\Sigma^{-1}$ as $V^T D^{-1/2} D^{-1/2} V$ and exploiting reductant operations in the Mahalanobis distance formula, [NADER] proofs that equation \ref{eq:smd} can be calculated in $\mathcal{H}$ as:
+By refactoring $\Sigma^{-1}$ as $V^T D^{-1/2} D^{-1/2} V$ and exploiting reductant operations in the Mahalanobis distance formula, [REF: NADER] proofs that equation \ref{eq:smd} can be calculated in $\mathcal{H}$ as:
 \begin{equation}
 	||\phi(x) - c_n||^2_{\Sigma} = \sum_{k=1}^{n} (\lambda^k)^{-1} \big( \sum_{k=1}^{n} \alpha^k [...]    \big)^2
 \end{equation}	
-The centered kernel matrix $\tilde{K}$ is obtained by [REF: K-PCA]:
+Finally, the centered kernel matrix of the $h$-subset $\tilde{K}_h$ is calculated as [REF: K-PCA]:
 \begin{equation}
 	\tilde{K}_h = ...
+\end{equation}
+Where the centering of the kernel matrix of $n$ observations, given the $h$-subset reduces to: 
+\begin{equation}
+\tilde{K}_h = ...
 \end{equation}
 
 \subsection{The proposed C-step in kernel feature space}
