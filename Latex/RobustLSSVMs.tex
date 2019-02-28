@@ -247,7 +247,8 @@ Modern multivariate robust statistical methods are frequently based on the Minim
 \subsection{Introducing the C-step}
 
 Given a trainingset $X$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest
-possible determinant, where the estimated amount of regular observations $h < n$ is fixed before the algorithm starts. The MCD estimate of location $c_h$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. The FastMCD-algorithm (Rousseeuw and Van Driessen, 1999) [is the first algorithm tries to find the MCD], which uses so-called concentration steps (C-steps). These C-steps, applied in a iterative fashion results in a decreasing covariance matrix determinant. Based on its robustness properties, simplicity and [WAT NOG], we propose to use this algorithm to detect regular observations.
+possible determinant, where the amount of regular observations $h < n$ is specified before the algorithm starts. The MCD-estimate of location $c_h$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. \\
+In order to find the MCD-estimate, the FastMCD-algorithm (Rousseeuw and Van Driessen, 1999) uses so-called concentration steps (C-steps). These iterative algorithm steps result in a decreasing covariance matrix determinant: a goodness-of-fit metric . Based on its robustness properties, simplicity and proven convergence, we propose to use this algorithm to detect regular observations.
 
 To enable C-steps in kernel feature space  $\mathcal{H}$, we integrate the mapping function $\phi(.)$ in the required algorithm formula's, as follows: 
 \begin{equation}
@@ -293,26 +294,43 @@ The centered kernel matrix $\tilde{K}$ is obtained by [REF: K-PCA]:
 \end{equation}
 
 \subsection{The proposed C-step in kernel feature space}
-Given an initial estimation for the location $c_h$ and scatter $\hat{\Sigma}_h$, based on $h$ observations, the following procedure is applied iteratively:
-\begin{enumerate}	
-	\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
-	\begin{equation}
-	||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
-	\end{equation}	
-	\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
-	\item Obtain a new estimation of location and scatter:
-	\begin{align}
-	c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
-	\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
-	\end{align}
-	
-	\item Re-iterate until a specified nuber of steps or until no convergence is obtained:
-	\begin{equation}
-	\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
-	\end{equation}
-\end{enumerate}
 
-\subsection{Introducing the C-step in kernel feature space}
+We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) / \hat{\sigma}_{mcd}$ where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD[REF]. This reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$. The following procedure is then applied per subset to find the regular observation list:
+
+\begin{itemize}
+	\item [Step 1] Calculate the spatial median in $\mathcal{H}$, as introduced in [MICHIEL]. 
+	\item [Step 2] Find the $h$ observations with closest distance to the spacial median, measured in  $\mathcal{H}$, by:
+	\begin{equation}
+		dist = diag(K) - 2*sum(K.*repmat(gamma',n,1),2) + gamma'*K*gamma;
+	\end{equation} 
+	\item [Step 4] Apply kernel C-step for a fixed amount of iterations as follows:
+	\begin{enumerate}	
+		\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
+		\begin{equation}
+		||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
+		\end{equation}	
+		\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
+		\item Obtain a new estimation of location and scatter:
+		\begin{align}
+		c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
+		\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
+		\end{align}
+		
+		\item Re-iterate until a specified number of steps or until no convergence is obtained:
+		\begin{equation}
+		\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
+		\end{equation}
+	\end{enumerate}
+	\item [Step 5] Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
+	\begin{equation}
+	w_i =
+	\begin{cases}
+	1, & \text{if}\ rd^2(i) \leq max(\chi^2_{0.975, p}, rd^2(h-subset)) \\
+	0, & \text{otherwise}
+	\end{cases}
+	\end{equation}
+\end{itemize}
+The different steps of this algorithm are shown in figure [REF], where it can be seen that [WAT]. The final outcome, weights for each observation, are kept in memory to ...;
 
 \newpage
 \section{Imposing sparseness}

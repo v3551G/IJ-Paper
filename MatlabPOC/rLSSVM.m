@@ -96,8 +96,7 @@ classdef rLSSVM < handle
                     alphah = alphah ./ repmat(sqrt(Ld'), size(alphah, 1), 1);   
 
                     Kt = this.kModel.compute(x, x(cstepmask, :));                                
-                    e = this.center(Kx, Kt)*alphah;
-                    
+                    e = this.center(Kx, Kt)*alphah;                    
                     smd =  size(Kx, 1) * sum((e.^2)./ repmat(Ld', size(e, 1), 1), 2);
                     [~, indices] = sort(smd);
 
@@ -122,7 +121,7 @@ classdef rLSSVM < handle
             scores = smd;
             sdo = max(abs( (scores - repmat(mean(scores(cstepmask, :)), size(scores, 1), 1)) ./ repmat(std(scores(cstepmask, :)), size(scores, 1), 1)), [], 2);            
             p = sum(lmask);            
-            c = max(chi2inv(0.5, p), max(sdo(cstepmask)));            
+            c = max(chi2inv(0.975, p), max(sdo(cstepmask)));            
             weights = false(size(sdo));
             weights(sdo<=c) = true; 
             weights(sdo>c) = false; % (c ./ sdo(sdo>c)).^2;                         
