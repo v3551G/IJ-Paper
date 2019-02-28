@@ -22,6 +22,7 @@
 \usepackage{amssymb}
 \usepackage{amsmath,empheq, amsfonts}
 \usepackage{subcaption}
+\usepackage[section]{placeins}
 
 \usepackage{amsthm}
 \newtheorem*{remark}{Remark}
@@ -331,37 +332,38 @@ We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) 
 	\end{equation}
 \end{itemize}
 The different steps of this algorithm are shown in figure [REF], where it can be seen that [WAT]. The final outcome, weights for each observation, are kept in memory to ...;
-
-
-\begin{figure}[ht!]
+\begin{figure}[!htb]
 	\centering
 	\begin{subfigure}[b]{0.5\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/kcstep/datamodel.pdf}
 		\caption{\label{fig:dmodel}} 
 	\end{subfigure} \\
-	\begin{subfigure}[b]{0.45\linewidth}
+	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/kcstep/c1input.pdf}
 		\caption{\label{fig:spatialmedc1}}
 	\end{subfigure}
-	\begin{subfigure}[b]{0.45\linewidth}
+	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/kcstep/c2input.pdf}
 		\caption{\label{fig:spatialmedc2}}
 	\end{subfigure} \\
 
-	\begin{subfigure}[b]{0.45\linewidth}
+	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/kcstep/c1output.pdf}
 		\caption{\label{fig:kcstepc1}}
 	\end{subfigure}
-	\begin{subfigure}[b]{0.45\linewidth}
+	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/kcstep/c2output.pdf}
 		\caption{\label{fig:kcstepc2}}
 	\end{subfigure}
 
-	\caption{\subref{fig:fig1} shows Figure~1 and~\subref{fig:fig2} shows Figure~2.}
+	\caption{Figure \subref{fig:dmodel} illustreerd een normaal gedistribueerd classificatieprobleem (blauw, groen), waarbij beiden klassen disjuncte outliers bevatten uit eenzelfde materiaal groep, hier weergegeven in het rood. Na opsplitsen van dataset volgens hun class label [STAP2?] worden de $h_init$ dichtste punten bij de spatiale mediaan gebruikt als initiele subset voor het C-step algoritme, weergeven in het groen voor beiden classen in figuur b, c respectively. }
 \end{figure}
+ 
 
 
 \newpage
+\FloatBarrier
+
 \section{Imposing sparseness}
 
 \subsection{Selection of the best support vectors}
