@@ -111,8 +111,8 @@ of the error variables. In this paper, we discuss a method which can overcome th
 drawbacks. We show how to obtain robust estimates for regression by applying a weighted
 version of LS-SVM. We also discuss a sparse approximation procedure for weighted and
 unweighted LS-SVM. It is basically a pruning method which is able to do pruning based
-upon the physical meaning of the sorted support values, while pruning procedures for
-classical multilayer perceptrons require the computation of a Hessian matrix or its inverse.
+upon the physical meaning of the sorted support values....
+
 The methods of this paper are illustrated for RBF kernels and demonstrate how to obtain
 robust estimates with selection of an appropriate number of hidden units, in the case of
 outliers or non-Gaussian error distributions with heavy tails
@@ -127,7 +127,6 @@ outliers or non-Gaussian error distributions with heavy tails
 %\linenumbers
 
 %% main text
-\newpage
 \section{Introduction}
 
 The least-squares support vector machines (LS-SVM) is powerful method for solving pattern recognition and regression problems~\cite{suykens2002least}. The LS-SVM maps the data to a higher dimensional space in which one constructs an optimal separating hyperplane. It has been applied to many real-world problems such as optimal control~\cite{suykens2001optimal}, financial time series prediction~\cite{van2001financial}, system identification~\cite{goethals2005identification}, electrical load forecasting~\cite{espinoza2006fixed} and many others. However the LS-SVM has two main disadvantages. It is sensitive to outliers which have large support values resulting from the solution to the linear system. The second disadvantage is that the solution lacks sparseness, which is essential for real-time prediction with big-data.
@@ -243,35 +242,14 @@ Korte paragraaf met schema of uitleg van het algoritme:
 
 Having introduced the LS-SVM model, let us first turn our attention towards the detection of possible outliers in the dataset [..WHY??]. \\
 
-Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This  multivariate estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as the a refinement step of a proposed estimator that inherit the robustness of the MCD, but offers an improved statistical efficiency [REF: DetS, detMM]. Deterministic variants and well know MCD usages are described in [detMCD, RobPCA] respectively. 
+Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This Mahalanobis distance based estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as the a refinement step of a proposed estimator that inherit the robustness of the MCD, but offers an improved statistical efficiency [REF: DetS, detMM]. Deterministic variants and well know MCD usages are described in [detMCD, RobPCA] respectively. 
 
 \subsection{Introducing the C-step}
 
 Given a trainingset $X$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest
-possible determinant, where the estimated amount of regular observations $h < n$ is fixed before the algorithm starts. The MCD estimate of location $c_h$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. The FastMCD-algorithm (Rousseeuw and Van Driessen, 1999) [is the first algorithm tries to find the MCD], which uses so-called concentration steps (C-steps). These C-steps, applied in a iterative fashion results in a decreasing covariance matrix determinant and consists of the following steps: \\
+possible determinant, where the estimated amount of regular observations $h < n$ is fixed before the algorithm starts. The MCD estimate of location $c_h$ is then the average of these $h$ points, whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. The FastMCD-algorithm (Rousseeuw and Van Driessen, 1999) [is the first algorithm tries to find the MCD], which uses so-called concentration steps (C-steps). These C-steps, applied in a iterative fashion results in a decreasing covariance matrix determinant. Based on its robustness properties, simplicity and [WAT NOG], we propose to use this algorithm to detect regular observations.
 
-Given an initial estimation for the location $c_h$ and scatter $\hat{\Sigma}_h$, based on $h$ observations, the following procedure is applied iteratively:
-\begin{enumerate}	
-	\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
-	\begin{equation}
-			||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
-	\end{equation}	
-	\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
-	\item Obtain a new estimation of location and scatter:
-	\begin{align}
-			c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
- 		\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
-	\end{align}
-	
-	\item Re-iterate until a specified nuber of steps or until no convergence is obtained:
-	\begin{equation}
-		\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
-	\end{equation}
-\end{enumerate}
-
-\subsection{Introducing the C-step in kernel feature space}
-
-To use C-steps in kernel feature space  $\mathcal{H}$, we integrate the mapping function $\phi(.)$ in the required formula's, as follows: 
+To enable C-steps in kernel feature space  $\mathcal{H}$, we integrate the mapping function $\phi(.)$ in the required algorithm formula's, as follows: 
 \begin{equation}
 	\label{eq:center}
 	c_n = \frac{1}{n} \sum_{i=1}^{n}\phi(x_i)
@@ -315,6 +293,26 @@ The centered kernel matrix $\tilde{K}$ is obtained by [REF: K-PCA]:
 \end{equation}
 
 \subsection{The proposed C-step in kernel feature space}
+Given an initial estimation for the location $c_h$ and scatter $\hat{\Sigma}_h$, based on $h$ observations, the following procedure is applied iteratively:
+\begin{enumerate}	
+	\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
+	\begin{equation}
+	||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
+	\end{equation}	
+	\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
+	\item Obtain a new estimation of location and scatter:
+	\begin{align}
+	c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
+	\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
+	\end{align}
+	
+	\item Re-iterate until a specified nuber of steps or until no convergence is obtained:
+	\begin{equation}
+	\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
+	\end{equation}
+\end{enumerate}
+
+\subsection{Introducing the C-step in kernel feature space}
 
 \newpage
 \section{Imposing sparseness}
