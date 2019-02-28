@@ -299,8 +299,15 @@ Where the centering of the kernel matrix of $n$ observations, given the $h$-subs
 We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) / \hat{\sigma}_{mcd}$ where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD[REF]. This reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$. The following procedure is then applied per subset to find the regular observation list:
 
 \begin{itemize}
-	\item [Step 1] Calculate the spatial median in $\mathcal{H}$, as introduced in [MICHIEL]. 
-	\item [Step 2] Find the $h$ observations with closest distance to the spacial median, measured in  $\mathcal{H}$, by:
+	\item [Step 1] Calculate the spatial median in $\mathcal{H}$, as introduced in [MICHIEL]. The spatial median can be written as a linear combination of the feature vectors. Denote $\gamma = (\gamma_1, \dots, \gamma_n)^T$ the vector of coefficients, where it is know that $\sum_{i=1}^{n} \phi(x_i) \gamma_i$ equals the spatial median in feature space. Initialise $\gamma = (1/n, 1/n, \dots)$ and recursively compute the normalized coefficients $\gamma = w / \sum_{i=1}^{n}w_i$, where $w_i$ for the observation with index $i$ is calculated as:
+	\begin{equation}
+		w_i = \frac{1}{\sqrt{ K_{i,i} - 2 \gamma^T K_{., i} + \gamma^T K \gamma}}
+	\end{equation}
+	We apply fifteen iterations to obtain a good approximation.	
+	\item [Step 2] Find the $h$ observations with closest Euclidean distance to the spacial median, measured in $\mathcal{H}$, by [REF: The Kernel Trick for Distances]:	
+	\begin{equation}
+		d_i = K(i,i) - 2\sum_{j=1}^{n}sum(K(i, j) gamma(j) + gamma'*K*gamma;
+	\end{equation} 
 	\begin{equation}
 		dist = diag(K) - 2*sum(K.*repmat(gamma',n,1),2) + gamma'*K*gamma;
 	\end{equation} 
@@ -334,7 +341,7 @@ We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) 
 The different steps of this algorithm are shown in figure [REF], where it can be seen that [WAT]. The final outcome, weights for each observation, are kept in memory to ...;
 \begin{figure}[!htb]
 	\centering
-	\begin{subfigure}[b]{0.5\linewidth}
+	\begin{subfigure}[b]{0.4\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/kcstep/datamodel.pdf}
 		\caption{\label{fig:dmodel}} 
 	\end{subfigure} \\
@@ -356,7 +363,7 @@ The different steps of this algorithm are shown in figure [REF], where it can be
 		\caption{\label{fig:kcstepc2}}
 	\end{subfigure}
 
-	\caption{Figure \subref{fig:dmodel} illustreerd een normaal gedistribueerd classificatieprobleem (blauw, groen), waarbij beiden klassen disjuncte outliers bevatten uit eenzelfde materiaal groep, hier weergegeven in het rood. Na opsplitsen van dataset volgens hun class label [STAP2?] worden de $h_init$ dichtste punten bij de spatiale mediaan gebruikt als initiele subset voor het C-step algoritme, weergeven in het groen voor beiden classen in figuur b, c respectively. }
+	\caption{Figure \subref{fig:dmodel} illustreerd een normaal gedistribueerd classificatieprobleem (blauw, groen), waarbij beiden klassen disjuncte outliers bevatten uit eenzelfde materiaal groep, hier weergegeven in het rood. Na opsplitsen van dataset volgens hun class label [STAP2?] worden de $h_{init}$ dichtste punten bij de spatiale mediaan gebruikt als initiele subset voor het C-step algoritme [STAP3?]. Voor beiden classe is deze initiele subset in het groen, op figuur b, c respectively. Na iteratieve uitvoering van kernel C-steps [STAP4?], waarbij de $h$-subset grootte stelselmatig geexpanteerd wordt bekomen we uiteindelijk resultaat na reweighting [STAP5?], weergeven in figuren d en e. Uit de gedetecteerde reguliere observaties lijst worden vervolgens support vectors bepaald (zie sectie [REF])}
 \end{figure}
  
 
