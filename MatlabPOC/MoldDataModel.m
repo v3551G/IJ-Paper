@@ -10,8 +10,8 @@ classdef MoldDataModel < DataModel
         function [x, y, z] = generateDataModel(~, n, ~, eps)                        
             xx = csvread('datasets\gp.csv');    
             yy = csvread('datasets\bp.csv');    
-            x=[xx; yy];
-            y=[+1*ones(size(xx, 1), 1); -1*ones(size(xx, 1), 1)];
+            x=[xx(randperm(size(xx, 1), min(n, size(xx, 1))), :); yy(randperm(size(yy, 1), min(n, size(yy, 1))), :)];
+            y=[+1*ones(min(n, size(xx, 1)), 1); -1*ones(min(n, size(yy, 1)), 1)];
             z=y;
         end
     end
