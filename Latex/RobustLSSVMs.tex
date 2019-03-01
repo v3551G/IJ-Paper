@@ -280,19 +280,35 @@ If we substitute the above in equation \ref{eq:eigenrelation}, it follows that:
 \begin{equation}
 	n \lambda^k \alpha^k = \tilde{K} \alpha^k
 \end{equation}
-Here, $\tilde{K}$ denotes the symmetric kernel matrix of $h$ rows, centered in $\mathcal{H}$. The weights $\alpha$ are determined by solving the eigendecomposition problem. \\
+Here, $\tilde{K}$ denotes the symmetric kernel matrix of $h$ rows, centred in $\mathcal{H}$. The weights $\alpha$ are determined by solving the eigendecomposition problem. \\
 By refactoring $\Sigma^{-1}$ as $V^T D^{-1/2} D^{-1/2} V$ and exploiting reductant operations in the Mahalanobis distance formula, [REF: NADER] proofs that equation \ref{eq:smd} can be calculated in $\mathcal{H}$ as:
 \begin{equation}
 	||\phi(x) - c_n||^2_{\Sigma} = \sum_{k=1}^{n} (\lambda^k)^{-1} \big( \sum_{k=1}^{n} \alpha^k [...]    \big)^2
 \end{equation}	
-Finally, the centered kernel matrix of the $h$-subset $\tilde{K}_h$ is calculated as [REF: K-PCA]:
+
+
+A similar derivation gives us:
+$ \tilde{K}^{(h)} \in \mathbb{R}^{N \times h}$ and $1'_h \in \mathbb{R}^{N \times h}$ with all entries $\frac{1}{h}$
 \begin{equation}
-	\tilde{K}_h = ...
+\tilde{K}^{(h)} = K^{(h)} - 1'_h K^{(hh)} - K^{(h)}1_h + 1'_h K^{(hh)}1_h
 \end{equation}
-Where the centering of the kernel matrix of $n$ observations, given the $h$-subset reduces to: 
-\begin{equation}
-\tilde{K}_h = ...
-\end{equation}
+
+
+
+Finally, the centred kernel matrix of the $h$-subset $\tilde{K}_h$ is calculated as [REF: cite Nonlinear Component Analysis as a Kernel Eigenvalue Problem]:
+$ \tilde{K}^{(hh)} \in \mathbb{R}^{h \times h}$ and $1_h \in \mathbb{R}^{h \times h}$ with all entries $\frac{1}{h}$
+\begin{align}
+\label{eq:centerKh}
+	\tilde{K}_{ij}^{(hh)} &= \Big(\phi(x_i) - \frac{1}{h}\sum_{m=1}^h\phi(x_m)\Big) \cdot \Big(\phi(x_j) - \frac{1}{h}\sum_{n=1}^h\phi(x_n)\Big) \\
+						  &= K_{ij}^{(hh)} - \frac{1}{h}\sum_{m=1}^h K_{mj} - \frac{1}{h}\sum_{n=1}^h K_{in} + \frac{1}{h^2}\sum_{m=1}^h\sum_{n=1}^h K_{mn} \\
+						  &= \Big(K^{(hh)} - 1_h K^{(hh)} - K^{(hh)}1_h + 1_h K^{(hh)}1_h\Big)_{ij}
+\end{align}
+Where the centring of the kernel matrix of $n$ observations, given the $h$-subset follows the similar derivation. Define the kernel matrix $ \tilde{K}^{(h)} \in \mathbb{R}^{N \times h}$ and $1'_h \in \mathbb{R}^{N \times h}$ with all entries $\frac{1}{h}$
+
+	\begin{align}
+	\tilde{K}^{(h)} &= K^{(h)} - 1'_h K^{(hh)} - K^{(h)}1_h + 1'_h K^{(hh)}1_h
+	\end{align}
+	
 
 \subsection{The proposed C-step in kernel feature space}
 
@@ -313,23 +329,36 @@ We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) 
 	\item [Step 3] 	Sort these distances is ascending order. Define the initial $h$-subset of $h_{init}$ observations with the lowest distance.	
 
 	\item [Step 4] Apply kernel C-step for a fixed amount of iterations as follows:
-	\begin{enumerate}	
-		\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
-		\begin{equation}
-		||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
-		\end{equation}	
-		\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
-		\item Obtain a new estimation of location and scatter:
-		\begin{align}
-		c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
-		\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
-		\end{align}
-		
-		\item Re-iterate until a specified number of steps or until no convergence is obtained:
-		\begin{equation}
-		\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
-		\end{equation}
+
+	\begin{enumerate}
+		\item Calculate the kernel matrix for the given $h$-subset of observations and kernel.
+		\item Center $K$ in $\mathcal{H}$ by equation \ref{eq:centerKh}, obtaining $\tilde{K}_h$
+		\item Perform the singular value decomposition on $\tilde{K}_h$ to obtain the eigenvectors $\alpha$ and eigenvalue vector $L_d$ (equation [..]).
+		\item Normalize each eigenvector $\alpha_i$ by its corresponding eigenvalue, equation [...]
+		\item Calculate the kernel matrix for the given $h$-subset of observations in $n$ features.
+		\item Center the kernel matrix by equation [REF..] and obtain the malalanobis distances with equation [REF].
+		\item Sort these Mahalanobis distances in ascending order and redefine the $h$-subset as the $h$ observations with smallest distance.
+		\item If the new $h$-subset is equal to the previous one, exit the C-step loop.
 	\end{enumerate}
+
+%	\begin{enumerate}	
+%		\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
+%		\begin{equation}
+%		||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
+%		\end{equation}	
+%		\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
+%		\item Obtain a new estimation of location and scatter:
+%		\begin{align}
+%		c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
+%		\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
+%		\end{align}
+%		
+%		\item Re-iterate until a specified number of steps or until no convergence is obtained:
+%		\begin{equation}
+%		\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
+%		\end{equation}
+%	\end{enumerate}
+
 	\item [Step 5] If the $h$-subset size is lower then $h_{end}$, increase the $h$-subset size by (say) 5\% and go back to step 4. 
 	\item [Step 6] Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
 	\begin{equation}
