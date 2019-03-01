@@ -3,11 +3,10 @@
     clear all; 
     clc;
     
-    rng default;
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Simulate the breaking of an svm in the linear case
     clear;
+    rng default;
     
     C = 1e4;
     
@@ -27,6 +26,8 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Kernel used    
     clear;
+    close all;
+    rng default;
     
     C = 120;
     
@@ -36,8 +37,8 @@
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
-    pModel = EntropyBasedPruning(10, kModel);
-    %pModel = DPPBasedPruning(10, kModel);
+    %pModel = EntropyBasedPruning(10, kModel);
+    pModel = DPPBasedPruning(10, kModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used

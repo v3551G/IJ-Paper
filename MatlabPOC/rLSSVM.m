@@ -152,7 +152,7 @@ classdef rLSSVM < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    How many outliers do we expect in out dataset
             hInitial = 0.35;
-            hCstep = 0.65;
+            hCstep = 0.85;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
@@ -263,18 +263,20 @@ classdef rLSSVM < handle
         end
         
         function weights  = trainSingleClass(this, x, hInitial, hCstep)
+            lims = [-2, 2];
+            
             initisalSubset  = this.spatialMedian(x, hInitial);
             fh = figure(); 
             plot(x(:, 1), x(:, 2), '.', 'MarkerSize', 12); hold on; 
             plot(x(initisalSubset, 1), x(initisalSubset, 2), '.g', 'MarkerSize', 12);
-            xlim([-4, 4]); ylim([-4, 4]); set(fh, 'Color', 'w');
+            xlim(lims); ylim(lims); set(fh, 'Color', 'w');
             %export_fig('c2input.pdf');
             
             weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep);            
             fh = figure(); 
             plot(x(:, 1), x(:, 2), '.', 'MarkerSize', 12); hold on; 
             plot(x(weights, 1), x(weights, 2), '.g', 'MarkerSize', 12);
-            xlim([-4, 4]); ylim([-4, 4]); set(fh, 'Color', 'w');
+            xlim(lims); ylim(lims); set(fh, 'Color', 'w');
             %export_fig('c2output.pdf');
         end
     
