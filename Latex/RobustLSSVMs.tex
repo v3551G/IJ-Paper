@@ -340,7 +340,14 @@ We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) 
 	\end{cases}
 	\end{equation}
 \end{itemize}
-The different steps of this algorithm are shown in figure [REF], where it can be seen that [WAT]. The final outcome, weights for each observation, are kept in memory to ...;
+The different steps of this algorithm are shown in figure [REF], where it can be seen that [WAT]. The final outcome, weights for each observation, are kept in memory to ...; Next, we solve the system of equations
+
+\begin{enumerate}
+	\item Group the weights
+	\item item SOLVE THE SYSTEM OF EQUATIONS CFR EQUATION 
+\end{enumerate}
+This yields $\alpha$, the supprt vector candidate list,  ... and ...
+
 \begin{figure}[!htb]
 	\centering
 	\begin{subfigure}[b]{0.4\linewidth}
@@ -417,6 +424,14 @@ In contrast to the original fixed-size LS-SVM formulation, which is used to find
 	It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
 \end{remark}
 
+Given an outlier free $h$-subset of candidate support vectors, the entropy based selection algorithm works as follows[REF]:
+\begin{enumerate}
+	\item for iteration = 1:10*size(x,1)
+	\item formule 1, see equation 38 above
+	\item formule 2, see equation 39 above
+	\item formule ..., see [REF]
+\end{enumerate}
+
 ----TODO-----
 MORE EXPLANATIONS DPP
 
@@ -449,8 +464,15 @@ We propose to first determine to region of interest, which includes the points t
 It is important to first omit outliers, before continuing with the DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
 \end{remark}
 
+Given an outlier free $h$-subset of candidate support vectors, the entropy based selection algorithm works as follows[REF]:
+\begin{enumerate}
+	\item for iteration = 1:10*size(x,1)
+	\item formule 1, see equation 38 above
+	\item formule 2, see equation 39 above
+	\item formule ..., see [REF]
+\end{enumerate}
 
-
+\newpage
 \subsection{Information transfer}
  The information contained in the prune candidates can then be transferred to the support vectors - an idea originally introduced in [???]. Starting from equation \ref{eq:prediction} with the appropriate matrix dimensions:
 \begin{equation}
