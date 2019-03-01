@@ -81,6 +81,31 @@
     response = sign(ourSvm.predict(testdata, dModel));
     misclass = sum(response~=testLabels) ./ numel(testLabels)
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Industrial dataset example
+    clear;
     
+    C = 1e4;
+    
+    kModel = RbfKernel(1);
+    pModel = DPPBasedPruning(8, kModel);
+    dModel = MoldDataModel(500, 0.10);      
+    %fh=dModel.plot();    
+    
+    ourSvm = rLSSVM(kModel, pModel);    
+    ourSvm.train(dModel, C);
+    xResponse = ourSvm.predict(csvread('datasets\gp.csv'), dModel);
+    xResponseImage = csvread('datasets\maskx.csv');
+    
+    z = nan(size(xResponseImage));
+    z(xResponseImage>0) = xResponse;
+    figure; pcolor(reshape(z, [450, 450])); shading flat;
+    
+    yResponse = ourSvm.predict(csvread('datasets\bp.csv'));
+    
+    
+    lsSvm = LSSVM(kModel);
+    lsSvm.train(dModel, C);
+   
     
     
