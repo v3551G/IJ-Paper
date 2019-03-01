@@ -34,6 +34,10 @@
 %% for the whole article with \linenumbers after \end{frontmatter}.
 \usepackage{lineno}
 
+% Pseudocode
+\usepackage{algorithm2e}
+\SetKw{KwBy}{by}
+
 %% natbib.sty is loaded by default. However, natbib options can be
 %% provided with \biboptions{...} command. Following options are
 %% valid:
@@ -463,11 +467,22 @@ If we omit all zero rows in the matrices above we obtain a compressed matrix of 
 \end{equation}
 Which is implemented using equation \ref{eq:gpuprediction} given the knowledge that $n_1 = m$ - the number of a priori defined support vectors. \\
 
-The only problem that remains is the section of the most relevant support vectors....
+\paragraph{Algorithm 3--- summary selection of landmark points} 
+\hfill \\\\
+The following procedure is applied on the robust trained LS-SVM and outlierfree dataset:
 
-\paragraph{Algorithm 3--- Sparse K-MCD based LS-SVM}
 
-summary all steps algorithm
+\begin{algorithm}[H]
+\KwData{$\beta \in [0,1]$, $h \in [1,N]$, $l_1,l_2 \in [1,N]$}
+$\alpha_i$, $x_i$ where $i = 1,..,h$ \gets Run algorithm 1 \\
+\For{every class $Y \in [-1 \enskip 1]$}{
+	ROI \gets largest $\beta N$ indices of $Y \alpha_v y_v$ where $v \in Y$ \\
+	idS \gets k-DPP(ROI,$l_Y$) 
+}
+Put information transfer here \\
+\Return{idS,$\alpha_S$}
+\caption{Landmark Selection}\label{Algo:LandmarkSelection}
+\end{algorithm}
 
 \section{Experiments} 
 \subsection{Simulation results} 
