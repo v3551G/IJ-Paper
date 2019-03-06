@@ -148,25 +148,22 @@
 	estimator of multivariate location and scatter. However, in contrast to the original formulation, the location and scatter is determined in feature space using the kernel trick. This results in non-linear outlier detection. Afterwards extreme sparsity is obtained by determinantal point processes (DPP)~\cite{kulesza2012determinantal}, which are capable of selecting diverse samples. To summarize, our mean contributions consist off:
 	\begin{enumerate}
 		\item Kernel concentration steps for outlier detection.
-		\item A new Pruning strategy based on Entropy and determinantal point processes
+		\item A new Pruning strategy based on entropy and determinantal point processes
 	\end{enumerate}
 	
-	NOG AANPASSEN
-	The remainder of this paper is organized as follows. In section 2 we introduce our sparse robust least squares support vector machine. In section 3 we propose our robust outlier detection routine, followed by our support vector sparseness routine (??). The extensive simulation results of both theoretical and real, industrial datasets listed in section 4 conform the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section 5. 
+	The remainder of this paper is organized as follows. A brief overview of LS-SVM is given in section~\ref{sec:lssvm}. In section \ref{sec:proposed} we propose our robust outlier detection routine, followed by our support vector sparseness routine in section~\ref{sec:Sparseness}. The extensive simulation results of both theoretical and real, industrial datasets listed in section~\ref{sec:exp} confirm the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section~\ref{sec:conc}. 
 	
 	
 	\section{LS-SVM for classification}
+	\label{sec:lssvm}
 	A binary classifier's goal is to learn a prediction model that assigns the correct label $y \in \{+1, -1\}$ to an unseen test sample. Restated more formally, we seek an SVM-based classifier that fits an optimal hyperplane between the two classes, where the hyperplane maximizes the distance to the closest point(s) of either class. This margin $||w||^{-1}$ maximization leads directly to a classifier with good generalisation properties, i.e: it will result in good classification performance on (unseen) test data, for example compared with density based estimators. \\
 	
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
-	%%%%%%%%%%%%%
-	%%%%%%%%%%%%%	AANPASSEN AAN WEIGHTED LEAST SQUARES PRINCIPE
 	
 	Given an $p$-variate trainingsset $x \in \mathbb{R}^p$ and the binary class label $y_i \in[+1,-1]$ for observation $x_i$ with index $i = 1,..,n$, the following constrained optimization must be solved to obtain the LS-SVM representation of a support vector machine:
 	
 	\begin{gather}
 	\label{eq:costfunction}
-	min \  J(w,b,e_i) = \frac{1}{2} w^T w + \frac{\gamma}{2} \sum_{i=1}^{n} e_i^2 \\
+	\mathrm{min} \  J(w,b,e_i) = \frac{1}{2} w^T w + \frac{\gamma}{2} \sum_{i=1}^{n} e_i^2 \\
 	\label{eq:lsconstraint}
 	\textrm{such that } y_i[w^T \varphi(x_i) + b] = 1-e_i, \enskip i = 1,..,n
 	\end{gather}
@@ -197,8 +194,8 @@
 	
 	\begin{equation}
 	\begin{bmatrix}
-	0 & y^T \\
-	y & \Omega + \gamma^{-1} \mathbf{I}
+	0 & \mathbf{y} ^T \\
+	\mathbf{y} & \Omega + \gamma^{-1} \mathbf{I}
 	\end{bmatrix}	
 	\begin{bmatrix}
 	b \\
@@ -210,22 +207,24 @@
 	\mathbf{1}
 	\end{bmatrix},
 	\end{equation}
-	where $y = [y_1;...;y_n]$, $\mathbf{1} = [1;...;1]$ and $\mathbf{I}$ the identity matrix.
+	where $\mathbf{y}  = [y_1;...;y_n]$, $\mathbf{1} = [1;...;1]$ and $\mathbf{I}$ the identity matrix.
 	The least squares solution of the aforementioned system of equations is then used to  obtain the Lagrange coefficients $\alpha$ and offset $b$, where the decision function used for test set prediction is defined as:
 	\begin{equation}
 	\hat{y}(x) = \mathrm{sign}\Big(\sum_{i=1}^{n} \alpha_i y_i K(x, x_j) + b\Big)	
 	\label{eq:classification}
 	\end{equation}
-	Or, written in a more convenient matrix notation, short-writing $\beta_i= (\alpha_i \  y_i)^T$
-	\begin{equation}
-	\hat{y}(x) = \mathrm{sign}(\mathbf{\beta} K + b \mathbf{1})
-	\label{eq:prediction}
-	\end{equation}
-	$\hat{y}_i$ is the predicted output of the ith training data point. Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i = 1$, and that the derivation for least squares support vector regression follows the same reasoning where the sign is omitted. %\cite{Choi2009}.
+%	Or, written in a more convenient matrix notation, short-writing $\beta_i= (\alpha_i \  y_i)$
+%	\begin{equation}
+%	\hat{y}(x) = \mathrm{sign}(K\mathbf{\beta}  + b \mathbf{1}),
+%	\label{eq:prediction}
+%	\end{equation}
+%	where $\hat{y}(x)$ is the predicted output, $K$ the ker. 
+Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i = 1$, and that the derivation for least squares support vector regression follows the same reasoning where the sign is omitted. %\cite{Choi2009}.
 	
 	\newpage
 	
 	\section{Proposed method}
+	\label{sec:proposed}
 	We first start by laying out the main methodology of our proposed robust, sparse LS-SVM algorithm. 
 	\begin{enumerate}
 		\item Outlier detection by kernel Csteps.
@@ -405,49 +404,49 @@
 	
 	\subsection{Selection of the best support vectors}
 	
-	Having established the data model and optimized classification accuracy for contaminated datasets, let us return to the problem at hand: the development of a pruning strategy. This implies that prediction formula should be partitioned in a \textit{relevant} (the support vectors or landmark points, found by the pruning algorithm) - and \textit{irrelevant} part.  An overview of existing pruning methods can be found in Hoegaerts et. al \cite{hoegaerts2004comparison}. A first approach was suggest by Suykens et. al \cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum resulting from the solution to the linear system.  The motivation comes from the fact that LS-SVM support values are proportional to the errors at datapoints. Thus omitting the points that contribute least to the training error. An example of the support value spectrum can be seen on Figure \ref{fig:BadAlpha}. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. 
+	Having established the data model and optimized classification accuracy for contaminated datasets, let us return to the problem at hand: the development of a pruning strategy. This implies that prediction formula should be partitioned in a \textit{relevant} (the support vectors or landmark points, found by the pruning algorithm) - and \textit{irrelevant} part.  An overview of existing pruning methods can be found in Hoegaerts et. al \cite{hoegaerts2004comparison}. A first approach was suggest by Suykens et. al \cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum resulting from the solution to the linear system.  The motivation comes from the fact that LS-SVM support values are proportional to the errors at datapoints. Thus omitting the points that contribute least to the training error. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. 
 	
 	However blindly taking the points with largest support value spectrum could lead to sub-optimal results. Firstly, when outliers are present, you want to be certain that these are not chosen. Secondly, points are chosen independently towards each other. This results in clumping of landmarks. The first problem is addressed by running a kernelized minimum covariance determinant, which detects and omits potential outliers. 
 	
-	The second problem is solved by introducing a "region of interest" (ROI) for each class $y \in \{+1,-1\}$, which consist of points close to the decision boundary. This is done in two steps:
+	The second problem is solved by introducing a subset for each class \newline $y \in \{+1,-1\}$ called the "region of interest" (ROI), which consist of points close to the decision boundary. Determining the ROI is done for each class and consists out of two steps:
 	\begin{enumerate}
-		\item Determine the subset 	$X_y \in \mathbb{R}^{N_y \times p}$, where $X_y = \{x_i| y_i = y\} $ and $N_y$ is the number of datapoints in the class $y$.
-		\item Reduce the first subset even more by the selecting the $\beta$ percentage\footnote{In the experiments, a reduction rate $\beta = 0.25$ is used.} datapoints with highest value $\alpha_i$, where $\alpha_i$ is the support value. 
+		\item Determine the subset which consists of all points belonging to the class and are not considered outliers by the kernel MCD procedure.
+		\item Reduce the subset even more by the selecting the $\beta$ percentage\footnote{In the experiments, a reduction rate $\beta = 0.25$ is used.} datapoints with highest value $\alpha_i$, where $\alpha_i$ is the support value. 
 	\end{enumerate}
-	In contrast to the proposed pruning strategy by Suykens et. al~\cite{suykens2000sparse}, the sign of alphas is taken in consideration when determining the ROI. Potential landmark points are now points with large importance and that predict the right class. This is easily seen from the prediction equation \eqref{eq:prediction}, where the contribution of a training point in the prediction a test point $z$ towards class y is proportional to $y \, w_i$ with $w_i = \alpha_iy_i$.
+	In contrast to the proposed pruning strategy by Suykens et. al~\cite{suykens2000sparse}, the sign of alphas is taken in consideration when determining the ROI. Potential landmark points are now points with large importance and that predict the right class. This is easily seen from the prediction equation \eqref{eq:classification}, where the contribution of a training point in the prediction a test point $x_t$ towards class $y \in \{+1,-1\}$ is proportional to $y \, w_i$ with $w_i = \alpha_iy_i$.
 	
-	The ROI represents a subset with points important for the decision boundary. Using a sampling algorithm that promotes diversity, $h$ landmark points are selected to represent the ROI such that no clumping is possible.
+	The ROI represents a subset with points important for the decision boundary for every class. Using a sampling algorithm that promotes diversity, $l$ landmark points are selected for every class to represent the ROI. Due to the diversity, no clumping is possible.
 	
 	\subsubsection{Entropy}
 	Selection of the landmark points is based on quadratic Renyi entropy~\cite{girolami2002orthogonal} and the fixed size LS-SVM~\cite{suykens2002least}. The landmarks points are chosen to maximize the quadratic Renyi Entropy:
 	\begin{equation}
+	\label{eq:Entropy1}
 	H_R = -\mathrm{log}\int p(x)^2 dx.
 	\end{equation}
 	The quadratic Renyi Entropy is approximated by the following equation\cite{girolami2002orthogonal}:
 	\begin{equation}
+	\label{eq:Entropy2}
 	\int \hat{p}(x)^2dx = \frac{1}{N^2} 1_v^\mathrm{T}\Omega 1_v,
 	\end{equation}
 	where $1_v = [1;1;...;1]$ and a normalized kernel is assumed with respect to density estimation. In the fixed-size LS-SVM approach, one chooses a fixed working set of size $M$ which is initialized randomly. Afterwards, random points are swapped in and out. If the entropy increases, the swapped point is accepted, otherwise the original subset is kept. This process continues until the change in entropy is small or a fixed number of iterations is reached. 
 	
-	In contrast to the original fixed-size LS-SVM formulation, which is used to find a representative subset for the Nystr\"{o}m approximation \cite{suykens2002least}. We propose to first determine to region of interest, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, the fixed-size LS-SVM algorithm is used to select the $h$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The downsides of the entropy criteria are that a relatively large number of iterations are necessary to get a diversified selection, secondly only the Gaussian kernel can be used~\cite{girolami2002orthogonal}.
+	In contrast to the original fixed-size LS-SVM formulation, which is used to find a representative subset for the Nystr\"{o}m approximation \cite{suykens2002least}. We propose to first determine to ROI, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, the fixed-size LS-SVM algorithm is used to select the $l$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The downsides of the entropy criteria are that a relatively large number of iterations are necessary to get a diversified selection, secondly only the Gaussian kernel can be used~\cite{girolami2002orthogonal}.
 	
 	
 	\begin{remark}
 		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
 	\end{remark}
 	
-	Given an outlier free $h$-subset of candidate support vectors, the entropy based selection algorithm works as follows[REF]:
+	Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the entropy based selection algorithm is repeated for every class~\cite{suykens2002least}:
 	\begin{enumerate}
-		\item for iteration = 1:10*size(x,1)
-		\item formule 1, see equation 38 above
-		\item formule 2, see equation 39 above
-		\item formule ..., see [REF]
+		\item Choose a working set of size $l$ by randomly selection support vector out of the ROI.
+		\item Randomly select a point out of the ROI and replace it by a random point in the working set.
+		\item Calculate the quadratic Renyi entropy for the new working set using equations \eqref{eq:Entropy1} and \eqref{eq:Entropy2}.
+		\item If the entropy increases, keep the swapped point, otherwise return to the original working set.
+		\item Stop if the change in entropy is small or a maximum number of iterations is reached. Otherwise go back to step 2.
 	\end{enumerate}
-	
-	----TODO-----
-	MORE EXPLANATIONS DPP
-	
-	
+		
+
 	\subsubsection{Determinantal point process}
 	Selection of landmark points is based on determinantal point processes (DPPs)~\cite{kulesza2012determinantal}. DPPs are particularly interesting for set selection problems where diversity is preferred. A point process $\mathcal{P}$ on a ground set $\mathcal{Y} = {1,2,...,N}$ is a probability measure over point patterns of $\mathcal{C}$ , which are finite subsets of $\mathcal{Y}$. When $\mathcal{C}$ is a random subset, drawn according to the DPP $\mathcal{P}$, we have:
 	\begin{equation}
@@ -461,53 +460,55 @@
 	\label{eq:KDPP}
 	&= \mathcal{P}(i \in \mathcal{Y})\mathcal{P}(j \in \mathcal{Y}) - K_{i,j}^2.
 	\end{align}
-	The diagonal elements of the kernel matrix give the marginal probability of inclusion for individual elements of $\mathcal{Y}$, whereas the off-diagonal elements determine the (anti-)correlation between pairs of elements. Thus for large values of $K_{i,j}$, or a high similarity, points are unlikely the appear together. 
+	The diagonal elements of the kernel matrix give the marginal probability of inclusion for individual elements of $\mathcal{Y}$, whereas the off-diagonal elements determine the (anti-)correlation between pairs of elements. Thus for large values of $K_{i,j}$, or a high similarity, points are unlikely the appear together. Which is essential to promote diversity,
 	
-	In our case, we would like to build a DPP based on the kernel matrix $K$, which is done using L-ensembles~\cite{borodin2009determinantal}. The probability of observing a subset $C \subseteq \mathcal{Y}$ is now equal to:
+	In our case, we would like to build a DPP based on the kernel matrix $K$, which is done using L-ensembles~\cite{kulesza2012determinantal}. The probability of observing a subset $C \subseteq \mathcal{Y}$ is now equal to:
 	\begin{equation}
 	\mathrm{Pr}(\mathcal{C}) = \frac{\mathrm{det}(K_{\mathcal{C}})}{\mathrm{det}(K + I)},
 	\end{equation}
-	where $I$ is the identity matrix, and $K$ a positive semidefinite matrix  indexed by the elements of $\mathcal{Y}$. In contrast to equation \eqref{eq:origDPP}, $K$ only has to be positive semidefinite, while the eigenvalues previously where bounded above. When conditioning on a fixed cardinality $k = |\mathcal{C}|$, one gets the k-DPP~\cite{kulesza2011k}.
+	where $I$ is the identity matrix, and $K$ a positive semidefinite matrix  indexed by the elements of $\mathcal{Y}$. In contrast to equation \eqref{eq:origDPP}, $K$ only has to be positive semidefinite, while the eigenvalues previously where bounded above. When conditioning on a fixed cardinality $k = |\mathcal{C}|$, one gets the k-DPP~\cite{kulesza2011k}. MEER UITLEG K-DPP	
 	
 	The landmark selection algorithm consists of the following steps:
-	We propose to first determine to region of interest, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, a $k$-DPP~\cite{kulesza2011k}, where $k = h$, is used to sample the $h$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. 
+	We propose to first determine the ROI, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, a $k$-DPP~\cite{kulesza2011k}, where $k = l$, is used to sample the $l$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. 
 	
 	\begin{remark}
-		It is important to first omit outliers, before continuing with the DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
+		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
 	\end{remark}
 	
-	Given an outlier free $h$-subset of candidate support vectors, the entropy based selection algorithm works as follows[REF]:
-	\begin{enumerate}
-		\item for iteration = 1:10*size(x,1)
-		\item formule 1, see equation 38 above
-		\item formule 2, see equation 39 above
-		\item formule ..., see [REF]
-	\end{enumerate}
+Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the k-DPP selection algorithm is repeated for every class to select $l$ landmark points~\cite{kulesza2011k}:
+\begin{enumerate}
+	\item Calculate the eigenvector/value pairs $\{(\mathbf{v}_r,\lambda_r)\}$ from the L-ensemble matrix $L = K_{ROI}(I - K_{ROI} )^{-1}$, where $K_{ROI} \in \mathbb{R}^{N_{ROI} \times N_{ROI}} $ is the kernel matrix containing the points in the ROI.
+	\item Iterate over all components of the eigenvector/value pairs and include the component $r$ if $u \sim U[0, 1] < \lambda_r \frac{e_{k-1}^{r-1}}{e_k^r}$, where $k$ is number of components selected so far, iterator $r = N_{ROI},...,1$  and $k$ elementary polynomial $e_k^r = \sum_{\substack{J \subseteq \{1,...,r\}\} \\ |J| = k}}\prod_{n \in J} \lambda_n$ . Continue to the next step if you have selected $l$ components. The matrix $V$ is now equal to the eigenvectors of included components. 
+	\item Select a landmark point $x_i$ from ROI with $\mathrm{Pr}(x_i) = \frac{1}{|V|} \sum_{\mathbf{v} \in V} (\mathbf{v}^\mathrm{T} \mathbf{e}_i)^2$. The vector $\mathbf{e}_i$ is the $i$th standard basis, which is all zeros except for a one
+	in the $i$th position.
+	\item Recalculate $V \leftarrow V_\perp$, an orthonormal basis for the subspace of $V$ orthogonal to $\mathbf{e}_i$. Afterwards go back to step 3 until $l$ landmark points are selected.
+\end{enumerate}
 	
 	\newpage
 	\subsection{Information transfer}
-	The information contained in the prune candidates can then be transferred to the support vectors - an idea originally introduced in [???]. Starting from equation \ref{eq:prediction} with the appropriate matrix dimensions:
+	The information contained in the not selected support vectors can then be transferred to the selected support vectors, an idea originally introduced in~\cite{tao2009fast}. Starting from equation \eqref{eq:classification} for the outlierfree dataset, we get in matrix notation:	
 	\begin{equation}
-	\hat{y}_{(1,n_2) } = \mathbf{\beta}_{(1,n_1)} K_{(n_1, n_2)} + b_{(1,1)} \ \mathbf{1}_{(1, n2)} 
+\hat{\mathbf{y}} = \mathrm{sign}(K\mathbf{\beta}  + b \mathbf{1}),
 	\end{equation}
-	Introducing sparse matrices, we could partition this expression in a (non) support vector part, denoted by the subscript $S$ and $N$ respectively.
+with $\hat{\mathbf{y}} = [\hat{y}_1;...;\hat{y}_n]$ the prediction vector and $\mathbf{\beta} = [\alpha_i y_i ,...,\alpha_i y_{n_h}]^\mathrm{T}$, where $n_h$ is the number of points in the outlierfree dataset.
+We can partition this expression in the selected landmark part and non-selected support vectors:
 	\begin{equation}
-	\hat{y}_{(1,n_2) } = \mathbf{\beta}_{S(1,n_1)} K_{S(n_1, n_2)} + \mathbf{\beta}_{N(1,n_1)} K_{N(n_1, n_2)} + b_{(1,1)} \ \mathbf{1}_{(1, n2)}
+\hat{\mathbf{y}} = \mathrm{sign}(K_l\mathbf{\beta}_l + K_{nl}\beta_{nl}  + b \mathbf{1}),
 	\end{equation}
-	Next, one transfers the information of $\mathbf{\beta}_{N} K_{N}$ using the update $\Delta\beta$: 
+	where $K_l $ is the matrix whose columns are selected from $K$ using the landmark selection while the other columns of $K$ form matrix $K_{nl}$, and $\mathbf{\beta}_l$ is a column vector whose elements are the multipliers corresponding to columns in $K_l $ while the other multipliers compose the vector $ \mathbf{\beta}_{nl}$.
+	Next, one transfers the information of $\mathbf{\beta}_{nl} K_{nl}$ using the update $\Delta\beta$: 
 	\begin{align}
-	\Delta \beta K_S &= \beta_N K_N  \\
-	\Delta \beta &= K^\dagger_S  \beta_N K_N
+	\Delta \mathbf{\beta} K_l &= K_{nl} \mathbf{\beta}_{nl}   \\
+	\Delta \mathbf{\beta} &= K^\dagger_l  K_{nl} \mathbf{\beta}_{nl} .
 	\end{align}
-	We now have obtained an explicit expression for the update of our Lagrange multipliers. 
+	We now have obtained an explicit expression for the update of our Lagrange multipliers:
 	\begin{align}
-	\hat{\beta}_S &= \beta_S + \Delta\beta
+	\hat{\mathbf{\beta}}_l &=\mathbf{\beta}_l + \Delta \mathbf{\beta}.
 	\end{align}
-	If we omit all zero rows in the matrices above we obtain a compressed matrix of size $m_1$ rows in $n_2$ dimensions. Here, $m_1$ equals the (a priori, before the training stage) defined number of support vectors. The classier prediction equation finally boils down to:
+ The classier prediction equation finally boils down to:
 	\begin{equation}
-	\hat{y}_{(1,n_2) } = \mathbf{\beta}_{(1,m)} K_{(m, n_2)} + b_{(1,1)} \ \mathbf{1}_{(1, n2)} 
+\hat{y}(x) = \mathrm{sign}(	K_l\hat{\mathbf{\beta}}_l + b \mathbf{1}).
 	\end{equation}
-	Which is implemented using equation \ref{eq:gpuprediction} given the knowledge that $n_1 = m$ - the number of a priori defined support vectors. \\
 	
 	\begin{remark}
 		As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
@@ -531,6 +532,7 @@
 	%\end{algorithm}
 	
 	\section{Experiments} 
+	\label{sec:exp}
 	\subsection{Simulation results} 
 	
 	\subsubsection{Linear example}
@@ -553,6 +555,7 @@
 	\subsection{Industrial data results} 
 	
 	\section{Conclusions and future work}
+	\label{sec:conc}
 	
 	\section*{Acknowledgements}
 	
