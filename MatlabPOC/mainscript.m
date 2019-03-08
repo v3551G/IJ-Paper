@@ -80,7 +80,7 @@
     testdata = testdata(:, 1:11);
     
     response = sign(ourSvm.predict(testdata, dModel));
-    misclass = sum(response~=testLabels) ./ numel(testLabels)
+    misclass = sum(response~=testLabels) ./ numel(testLabels);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Industrial dataset example
