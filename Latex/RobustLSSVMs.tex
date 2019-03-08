@@ -141,7 +141,7 @@
 	
 	To reduce the influence of outliers, Suykens et al.~\cite{suykens2002weighted} proposed the weighted LS-SVM. By iteratively assigning small weights to outliers and retraining, the method diminishes the effect of extreme values. Another solution was proposed by Yang et al.~\cite{yang2014robust}, where a truncated loss function is used in the objective that is solved by a concave-convex procedure and the newton algorithm. A third solution is suggested by Debruyne et al.~\cite{debruyne2009robustified}, which proposes a weighted LS-SVM classification where weights are equal to spatial rank with respect to the other feature vectors in the class.
 	
-	In comparison to the standard support vector machines (SVM), the LS-SVM only requires solving a linear system, but it lacks sparseness in the number of solution terms. To solve this problem, Suykens et al.~\cite{suykens2000sparse} propose a method that iteratively prunes the datapoints with lowest support values and retrains. Yang et.al~\cite{yang2014sparse} propose a one-step compressive pruning strategy to reduce the number of support vectors. Fixed-size LS-SVM sparsifies the LS-SVM by selecting important point or landmark points based on the quadratic Renyi Entropy criterion~\cite{suykens2002least}. However the landmark points are fixed in advance and don't take into account information of the classification itself, which could lead to sub-optimal results. This is in contrast to the sparse LS-SVM~\cite{suykens2000sparse}, which chooses datapoints based on the impact on the classification boundary. A comparison of different pruning methods can be found in~\cite{hoegaerts2004comparison}. 
+	In comparison to the standard support vector machines (SVM), the LS-SVM only requires solving a linear system, but it lacks sparseness in the number of solution terms. To solve this problem, Suykens et al.~\cite{suykens2000sparse} propose a method that iteratively prunes the datapoints with lowest support values and retrains. Yang et al.~\cite{yang2014sparse} propose a one-step compressive pruning strategy to reduce the number of support vectors. Fixed-size LS-SVM sparsifies the LS-SVM by selecting important point or landmark points based on the quadratic Renyi Entropy criterion~\cite{suykens2002least}. However the landmark points are fixed in advance and don't take into account information of the classification itself, which could lead to sub-optimal results. This is in contrast to the sparse LS-SVM~\cite{suykens2000sparse}, which chooses datapoints based on the impact on the classification boundary. A comparison of different pruning methods can be found in~\cite{hoegaerts2004comparison}. 
 	
 	In this paper, we focus on tackling both problems at once.
 	Other methods are found in~\cite{chen2018sparse}, where a primal formulation of the LS-SVM with a truncated loss is introduced, sparseness is obtained by the Nystr\"{o}m approximation. A second method is the weighted LS-SVM of Suykens et al.~\cite{suykens2002weighted}. We propose a robust LS-SVM based on the Minimum covariance determinant (MCD)~\cite{hubert2010minimum}, which is known to be a highly robust
@@ -159,7 +159,7 @@
 	A binary classifier's goal is to learn a prediction model that assigns the correct label $y \in \{+1, -1\}$ to an unseen test sample. Restated more formally, we seek an SVM-based classifier that fits an optimal hyperplane between the two classes, where the hyperplane maximizes the distance to the closest point(s) of either class. This margin $||w||^{-1}$ maximization leads directly to a classifier with good generalisation properties, i.e: it will result in good classification performance on (unseen) test data, for example compared with density based estimators. \\
 	
 	
-	Given an $p$-variate trainingsset $x \in \mathbb{R}^p$ and the binary class label $y_i \in[+1,-1]$ for observation $x_i$ with index $i = 1,..,n$, the following constrained optimization must be solved to obtain the LS-SVM representation of a support vector machine:
+	Given an $p$-variate trainingsset $x \in \mathbb{R}^p$ and the binary class label $y_i \in \{+1,-1\}$ for observation $x_i$ with index $i = 1,..,n$, the following constrained optimization must be solved to obtain the LS-SVM representation of a support vector machine:
 	
 	\begin{gather}
 	\label{eq:costfunction}
@@ -168,7 +168,7 @@
 	\textrm{such that } y_i[w^T \varphi(x_i) + b] = 1-e_i, \enskip i = 1,..,n
 	\end{gather}
 	
-	Here $w^T \varphi(x_i) + b$ is the hyperplane based decision function of the classifier with corresponding parameters $w$ and $b$, where the scalar $\gamma$ is used to control the over/under-fitting trade-off. Finally,  $\varphi(.)$ is the transformation from input space $\mathbb{R}^p$ to the kernel feature space, abbreviated as $\mathcal{H}$. \\
+	Here $w^T \varphi(x_i) + b$ is the hyperplane based decision function of the classifier with corresponding parameters $w$ and $b$, where the regularization parameter $\gamma$ is used to control the over/under-fitting trade-off. Finally,  $\varphi(.)$ is the transformation from input space $\mathbb{R}^p$ to the kernel feature space, abbreviated as $\mathcal{H}$. \\
 	
 	The specified constraint states that every given multivariate sample should lie on the correct side of hyperplane. Stated differently, the classifier should predict the class label of each sample correctly, where each observation $x_i$ has an corresponding error $e_i$ due to the constraint equality sign. This, in turn, implies that a LS-SVM loses its support vector sparseness compared to ordinary SVM's. \\
 	
@@ -219,7 +219,7 @@
 %	\label{eq:prediction}
 %	\end{equation}
 %	where $\hat{y}(x)$ is the predicted output, $K$ the ker. 
-Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i = 1$, and that the derivation for least squares support vector regression follows the same reasoning where the sign is omitted. %\cite{Choi2009}.
+Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i = 1$, and that the derivation for least squares support vector regression follows the same reasoning where the sign is omitted in the prediction function. %\cite{Choi2009}.
 	
 	\newpage
 	
@@ -511,7 +511,7 @@ We can partition this expression in the selected landmark part and non-selected 
 	\end{align}
  The classier prediction equation finally boils down to:
 	\begin{equation}
-\hat{y}(x) = \mathrm{sign}(	K_l\hat{\mathbf{\beta}}_l + b \mathbf{1}).
+\hat{y}(x) = \mathrm{sign}\Big(\sum_{i=1}^{l} K(x, x_i)\hat{\beta}_i  + b\Big).	
 	\end{equation}
 	
 	\paragraph{Algorithm 3--- summary selection of landmark points} 
