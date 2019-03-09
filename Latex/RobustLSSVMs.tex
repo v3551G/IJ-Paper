@@ -225,7 +225,22 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 	\section{Proposed method}
 	\label{sec:proposed}
-	We first start by laying out the main methodology of our proposed robust, sparse LS-SVM algorithm. 
+	We first start by laying out the main methodology of our proposed robust and sparse LS-SVM algorithm. 	
+	\begin{figure}[!htb]
+		\centering
+%		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=0.8\linewidth]{flow/gabstract.pdf}
+			\caption{\label{fig:dmodel1}} 
+%		\end{subfigure}
+	\end{figure}
+	@Iwein: even duidelijk uitleggen wat de definities zijn, welke subsets (en welke benaming) we gebruiken, consistent door de paper. 
+	\begin{enumerate}
+		\item Outlier vrije SV-candidates of REGULIERE OBSERVATIELIJST = h-subset resultaat, na reweighting, placed back in the original positions for both data subsets.
+		\item REGULIERE OBSERVATIELIJST: ROI bepaling geeft nieuwe lijst B: gepruned REGULIERE OBSERVATIELIJST.
+		\item geprunde REGULIERE OBSERVATIELIJST: DPP sampling geeft de SV lijst. 
+		\item Info transfer van vrije SV-candidates naar de SV lijst.
+	\end{enumerate}
+	
 	\begin{enumerate}
 		\item Outlier detection by kernel Csteps.
 		\item Train the robust LS-SVM by solving the system of equations.
