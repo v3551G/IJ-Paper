@@ -225,7 +225,8 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 	\section{Proposed method}
 	\label{sec:proposed}
-	We first start by laying out the main methodology of our proposed robust and sparse LS-SVM algorithm. 	
+	We first start by laying out the main methodology of our proposed method, where our novel pre-and post-processing operations are shown in grey on figure [REF]. A given input dataset is first standardized, followed by our non-linear outlier detection routine,(section [???]) in order to extract a list of regular observations. These candidate support vectors are then used to train a standard, weighted LS-SVM classifier. Because the solution lacks sparsity - apart from the removal of outliers - a second algorithm is used (section [REF??]) to extract the support vectors based on entropy - or negative correlation (section [REF??]). Finally, the information of the detected regular observations is transferred to the support vectors to improve its classification efficiency, as highlighted in the simulations.  
+	
 	\begin{figure}[!htb]
 		\centering
 %		\begin{subfigure}[b]{0.40\linewidth}
@@ -233,25 +234,25 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 			\caption{\label{fig:dmodel1}} 
 %		\end{subfigure}
 	\end{figure}
-	@Iwein: even duidelijk uitleggen wat de definities zijn, welke subsets (en welke benaming) we gebruiken, consistent door de paper. 
-	\begin{enumerate}
-		\item Outlier vrije SV-candidates of REGULIERE OBSERVATIELIJST = h-subset resultaat, na reweighting, placed back in the original positions for both data subsets.
-		\item REGULIERE OBSERVATIELIJST: ROI bepaling geeft nieuwe lijst B: gepruned REGULIERE OBSERVATIELIJST.
-		\item geprunde REGULIERE OBSERVATIELIJST: DPP sampling geeft de SV lijst. 
-		\item Info transfer van vrije SV-candidates naar de SV lijst.
-	\end{enumerate}
-	
-	\begin{enumerate}
-		\item Outlier detection by kernel Csteps.
-		\item Train the robust LS-SVM by solving the system of equations.
-		\item Determine a region of interest (ROI), which is a reduction of the original dataset, that consist of points close to the decision boundary. This subset represent potential good support vector values.
-		\item Reduce the ROI even more by sampling the desired amount of support vector values using a method that promotes diversity:
-		\begin{enumerate}
-			\item Entropy
-			\item DPP
-		\end{enumerate}
-		\item Transfer the information of non-selected support vectors to selected ones.
-	\end{enumerate} 
+%	@Iwein: even duidelijk uitleggen wat de definities zijn, welke subsets (en welke benaming) we gebruiken, consistent door de paper. 
+%	\begin{enumerate}
+%		\item Outlier vrije SV-candidates of REGULIERE OBSERVATIELIJST = h-subset resultaat, na reweighting, placed back in the original positions for both data subsets.
+%		\item REGULIERE OBSERVATIELIJST: ROI bepaling geeft nieuwe lijst B: gepruned REGULIERE OBSERVATIELIJST.
+%		\item geprunde REGULIERE OBSERVATIELIJST: DPP sampling geeft de SV lijst. 
+%		\item Info transfer van vrije SV-candidates naar de SV lijst.
+%	\end{enumerate}
+%	
+%	\begin{enumerate}
+%		\item Outlier detection by kernel Csteps.
+%		\item Train the robust LS-SVM by solving the system of equations.
+%		\item Determine a region of interest (ROI), which is a reduction of the original dataset, that consist of points close to the decision boundary. This subset represent potential good support vector values.
+%		\item Reduce the ROI even more by sampling the desired amount of support vector values using a method that promotes diversity:
+%		\begin{enumerate}
+%			\item Entropy
+%			\item DPP
+%		\end{enumerate}
+%		\item Transfer the information of non-selected support vectors to selected ones.
+%	\end{enumerate} 
 	
 	%\newpage
 	\subsection{Concentration steps in kernel feature space}
