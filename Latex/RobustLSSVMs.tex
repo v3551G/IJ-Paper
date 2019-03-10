@@ -134,32 +134,35 @@
 	
 	%\linenumbers
 	
+	%%%%%%%%%%%%%%%%%	Comment the following lines when the paper is finished
+	\tableofcontents
+	\newpage
+	
 	%% main text
 	\section{Introduction}
 	
-	Least-squares support vector machines (LS-SVM) are powerful methods for solving pattern recognition and regression problems~\cite{suykens2002least}. The LS-SVM maps the data to a higher dimensional space in which one constructs an optimal separating hyperplane. It has been applied to many real-world problems such as optimal control~\cite{suykens2001optimal}, financial time series prediction~\cite{van2001financial}, system identification~\cite{goethals2005identification}, electrical load forecasting~\cite{espinoza2006fixed} and many others. However, the LS-SVM has two main disadvantages. It is sensitive to outliers, which have large support values resulting from the solution to the linear system. A second disadvantage is that the solution lacks sparseness, which is essential for real-time prediction with big-data.
+	Least-squares support vector machines (LS-SVM) are powerful methods for solving pattern recognition and regression problems~\cite{suykens2002least}. The LS-SVM maps data to a higher dimensional space in which one constructs an optimal separating hyperplane. It has been applied to many real-world problems such as optimal control~\cite{suykens2001optimal}, financial time series prediction~\cite{van2001financial}, system identification~\cite{goethals2005identification}, electrical load forecasting~\cite{espinoza2006fixed} and many others. However, the classifier model has two major disadvantages. First, it is (very) sensitive to outliers, as the underlying system of equations lacks robustness. This results in the orientation of the separating hyperplane in the direction of anomalies which, in turn, might cause a huge amount of misclassification. The second disadvantage is that its solution also lacks sparseness, which hinders the application of LS-SVM models for  real-time prediction. \\
 	
 	To reduce the influence of outliers, Suykens et al.~\cite{suykens2002weighted} proposed the weighted LS-SVM. By iteratively assigning small weights to outliers and retraining, the method diminishes the effect of extreme values. Another solution was proposed by Yang et al.~\cite{yang2014robust}, where a truncated loss function is used in the objective that is solved by a concave-convex procedure and the newton algorithm. A third solution is suggested by Debruyne et al.~\cite{debruyne2009robustified}, which proposes a weighted LS-SVM classification where weights are equal to spatial rank with respect to the other feature vectors in the class.
 	
-	In comparison to the standard support vector machines (SVM), the LS-SVM only requires solving a linear system, but it lacks sparseness in the number of solution terms. To solve this problem, Suykens et al.~\cite{suykens2000sparse} propose a method that iteratively prunes the datapoints with lowest support values and retrains. Yang et al.~\cite{yang2014sparse} propose a one-step compressive pruning strategy to reduce the number of support vectors. Fixed-size LS-SVM sparsifies the LS-SVM by selecting important point or landmark points based on the quadratic Renyi Entropy criterion~\cite{suykens2002least}. However the landmark points are fixed in advance and don't take into account information of the classification itself, which could lead to sub-optimal results. This is in contrast to the sparse LS-SVM~\cite{suykens2000sparse}, which chooses datapoints based on the impact on the classification boundary. A comparison of different pruning methods can be found in~\cite{hoegaerts2004comparison}. 
+	In comparison to the standard support vector machines (SVM), the LS-SVM only requires solving a linear system, but it lacks sparseness in the number of solution terms. To solve this problem, Suykens et al.~\cite{suykens2000sparse} propose a method that iteratively prunes the datapoints with lowest support values and retrains. Yang et al.~\cite{yang2014sparse} propose a one-step compressive pruning strategy to reduce the number of support vectors. Fixed-size LS-SVM sparsifies the LS-SVM by selecting important point or landmark points based on the quadratic Renyi Entropy criterion~\cite{suykens2002least}. However the landmark points are fixed in advance and don't take into account information of the classification itself, which could lead to sub-optimal results. This is in contrast to the sparse LS-SVM~\cite{suykens2000sparse}, which chooses observations based on the impact on the classification boundary. A comparison of different pruning methods can be found in~\cite{hoegaerts2004comparison}. \\
 	
 	In this paper, we focus on tackling both problems at once.
-	Other methods are found in~\cite{chen2018sparse}, where a primal formulation of the LS-SVM with a truncated loss is introduced, sparseness is obtained by the Nystr\"{o}m approximation. A second method is the weighted LS-SVM of Suykens et al.~\cite{suykens2002weighted}. We propose a robust LS-SVM based on the Minimum covariance determinant (MCD)~\cite{hubert2010minimum}, which is known to be a highly robust
-	estimator of multivariate location and scatter. However, in contrast to the original formulation, the location and scatter is determined in feature space using the kernel trick. This results in non-linear outlier detection. Afterwards extreme sparsity is obtained by determinantal point processes (DPP)~\cite{kulesza2012determinantal}, which are capable of selecting diverse samples. To summarize, our mean contributions consist off:
+	Other methods are found in~\cite{chen2018sparse}, where a primal formulation of the LS-SVM with a truncated loss is introduced, sparseness is obtained by the Nystr\"{o}m approximation. A second method is the weighted LS-SVM of Suykens et al.~\cite{suykens2002weighted}. We propose a robust LS-SVM based on the Minimum covariance determinant (MCD)~\cite{hubert2010minimum}, which is known to be a highly robust 	estimator of multivariate location and scatter. However, in contrast to the original formulation, the location and scatter is determined in feature space using the kernel trick, which enables us to detect non-linear outliers. Afterwards extreme sparsity is obtained by determinantal point processes (DPP)~\cite{kulesza2012determinantal}, which are capable of selecting diverse samples. To summarize, our main contributions consist off:
 	\begin{enumerate}
-		\item Kernel concentration steps for outlier detection.
-		\item A new Pruning strategy based on entropy and determinantal point processes
+		\item The development of a robust algorithm that is able to detect non-linear correlated outliers.
+		\item The development of a new LS-SVM support vector selection strategy, based on entropy and determinantal point processes.
 	\end{enumerate}
+	The aggregation of both method's intermediate results yields our robust LS-SVM pruning methodology. \\ 
 	
-	The remainder of this paper is organized as follows. A brief overview of LS-SVM is given in section~\ref{sec:lssvm}. In section \ref{sec:proposed} we propose our robust outlier detection routine, followed by our support vector sparseness routine in section~\ref{sec:Sparseness}. The extensive simulation results of both theoretical and real, industrial datasets listed in section~\ref{sec:exp} confirm the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section~\ref{sec:conc}. 
+	The remainder of this paper is organized as follows. A brief overview of LS-SVM is given in section~\ref{sec:lssvm}. In section \ref{sec:proposed} we propose our classifier pruning strategy. The extensive simulation results of both theoretical and real, industrial datasets listed in section~\ref{sec:exp} confirm the robustness, prediction time speed-up and improved classifier efficiency of our proposed method. Finally, our main findings and suggestions for further research are summarized in the conclusion, section~\ref{sec:conc}. 
 	
 	
 	\section{LS-SVM for classification}
 	\label{sec:lssvm}
-	A binary classifier's goal is to learn a prediction model that assigns the correct label $y \in \{+1, -1\}$ to an unseen test sample. Restated more formally, we seek an SVM-based classifier that fits an optimal hyperplane between the two classes, where the hyperplane maximizes the distance to the closest point(s) of either class. This margin $||w||^{-1}$ maximization leads directly to a classifier with good generalisation properties, i.e: it will result in good classification performance on (unseen) test data, for example compared with density based estimators. \\
-	
-	
-	Given an $p$-variate trainingsset $x \in \mathbb{R}^p$ and the binary class label $y_i \in \{+1,-1\}$ for observation $x_i$ with index $i = 1,..,n$, the following constrained optimization must be solved to obtain the LS-SVM representation of a support vector machine:
+	The classifier goal is to learn a prediction model that assigns the correct label $y \in \{+1, -1\}$ to an unseen test sample. Restated more formally, we seek a classifier that fits an optimal hyperplane between the two classes, where the hyperplane maximizes the distance to the closest point(s) of either class. 
+	%This margin $||w||^{-1}$ maximization leads directly to a classifier with good generalisation properties, i.e: it will result in good classification performance on (unseen) test data, for example compared with density based estimators. \\
+	Given an $p$-variate trainingsset $x \in \mathbb{R}^p$ and the binary class label $y_i \in \{+1,-1\}$ for observation $x_i$ with index $i = 1,..,n$, the following constrained optimization must be solved to obtain the LS-SVM representation of the hyperplane margin $||w||^{-1}$ maximization:
 	
 	\begin{gather}
 	\label{eq:costfunction}
@@ -168,9 +171,9 @@
 	\textrm{such that } y_i[w^T \varphi(x_i) + b] = 1-e_i, \enskip i = 1,..,n
 	\end{gather}
 	
-	Here $w^T \varphi(x_i) + b$ is the hyperplane based decision function of the classifier with corresponding parameters $w$ and $b$, where the regularization parameter $\gamma$ is used to control the over/under-fitting trade-off. Finally,  $\varphi(.)$ is the transformation from input space $\mathbb{R}^p$ to the kernel feature space, abbreviated as $\mathcal{H}$. \\
+	Here $w^T \varphi(x_i) + b$ is the hyperplane based decision function of the classifier with corresponding parameters $w$ and $b$, where the regularization parameter $\gamma$ is used to control the over/under-fitting trade-off. Finally,  $\varphi(.)$ is the transformation from input space $\mathbb{R}^p$ to the kernel feature space $\mathcal{H}$. 
 	
-	The specified constraint states that every given multivariate sample should lie on the correct side of hyperplane. Stated differently, the classifier should predict the class label of each sample correctly, where each observation $x_i$ has an corresponding error $e_i$ due to the constraint equality sign. This, in turn, implies that a LS-SVM loses its support vector sparseness compared to ordinary SVM's. \\
+	The specified constraint states that every given multivariate sample should lie on the correct side of hyperplane. Stated differently, the classifier should predict the class label of each sample correctly, where each observation $x_i$ has an corresponding error $e_i$ due to the constraint equality sign. This implies that a LS-SVM loses its support vector sparseness compared to ordinary SVM's. \\
 	
 	This constrained optimization problem is solved by the optimality conditions of its Lagrangian $\alpha$ as follows:
 	\begin{equation}
@@ -221,33 +224,42 @@
 %	where $\hat{y}(x)$ is the predicted output, $K$ the ker. 
 Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i = 1$, and that the derivation for least squares support vector regression follows the same reasoning where the sign is omitted in the prediction function. %\cite{Choi2009}.
 	
-	\newpage
+%	\newpage
 	
 	\section{Proposed method}
 	\label{sec:proposed}
-	We first start by laying out the main methodology of our proposed method, where our classifier pre-and post-processing operations are shown in grey on figure [REF]. The classifier trainingset is first standardized (Step 1), followed by the outlier detection routine. Outliers are detected per class label $y \in \{+1, -1\}$ subset, which results in a parallel algorithm topology (Step 2-3, Step 4-5).
+	
+	%\subsection{Topology}
+	
+	We first start by laying out the main topology of our proposed method, where our classifier pre-and post-processing operations are shown in grey on figure [REF]. The classifier trainingset is first standardized (Step 1), followed by the outlier detection routine. Outliers are detected per class label $y \in \{+1, -1\}$ subset, which results in a parallel algorithm topology (Step 2-3, Step 4-5).
 	 The detected regular observations (the support vectors candidates) are then used to train a standard, LS-SVM classifier (step 6)). Because the solution lacks sparsity, a second algorithm is used (section [REF??]) to extract the support vectors based on an a priori chosen sampling methodology. Finally, the information of all regular observations is transferred to the support vectors to improve its classification efficiency (Step 11). \\
+	
+	
+	HIER MOETEN WE DUIDELIJK UITLEGGEN/DEFINIEREN WAT DE SUBSETS ZIJN, EN HOE ALLES IN ELKAAR VALT
+
+	\begin{enumerate}
+		\item definieer A als de set die bestaat uit alle elementen uit de gegeven dataset $X$
+		\item definieer B1, B2 de twee subsets die volgen uit de partitionering van de A volgens het class label
+		%\item definieer een $h$ subset als een set van $h$ observaties
+		\item definieer R1 en R2 als de reguliere observatie lijst van B1 en B2 respectively.
+		%\item definieer ROI1, ROI2 als de ... volgens de roi?
+		\item definieer SV1, SV2 als de geprunede R1, R2 lijst die bestaat uit de apriori opgegeven $q?$ support vectors. De sparsnessration = $2*q / n$
+	\end{enumerate}	
+
+	
+	SECTIE BEINDIGEN MET ONDERSTAANDE OPMERKINGEN?
 	
 	\begin{remark}
 		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
-	\end{remark}
-
-	
-	\begin{remark}
-		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
-	\end{remark}
-	 
- 	\begin{remark}
+		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.\\	
 	 	As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
 	 \end{remark}
-	 
-	 The developed outlier detection principle is explained in section [REF]
 	
 	\begin{figure}[!htb]
 		\centering
 		\label{fig:pipeline}
 		\centering\includegraphics[width=0.8\linewidth]{flow/gabstract.pdf}
-		\caption{Topological order of our proposed method. First, an outlier detection algorithm is used to extract regular observations; These samples are then used to build a classic LS-SVM model. As the classifier solution lacks sparsity, it is subjected to a sampling algorithm to extract support vectors. Finally, the trained model is converted to a sparse LS-SVM model by an information transfer step.  The outlier detection and landmark selection is done on each class separately which results in a parallel pipeline topology.} 
+		\caption{Topological order of the LS-SVM pruning method. First, an outlier detection algorithm is used to extract regular observations; These samples are then used to build a classic LS-SVM model. As the classifier solution lacks sparsity, it is subjected to a sampling algorithm to extract support vectors. Finally, the trained model is converted to a sparse LS-SVM model by an information transfer step.  The outlier detection and landmark selection is done on each class separately which results in a parallel pipeline topology.} 
 	\end{figure}
 %	@Iwein: even duidelijk uitleggen wat de definities zijn, welke subsets (en welke benaming) we gebruiken, consistent door de paper. 
 %	\begin{enumerate}
@@ -270,7 +282,7 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 %	\end{enumerate} 
 	
 	%\newpage
-	\subsection{Concentration steps in kernel feature space}
+	\subsection{Outlier detection in kernel feature space}
 	
 	Having introduced the LS-SVM model, our attention first goes to the detection of outliers in the dataset. Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This Mahalanobis distance based estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as the a refinement step of an initial estimator. This two-step mechanism inherits the robustness of the MCD, but offers an improved statistical efficiency [see e.g. REF: DetS, detMM]. Deterministic variants and well know PCA-based applications are described in \cite{hubert2012deterministic} and \cite{hubert2005robpca} respectively. \\
 	
@@ -330,11 +342,13 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	\label{eq:centerKt}
 	\tilde{K_t} &= K_t - 1_t K - K_t 1_n + 1_t K1_n,
 	\end{align}
-	with kernel matrix $ \tilde{K}_t \in \mathbb{R}^{t \times n}$ and the matrix $1_t \in \mathbb{R}^{t \times n}$ with all entries set to $1/n$.
+	with kernel matrix $ \tilde{K}_t \in \mathbb{R}^{t \times n}$ and the matrix $1_t \in \mathbb{R}^{t \times n}$ with all entries set to $1/n$. Having derived all required equations, the proposed pruning strategy starts with the standardization of each observation: 
 	
-	\subsection{The proposed C-step in kernel feature space}
+	\begin{equation}
+		z_i = \frac{(x_i - \hat{\mu}_{mcd})}{\hat{\sigma}_{mcd}} 
+	\end{equation}
 	
-	We first standardize each dataset observation by $z_i = (x_i - \hat{\mu}_{mcd}) / \hat{\sigma}_{mcd}$ where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD~\cite{rousseeuw1999fast}. This reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and our proposed  procedure is applied (per subset) to derive at an outlier free support vector candidate set. 
+	Where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD~\cite{rousseeuw1999fast}. This reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and our proposed  procedure is applied (per subset) to derive at an outlier free support vector candidate set. 
 	
 	\begin{itemize}
 		\item [Step 1] Calculate the spatial median in $\mathcal{H}$, as introduced in~\cite{debruyne2010detecting}. The spatial median can be written as a linear combination of the feature vectors. Denote $\gamma = (\gamma_1, \dots, \gamma_n)^T$ the vector of coefficients, where  $\sum_{i=1}^{n} \phi(x_i) \gamma_i$ equals the spatial median in feature space. Initialise $\gamma = (1/n, 1/n, \dots)$ and recursively compute the normalized coefficients $\gamma = w / \sum_{i=1}^{n}w_i$, where $w_i$ for the observation with index $i$ is calculated as:
