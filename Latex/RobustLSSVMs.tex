@@ -225,14 +225,29 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 	\section{Proposed method}
 	\label{sec:proposed}
-	We first start by laying out the main methodology of our proposed method, where our novel pre-and post-processing operations are shown in grey on figure [REF]. A given input dataset is first standardized, followed by our non-linear outlier detection routine,(section [???]) in order to extract a list of regular observations. These candidate support vectors are then used to train a standard, weighted LS-SVM classifier. Because the solution lacks sparsity - apart from the removal of outliers - a second algorithm is used (section [REF??]) to extract the support vectors based on entropy - or negative correlation (section [REF??]). Finally, the information of the detected regular observations is transferred to the support vectors to improve its classification efficiency, as highlighted in the simulations.  
+	We first start by laying out the main methodology of our proposed method, where our classifier pre-and post-processing operations are shown in grey on figure [REF]. The classifier trainingset is first standardized (Step 1), followed by the outlier detection routine. Outliers are detected per class label $y \in \{+1, -1\}$ subset, which results in a parallel algorithm topology (Step 2-3, Step 4-5).
+	 The detected regular observations (the support vectors candidates) are then used to train a standard, LS-SVM classifier (step 6)). Because the solution lacks sparsity, a second algorithm is used (section [REF??]) to extract the support vectors based on an a priori chosen sampling methodology. Finally, the information of all regular observations is transferred to the support vectors to improve its classification efficiency (Step 11). \\
+	
+	\begin{remark}
+		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
+	\end{remark}
+
+	
+	\begin{remark}
+		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
+	\end{remark}
+	 
+ 	\begin{remark}
+	 	As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
+	 \end{remark}
+	 
+	 The developed outlier detection principle is explained in section [REF]
 	
 	\begin{figure}[!htb]
 		\centering
-%		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=0.8\linewidth]{flow/gabstract.pdf}
-			\caption{\label{fig:dmodel1}} 
-%		\end{subfigure}
+		\label{fig:pipeline}
+		\centering\includegraphics[width=0.8\linewidth]{flow/gabstract.pdf}
+		\caption{Topological order of our proposed method. First, an outlier detection algorithm is used to extract regular observations; These samples are then used to build a classic LS-SVM model. As the classifier solution lacks sparsity, it is subjected to a sampling algorithm to extract support vectors. Finally, the trained model is converted to a sparse LS-SVM model by an information transfer step.  The outlier detection and landmark selection is done on each class separately which results in a parallel pipeline topology.} 
 	\end{figure}
 %	@Iwein: even duidelijk uitleggen wat de definities zijn, welke subsets (en welke benaming) we gebruiken, consistent door de paper. 
 %	\begin{enumerate}
@@ -420,10 +435,10 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	\newpage
 	\FloatBarrier
 	
-	\section{Imposing sparseness}
+	\subsection{Imposing sparseness: support vector section methodology}
 	\label{sec:Sparseness}
 	
-	\subsection{Selection of the best support vectors}
+%	\subsection{}
 	
 	Having established the data model and optimized classification accuracy for contaminated datasets, let us return to the problem at hand: the development of a pruning strategy. This implies that prediction formula should be partitioned in a \textit{relevant} (the support vectors or landmark points, found by the pruning algorithm) - and \textit{irrelevant} part.  An overview of existing pruning methods can be found in Hoegaerts et al. \cite{hoegaerts2004comparison}. A first approach was suggest by Suykens et al.~\cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum resulting from the solution to the linear system.  The motivation comes from the fact that LS-SVM support values are proportional to the errors at datapoints. Thus omitting the points that contribute least to the training error. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. 
 	
@@ -454,9 +469,9 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	In contrast to the original fixed-size LS-SVM formulation, which is used to find a representative subset for the Nystr\"{o}m approximation \cite{suykens2002least}. We propose to first determine to ROI, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, the fixed-size LS-SVM algorithm is used to select the $l$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The downsides of the entropy criteria are that a relatively large number of iterations are necessary to get a diversified selection, secondly only the Gaussian kernel can be used~\cite{girolami2002orthogonal}.
 	
 	
-	\begin{remark}
-		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
-	\end{remark}
+%	\begin{remark}
+%		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
+%	\end{remark}
 	
 	Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the entropy based selection algorithm is repeated for every class~\cite{suykens2002least}:
 	\begin{enumerate}
@@ -491,10 +506,10 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 	The landmark selection algorithm consists of the following steps:
 	We propose to first determine the ROI, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, a $k$-DPP~\cite{kulesza2011k}, where $k = l$, is used to sample the $l$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. 
-	
-	\begin{remark}
-		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
-	\end{remark}
+%	
+%	\begin{remark}
+%		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
+%	\end{remark}
 	
 Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the k-DPP selection algorithm is repeated for every class to select $l$ landmark points~\cite{kulesza2011k}:
 \begin{enumerate}
@@ -537,9 +552,9 @@ We can partition this expression in the selected landmark part and non-selected 
 
 
 
-	\begin{remark}
-		As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
-	\end{remark}
+%	\begin{remark}
+%		As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
+%	\end{remark}
 
 	
 	\section{Experiments} 
