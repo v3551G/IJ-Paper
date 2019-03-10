@@ -342,13 +342,15 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	\label{eq:centerKt}
 	\tilde{K_t} &= K_t - 1_t K - K_t 1_n + 1_t K1_n,
 	\end{align}
-	with kernel matrix $ \tilde{K}_t \in \mathbb{R}^{t \times n}$ and the matrix $1_t \in \mathbb{R}^{t \times n}$ with all entries set to $1/n$. Having derived all required equations, the proposed pruning strategy starts with the standardization of each observation: 
+	with kernel matrix $ \tilde{K}_t \in \mathbb{R}^{t \times n}$ and the matrix $1_t \in \mathbb{R}^{t \times n}$ with all entries set to $1/n$. Using the methods we have discussed so far, our outlier detection algorithm is as follows. \\
+	
+	Start with the robust standardization of each observation: 
 	
 	\begin{equation}
 		z_i = \frac{(x_i - \hat{\mu}_{mcd})}{\hat{\sigma}_{mcd}} 
 	\end{equation}
 	
-	Where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD~\cite{rousseeuw1999fast}. This reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and our proposed  procedure is applied (per subset) to derive at an outlier free support vector candidate set. 
+	Where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD~\cite{rousseeuw1999fast}, estimated on the entire dataset. this procedure reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and our proposed  procedure is applied (per subset) to derive at an outlier free support vector candidate set, as follows:
 	
 	\begin{itemize}
 		\item [Step 1] Calculate the spatial median in $\mathcal{H}$, as introduced in~\cite{debruyne2010detecting}. The spatial median can be written as a linear combination of the feature vectors. Denote $\gamma = (\gamma_1, \dots, \gamma_n)^T$ the vector of coefficients, where  $\sum_{i=1}^{n} \phi(x_i) \gamma_i$ equals the spatial median in feature space. Initialise $\gamma = (1/n, 1/n, \dots)$ and recursively compute the normalized coefficients $\gamma = w / \sum_{i=1}^{n}w_i$, where $w_i$ for the observation with index $i$ is calculated as:
