@@ -287,7 +287,7 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 	Given a trainingset $X$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest possible determinant, where the amount of regular observations $h < n$ is specified before the algorithm starts. The MCD-estimate of location $c_h$ is then the average of these $h$ points (the $h$-subset), whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. 
 	
-	In order to find the MCD-estimate, the FastMCD-algorithm~\cite{rousseeuw1999fast} uses so-called concentration steps (C-steps). These iterative algorithm steps result in a decreasing covariance matrix determinant: a goodness-of-fit metric [BLABLABLA]. Based on its robustness properties, simplicity and proven convergence, we propose to modify the algorithm in way that it can work in kernel feature space, where it is used to for the detection of \textit{non-linear} outliers: a noteworthy difference compared to off-the-shelve robust statistical algorithms as normality is always assumed. \\
+	In order to find the MCD-estimate, the FastMCD-algorithm~\cite{rousseeuw1999fast} uses so-called concentration steps (C-steps). Based on its robustness properties, simplicity and proven convergence, we propose to modify the C-step algorithm so that it can work in kernel feature space. This, in turn, allows the detection of \textit{non-linear} outliers: a noteworthy difference compared to off-the-shelve robust statistical algorithms as normality is frequently assumed. \\
 	
 	To enable the C-steps methodology in feature space $\mathcal{H}$, we integrate the mapping function $\phi(.)$ in the required algorithm formula's: 
 	\begin{equation}
@@ -409,7 +409,25 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 		\end{cases}
 		\end{equation}
 	\end{itemize}
-	The different steps of this algorithm are shown in Figure \ref{fig:C-step}, for a linear and non-linear kernel. Given an initial estimate of the $h$-subset, the C-step converge to the outlier free dataset. The final outcome, weights for each observation, are used to train a robust LS-SVM that only consists of regular observations.
+	
+	The weights are then used to train a classifier model that only consists of regular observations, as follows:
+	
+	\begin{equation}
+		\begin{bmatrix}
+		0 & \mathbf{y}_w^T \\
+		\mathbf{y_w} & \Omega + \gamma^{-1} \mathbf{w}
+		\end{bmatrix}	
+		\begin{bmatrix}
+		b \\
+		\alpha
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+		0 \\
+		\mathbf{1}
+		\end{bmatrix},
+	\end{equation}
+	Here $\mathbf{y_w}  = \mathbf{y} \circ \mathbf{w}$ denotes the element-wise product of the class labels with the weight vector. The algorithm workings are visualised in Figure \ref{fig:C-step}, where it can be seen that the initial estimate converges to the outlier free dataset.
 	
 	
 	\begin{figure}[!htb]
