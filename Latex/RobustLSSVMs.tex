@@ -376,8 +376,11 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 			||\mathbf{\alpha}^k|| = \frac{1}{n\lambda_k}, \mathrm{for \enskip all \enskip components \enskip}k
 			\end{equation}
 			\item Calculate the kernel matrix for the given $h$-subset of observations in $n$ features.
-			\item Center the kernel matrix by equation~\eqref{eq:centerKt} and obtain the Mahalanobis distances with equation~\eqref{eq:Mahal}.
-			\item Sort these Mahalanobis distances in ascending order and redefine the $h$-subset as the $h$ observations with smallest distance.
+			\item Center the kernel matrix by equation~\eqref{eq:centerKt} and obtain the Mahalanobis distances with equation~\eqref{eq:Mahal} or, expressed in vector notation:
+			\begin{equation}
+				d^2 = .....
+			\end{equation}
+			\item Sort the distance vector $d^2$ in ascending order and redefine the $h$-subset as the $h$ observations with smallest distance.
 			\item If the new $h$-subset is equal to the previous one, exit the C-step loop.
 		\end{enumerate}
 		
@@ -402,15 +405,19 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 		\item [Step 5] If the $h$-subset size is lower then $h_{end}$, increase the $h$-subset size by (say) 5\% and go back to step 4. 
 		\item [Step 6] Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
 		\begin{equation}
-		w_i =
-		\begin{cases}
-		1, & \text{if}\ rd^2(i) \leq max(\chi^2_{0.975, p}, rd^2(h\mathrm{-subset})) \\
-		0, & \text{otherwise}
-		\end{cases}
+			w(d^2) = \mathbf{1}_{(d^2 \le c)} + \mathbf{0}_{(d^2 > c)}
 		\end{equation}
+		Here, $c$ is a threshold which we choose here as $c = max(\chi_p^2(0.975), max(d_h^2) )$, with $d_h^2$ the distance vector of the observations in the $h$-subset. 
+%		\begin{equation}
+%		w_i =
+%		\begin{cases}
+%		1, & \text{if}\ rd^2(i) \leq max(\chi^2_{0.975, p}, rd^2(h\mathrm{-subset})) \\
+%		0, & \text{otherwise}
+%		\end{cases}
+%		\end{equation}
 	\end{itemize}
 	
-	The weights are then used to train a classifier model that only consists of regular observations, as follows:
+	Finally, the weights $w$ are then used to train a weighted classifier model, as follows:
 	
 	\begin{equation}
 		\begin{bmatrix}
@@ -473,7 +480,9 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 %	\subsection{}
 	
-	Having established the data model and optimized classification accuracy for contaminated datasets, let us return to the problem at hand: the development of a pruning strategy. This implies that prediction formula should be partitioned in a \textit{relevant} (the support vectors or landmark points, found by the pruning algorithm) - and \textit{irrelevant} part.  An overview of existing pruning methods can be found in Hoegaerts et al. \cite{hoegaerts2004comparison}. A first approach was suggest by Suykens et al.~\cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum resulting from the solution to the linear system.  The motivation comes from the fact that LS-SVM support values are proportional to the errors at datapoints. Thus omitting the points that contribute least to the training error. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. 
+	%Pruning implies that prediction formula (REF TO EQUATION) should be partitioned in a \textit{relevant} (the support vectors or landmark points, found by the pruning algorithm) - and \textit{irrelevant} part.  
+	%An overview of existing pruning methods can be found in Hoegaerts et al. \cite{hoegaerts2004comparison}. 
+	A first LS-SVM pruning approach was suggest by Suykens et al.~\cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum resulting from the solution to the linear system.  The motivation comes from the fact that LS-SVM support values are proportional to the errors at datapoints. Thus omitting the points that contribute least to the training error. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. 
 	
 	However blindly taking the points with largest support value spectrum could lead to sub-optimal results. Firstly, when outliers are present, you want to be certain that these are not chosen. Secondly, points are chosen independently towards each other. This results in clumping of landmarks. The first problem is addressed by running a kernelized minimum covariance determinant, which detects and omits potential outliers. 
 	
