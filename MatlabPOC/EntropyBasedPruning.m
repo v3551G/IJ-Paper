@@ -19,8 +19,13 @@ classdef EntropyBasedPruning < handle
         end
         
         function svsSolutionsIndices = prune(this, x, a)            
-            [~, candidateIndices] = sort(a, 'descend');
-            candidateIndices = candidateIndices(1:ceil(numel(candidateIndices)*this.roi));
+            
+            if nargin==3
+                [~, candidateIndices] = sort(a, 'descend');
+                candidateIndices = candidateIndices(1:ceil(numel(candidateIndices)*this.roi));
+            else 
+                candidateIndices = randperm(size(x,1))'; 
+            end
             
             svs = x(candidateIndices(1:this.nbrOfSupportVectors), :);
             svsSolutionsIndices = candidateIndices(1:this.nbrOfSupportVectors);
