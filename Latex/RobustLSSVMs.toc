@@ -4,7 +4,7 @@
 \contentsline {section}{\numberline {3}Proposed method}{6}
 \contentsline {subsubsection}{\numberline {3.0.1}Outlier detection in kernel feature space}{8}
 \contentsline {subsection}{\numberline {3.1}Imposing sparseness: support vector section methodology}{14}
-\contentsline {subsubsection}{\numberline {3.1.1}Entropy}{15}
+\contentsline {subsubsection}{\numberline {3.1.1}Entropy}{16}
 \contentsline {subsubsection}{\numberline {3.1.2}Determinantal point process}{17}
 \contentsline {subsection}{\numberline {3.2}Information transfer}{18}
 \contentsline {paragraph}{Algorithm 3--- summary selection of landmark points}{19}

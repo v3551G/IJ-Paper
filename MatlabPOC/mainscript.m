@@ -9,7 +9,7 @@
     close all;
     rng default;
     
-    C = 1e4;
+    C = 1e3;
     
     kModel = LinKernel();
     pModel = DPPBasedPruning(20, kModel);
@@ -30,7 +30,7 @@
     close all;
     rng default;
     
-    C = 120;
+    C = 1e3; %120;
     
     kModel = RbfKernel(0.5);
     %kModel = LinKernel();

@@ -28,7 +28,6 @@ classdef YinYangDataModel < DataModel
         
         function [x, y, z] = generateDataModel(this, n, ~, eps)
             nn = floor(n/2);
-            m = ceil(eps * n);            
             
             leng = 1; sig = .20;            
             yin = nan(n, 3);
@@ -45,7 +44,7 @@ classdef YinYangDataModel < DataModel
             x=[samplesyin(randperm(n, nn), :); samplesyang(randperm(n, nn), :)];
             y=[+1 * ones(nn,1); -1 * ones(nn,1)];
             z=y;            
-            oIndices = randperm(n, m);
+            oIndices = randperm(n, ceil(eps * size(x, 1)));
             
             %%% Outliers: Flip labels;
             y(oIndices)= -1 .* y(oIndices);

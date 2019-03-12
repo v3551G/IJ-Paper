@@ -413,25 +413,25 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 			\caption{\label{fig:dmodel1}} 
 		\end{subfigure}
 		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/kcstep/yydatamodel.pdf}
-			\caption{\label{fig:dmodel2}} 
+		\centering\includegraphics[width=1\linewidth]{figures/kcstep/yydatamodel.pdf}
+		\caption{\label{fig:spatialmedc1}}
 		\end{subfigure} \\
-		
+
 		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/kcstep/c1input.pdf}
-			\caption{\label{fig:spatialmedc1}}
-		\end{subfigure}
+			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_sm.pdf}
+			\caption{\label{fig:dmodel2}} 
+		\end{subfigure} 
 		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/kcstep/c2input.pdf}
+			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_sm.pdf}
 			\caption{\label{fig:spatialmedc2}}
 		\end{subfigure} \\
 		
 		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/kcstep/c1output.pdf}
+			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_kc.pdf}
 			\caption{\label{fig:kcstepc1}}
 		\end{subfigure}
 		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/kcstep/c2output.pdf}
+			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_kc.pdf}
 			\caption{\label{fig:kcstepc2}}
 		\end{subfigure}
 		\caption{
@@ -452,7 +452,9 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	%An overview of existing pruning methods can be found in Hoegaerts et al. \cite{hoegaerts2004comparison}. 
 	A first LS-SVM pruning approach was suggest by Suykens et al.~\cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum resulting from the solution to the linear system.  The motivation comes from the fact that LS-SVM support values are proportional to the errors at datapoints. Thus omitting the points that contribute least to the training error. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. 
 	
-	However blindly taking the points with largest support value spectrum could lead to sub-optimal results. Firstly, when outliers are present, you want to be certain that these are not chosen. Secondly, points are chosen independently towards each other. This results in clumping of landmarks. The first problem is addressed by running a kernelized minimum covariance determinant, which detects and omits potential outliers. 
+	However blindly taking the points with largest support value spectrum could lead to sub-optimal results. Firstly, when outliers are present, you want to be certain that these are not chosen. Secondly, points are chosen independently towards each other. This results in clumping of landmarks. The first problem is addressed by running a kernelized minimum covariance determinant, which detects and omits potential outliers.  \\
+	
+	[EXPLICIET VERWIJZEN NAAR FIGUUR OP DE VOLGENDE BLZ IN DE UITLEG uitleggen waarom het teken van alpha zin heeft ] \\
 	
 	The second problem is solved by introducing a subset for each class \newline $y \in \{+1,-1\}$ called the "region of interest" (ROI), which consist of points close to the decision boundary. Determining the ROI is done for each class and consists out of two steps:
 	\begin{enumerate}
@@ -461,46 +463,35 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	\end{enumerate}
 
 	\begin{figure}[!htb]
-		\centering
-		
-%		\begin{subfigure}[b]{0.40\linewidth}
-%			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_model.pdf}
-%			\caption{\label{fig:spatialmedc1}}
-%		\end{subfigure}
-%		\begin{subfigure}[b]{0.40\linewidth}
-%			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_model.pdf}
-%			\caption{\label{fig:spatialmedc2}}
-%		\end{subfigure} \\
-		
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_roi1.pdf}
-			\caption{\label{fig:dmodel1}} 
-		\end{subfigure}
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_roi1.pdf}
-			\caption{\label{fig:dmodel2}} 
-		\end{subfigure} \\
+	\centering
+	\begin{subfigure}[b]{0.40\linewidth}
+		\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_landm1.pdf}
+		\caption{\label{fig:dmodel1}} 
+	\end{subfigure}
+	\begin{subfigure}[b]{0.40\linewidth}
+		\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_landm1.pdf}
+		\caption{\label{fig:spatialmedc1}}
+	\end{subfigure} \\
 	
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_roi2.pdf}
-			\caption{\label{fig:dmodel1}} 
-		\end{subfigure}
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_roi2.pdf}
-			\caption{\label{fig:dmodel2}} 
-		\end{subfigure} \\
+	\begin{subfigure}[b]{0.40\linewidth}
+		\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_landm2.pdf}
+		\caption{\label{fig:dmodel2}} 
+	\end{subfigure} 
+	\begin{subfigure}[b]{0.40\linewidth}
+		\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_landm2.pdf}
+		\caption{\label{fig:spatialmedc2}}
+	\end{subfigure} \\
 	
-		
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_landmarks.pdf}
-			\caption{\label{fig:kcstepc1}}
-		\end{subfigure}
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_landmarks.pdf}
-			\caption{\label{fig:kcstepc2}}
-		\end{subfigure}
-		\caption{....}
-		\label{fig:C-step}
+	\begin{subfigure}[b]{0.40\linewidth}
+		\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_landm3.pdf}
+		\caption{\label{fig:kcstepc1}}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.40\linewidth}
+		\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_landm3.pdf}
+		\caption{\label{fig:kcstepc2}}
+	\end{subfigure}
+	\caption{...}
+	\label{fig:C-step}
 	\end{figure}
 
 	In contrast to the proposed pruning strategy by Suykens et al.~\cite{suykens2000sparse}, the sign of alphas is taken in consideration when determining the ROI. Potential landmark points are now points with large importance and that predict the right class. This is easily seen from the prediction equation \eqref{eq:classification}, where the contribution of a training point in the prediction a test point $x_t$ towards class $y \in \{+1,-1\}$ is proportional to $y \, w_i$ with $w_i = \alpha_iy_i$.

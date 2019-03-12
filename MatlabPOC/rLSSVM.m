@@ -153,7 +153,7 @@ classdef rLSSVM < handle
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    How many outliers do we expect in out dataset
             hInitial = 0.20;
-            hCstep = 0.75;
+            hCstep = 0.85;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
@@ -267,7 +267,7 @@ classdef rLSSVM < handle
         end
     
         function plot(this, dModel)
-            [rr, cc] = meshgrid(-4:0.01:4);             
+            [rr, cc] = meshgrid(-4:0.05:4);             
             output = sign(this.predict([rr(:), cc(:)], dModel));    
             z=reshape(output, size(rr)); 
             
@@ -275,8 +275,8 @@ classdef rLSSVM < handle
             fh = figure(); 
             contour(rr, cc, z, [0 0]); hold on;                        
             plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor',[0,0,0]+0.9); hold on;
-            plot(this.supportVectorData(m1, 1), this.supportVectorData(m1, 2), 'dm', 'MarkerSize', 12, 'markerfacecolor', 'm');  
-            plot(this.supportVectorData(~m1, 1), this.supportVectorData(~m1, 2), 'db', 'MarkerSize', 12, 'markerfacecolor', 'b');  
+            plot(this.supportVectorData(m1, 1), this.supportVectorData(m1, 2), 'dm', 'MarkerSize', 4, 'markerfacecolor', 'm');  
+            plot(this.supportVectorData(~m1, 1), this.supportVectorData(~m1, 2), 'db', 'MarkerSize', 4, 'markerfacecolor', 'b');  
             set(fh, 'Color', 'w');
             export_fig([ dModel.getfilename() '_hyperplane_robsvm.pdf']);
         end
