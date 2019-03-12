@@ -6,6 +6,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Simulate the breaking of an svm in the linear case
     clear;
+    close all;
     rng default;
     
     C = 1e4;
@@ -21,7 +22,7 @@
     
     lsSvm = LSSVM(kModel);
     lsSvm.train(dModel, C);
-    lsSvm.plot(dModel);
+    %lsSvm.plot(dModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Kernel used    

@@ -199,54 +199,49 @@ classdef rLSSVM < handle
             
             c1 = find(dModel.y>0 & weights & alphas>0);            
             c2 = find(dModel.y<0 & weights & alphas<0);
-            c11 = find(dModel.y>0 & weights);
-            c21 = find(dModel.y<0 & weights);
+%             c11 = find(dModel.y>0 & weights);
+%             c21 = find(dModel.y<0 & weights);
             
-            figure; 
-            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
-            plot(dModel.x(c11, 1), dModel.x(c11, 2), '*r');  
-            plot(dModel.x(c21, 1), dModel.x(c21, 2), '*g');  grid on;
-            title('C11 & C12')
+%             figure; 
+%             plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
+%             plot(dModel.x(c11, 1), dModel.x(c11, 2), '*r');  
+%             plot(dModel.x(c21, 1), dModel.x(c21, 2), '*g');  grid on;
+%             title('C11 & C12')
             
-            figure; 
-            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
-            plot(dModel.x(c1, 1), dModel.x(c1, 2), '*r');  
-            plot(dModel.x(c2, 1), dModel.x(c2, 2), '*g');  grid on;
-            title('C1 & C2')
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor', [0,0,0]+0.9); hold on;
+            plot(dModel.x(c1, 1), dModel.x(c1, 2), 'dm', 'MarkerSize', 4);  
+            plot(dModel.x(c2, 1), dModel.x(c2, 2), 'db', 'MarkerSize', 4);  
+            set(fh, 'Color', 'w');
+            %title('Landmark candidate ROI');
             
-            svIndices1 = this.pModel.prune(dModel.x(c11, :), abs(alphas(c11)));
-            svIndices2 = this.pModel.prune(dModel.x(c21, :), abs(alphas(c21)));
+            m1 = c1(abs(alphas(c1))>median(abs(alphas(c1))));
+            m2 = c2(abs(alphas(c2))>median(abs(alphas(c2))));
             
-            figure; 
-            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
-            plot(dModel.x(c11(svIndices1), 1), dModel.x(c11(svIndices1), 2), '*r');  
-            plot(dModel.x(c21(svIndices2), 1), dModel.x(c21(svIndices2), 2), '*g');  grid on;
-            title('Landmark selection')
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor', [0,0,0]+0.9); hold on;
+            plot(dModel.x(m1, 1), dModel.x(m1, 2), 'dm', 'MarkerSize', 4);  
+            plot(dModel.x(m2, 1), dModel.x(m2, 2), 'db', 'MarkerSize', 4);  
+            set(fh, 'Color', 'w');
+            %title('Landmark ROI');
+            
+            
+            svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
+            svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
+            
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor',[0,0,0]+0.9); hold on;
+            plot(dModel.x(c1(svIndices1), 1), dModel.x(c1(svIndices1), 2), 'dm', 'MarkerSize', 4, 'markerfacecolor', 'm');  
+            plot(dModel.x(c2(svIndices2), 1), dModel.x(c2(svIndices2), 2), 'db', 'MarkerSize', 4, 'markerfacecolor', 'b');  
+            set(fh, 'Color', 'w');
+            %title('Landmark points');
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 6, information transfer
             %%%            
             
-            %%%%    Retrain
-%             supportIndices = [c1(svIndices1); c2(svIndices2)];
-%             this.supportVectorData = dModel.x(supportIndices, :);            
-%             this.prunedAlphas = this.trainWeightedLSSVM(this.supportVectorData, dModel.y(supportIndices), C);
-            
-             K = this.kModel.compute(dModel.x);
-             
-%              mask = false(size(dModel.y));
-%              mask(c11) = true;
-%              mask(c1(svIndices1)) = false;
-% 
-%              delta_alpha = pinv(K(:, c1(svIndices1)))*K(:,mask)*alphas(mask, :);
-%              svAlphas1 =  alphas(c1(svIndices1), :) + delta_alpha;
-%              
-%              mask = false(size(dModel.y));
-%              mask(c21) = true;
-%              mask(c2(svIndices2)) = false;
-% 
-%              delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
-%              svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;          
+            K = this.kModel.compute(dModel.x);
+         
             supportVectorMask = false(size(dModel.y));
             supportVectorMask(c11(svIndices1)) = true;
             supportVectorMask(c21(svIndices2)) = true;
