@@ -69,7 +69,7 @@
 	\begin{frontmatter}
 		
 		%% Title, authors and addresses
-		\title{Sparse and Robust Least Squares Support Vector Machines for Classification}
+		\title{Rob-LSSVM: Sparse and Robust Least Squares Support Vector Machines for Classification}
 		%\title{Sparse, Robust Least Squares Support Vector Machines for the Classification of noisy datasets}
 		
 		%% use the tnoteref command within \title for footnotes;
@@ -233,21 +233,8 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 	We first start by laying out the main topology of our proposed method, where our classifier pre-and post-processing operations are shown in grey on figure [REF]. The classifier trainingset is first standardized (Step 1), followed by the outlier detection routine. Outliers are detected per class label $y \in \{+1, -1\}$ subset, which results in a parallel algorithm topology (Step 2-3, Step 4-5).
 	 The detected regular observations (the support vectors candidates) are then used to train a standard, LS-SVM classifier (step 6)). Because the solution lacks sparsity, a second algorithm is used (section [REF??]) to extract the support vectors based on an a priori chosen sampling methodology. Finally, the information of all regular observations is transferred to the support vectors to improve its classification efficiency (Step 11). \\
-	
-	
-	HIER MOETEN WE DUIDELIJK UITLEGGEN/DEFINIEREN WAT DE SUBSETS ZIJN, EN HOE ALLES IN ELKAAR VALT
 
-	\begin{enumerate}
-		\item definieer A als de set die bestaat uit alle elementen uit de gegeven dataset $X$
-		\item definieer B1, B2 de twee subsets die volgen uit de partitionering van de A volgens het class label
-		%\item definieer een $h$ subset als een set van $h$ observaties
-		\item definieer R1 en R2 als de reguliere observatie lijst van B1 en B2 respectively.
-		%\item definieer ROI1, ROI2 als de ... volgens de roi?
-		\item definieer SV1, SV2 als de geprunede R1, R2 lijst die bestaat uit de apriori opgegeven $q?$ support vectors. De sparsnessration = $2*q / n$
-	\end{enumerate}	
-
-	
-	SECTIE BEINDIGEN MET ONDERSTAANDE OPMERKINGEN?
+	SECTIE BEINDIGEN MET ONDERSTAANDE OPMERKINGEN
 	
 	\begin{remark}
 		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
@@ -384,24 +371,6 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 			\item If the new $h$-subset is equal to the previous one, exit the C-step loop.
 		\end{enumerate}
 		
-		%	\begin{enumerate}	
-		%		\item For each observation $x$, calculate the corresponding Mahalanobis distance, defined as:
-		%		\begin{equation}
-		%		||x - c_h||^2_{\Sigma_h} = (x - c_h) \Sigma^{-1}_h (x - c_h)
-		%		\end{equation}	
-		%		\item Sort the Mahalanobis distances in ascending order. Redefine the $h$-subset with the $h$ observations with lowest distance. 
-		%		\item Obtain a new estimation of location and scatter:
-		%		\begin{align}
-		%		c_h &= \frac{1}{h} \sum_{i=1}^{h}x_i \\
-		%		\Sigma_h &= \frac{1}{h} \sum_{i=1}^{h} (\phi(x_i) - c_h) (\phi(x_i) - c_h)^T 
-		%		\end{align}
-		%		
-		%		\item Re-iterate until a specified number of steps or until no convergence is obtained:
-		%		\begin{equation}
-		%		\det(\hat{\Sigma}_h(t))=\det(\hat{\Sigma}_h(t-1))
-		%		\end{equation}
-		%	\end{enumerate}
-		
 		\item [Step 5] If the $h$-subset size is lower then $h_{end}$, increase the $h$-subset size by (say) 5\% and go back to step 4. 
 		\item [Step 6] Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
 		\begin{equation}
@@ -471,8 +440,7 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	\end{figure}
 	
 	
-	
-	\newpage
+	%\newpage
 	\FloatBarrier
 	
 	\subsection{Imposing sparseness: support vector section methodology}
@@ -491,6 +459,50 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 		\item Determine the subset which consists of all points belonging to the class and are not considered outliers by the kernel MCD procedure.
 		\item Reduce the subset even more by the selecting the $\beta$ percentage\footnote{In the experiments, a reduction rate $\beta = 0.25$ is used.} datapoints with highest value $\alpha_i$, where $\alpha_i$ is the support value. 
 	\end{enumerate}
+
+	\begin{figure}[!htb]
+		\centering
+		
+%		\begin{subfigure}[b]{0.40\linewidth}
+%			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_model.pdf}
+%			\caption{\label{fig:spatialmedc1}}
+%		\end{subfigure}
+%		\begin{subfigure}[b]{0.40\linewidth}
+%			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_model.pdf}
+%			\caption{\label{fig:spatialmedc2}}
+%		\end{subfigure} \\
+		
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_roi1.pdf}
+			\caption{\label{fig:dmodel1}} 
+		\end{subfigure}
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_roi1.pdf}
+			\caption{\label{fig:dmodel2}} 
+		\end{subfigure} \\
+	
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_roi2.pdf}
+			\caption{\label{fig:dmodel1}} 
+		\end{subfigure}
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_roi2.pdf}
+			\caption{\label{fig:dmodel2}} 
+		\end{subfigure} \\
+	
+		
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/landmarks/Lin_landmarks.pdf}
+			\caption{\label{fig:kcstepc1}}
+		\end{subfigure}
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/landmarks/nonLin_landmarks.pdf}
+			\caption{\label{fig:kcstepc2}}
+		\end{subfigure}
+		\caption{....}
+		\label{fig:C-step}
+	\end{figure}
+
 	In contrast to the proposed pruning strategy by Suykens et al.~\cite{suykens2000sparse}, the sign of alphas is taken in consideration when determining the ROI. Potential landmark points are now points with large importance and that predict the right class. This is easily seen from the prediction equation \eqref{eq:classification}, where the contribution of a training point in the prediction a test point $x_t$ towards class $y \in \{+1,-1\}$ is proportional to $y \, w_i$ with $w_i = \alpha_iy_i$.
 	
 	The ROI represents a subset with points important for the decision boundary for every class. Using a sampling algorithm that promotes diversity, $l$ landmark points are selected for every class to represent the ROI. Due to the diversity, no clumping is possible.

@@ -20,7 +20,12 @@ classdef YinYangDataModel < DataModel
         end
     end
     
-    methods (Access = protected)
+    methods (Access = public)
+        
+        function fn = getfilename(~)
+           fn = 'yydatamodel';
+        end
+        
         function [x, y, z] = generateDataModel(this, n, ~, eps)
             nn = floor(n/2);
             m = ceil(eps * n);            

@@ -12,7 +12,7 @@
     C = 1e4;
     
     kModel = LinKernel();
-    pModel = DPPBasedPruning(8, kModel);
+    pModel = DPPBasedPruning(20, kModel);
     dModel = NormalDataModel(1500, 0.10);      
     fh=dModel.plot();    
     
@@ -22,7 +22,7 @@
     
     lsSvm = LSSVM(kModel);
     lsSvm.train(dModel, C);
-    %lsSvm.plot(dModel);
+    lsSvm.plot(dModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Kernel used    
@@ -39,7 +39,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
     %pModel = EntropyBasedPruning(10, kModel);
-    pModel = DPPBasedPruning(10, kModel);
+    pModel = DPPBasedPruning(20, kModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used

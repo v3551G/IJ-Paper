@@ -4,6 +4,7 @@ classdef LSSVM < handle
         kModel;
         supportVectorData;
         prunedAlphas;
+        supportVectorLabels;
     end
     
     methods (Access = public)        
@@ -13,7 +14,8 @@ classdef LSSVM < handle
         
         function train(this, dModel, C)
             yTrain = dModel.y;
-            this.supportVectorData = dModel.x;            
+            this.supportVectorData = dModel.x;  
+            this.supportVectorLabels = dModel.y;
             n = numel(yTrain);
             K = this.kModel.compute(this.supportVectorData, this.supportVectorData);
             upper = [0, yTrain' ];
@@ -23,20 +25,18 @@ classdef LSSVM < handle
         end
         
         function plot(this, dModel)
-            [rr, cc] = meshgrid(-4:0.05:4);    
+            [rr, cc] = meshgrid(-4:0.01:4);             
             output = sign(this.predict([rr(:), cc(:)], dModel));    
             z=reshape(output, size(rr)); 
-            figure; 
-            contourf(rr, cc, z, [0 0]); hold on;
-            if (nargin==2)
-                plot(dModel.x(:, 1), dModel.x(:, 2), '.');
-            end
-            if (size(dModel.x, 1)~=size(this.supportVectorData, 1))
-                plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
-            end
-            colormap(bluewhitered);
-            title('normal svm');
-            %colorbar;
+            
+            m1=this.supportVectorLabels>0;            
+            fh = figure(); 
+            contour(rr, cc, z, [0 0]); hold on;                        
+            %plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor',[0,0,0]+0.9); hold on;
+            plot(this.supportVectorData(m1, 1), this.supportVectorData(m1, 2), '.m', 'MarkerSize', 4, 'markerfacecolor', 'm');  
+            plot(this.supportVectorData(~m1, 1), this.supportVectorData(~m1, 2), '.b', 'MarkerSize', 4, 'markerfacecolor', 'b');  
+            set(fh, 'Color', 'w');
+            export_fig([ dModel.getfilename() '_hyperplane_lssvm.pdf']);
         end
         
         function prediction = predict(this, xTest, dModel)
