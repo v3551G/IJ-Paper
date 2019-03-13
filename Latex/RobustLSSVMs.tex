@@ -585,6 +585,31 @@ We can partition this expression in the selected landmark part and non-selected 
 	\begin{align}
 	\hat{\mathbf{\beta}}_l &=\mathbf{\beta}_l + \Delta \mathbf{\beta}.
 	\end{align}
+	
+	\begin{figure}[!htb]
+		\centering
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_hyperplane_robsvm.pdf}
+			\caption{\label{fig:dmodel1}} 
+		\end{subfigure}
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_hyperplane_robsvm.pdf}
+			\caption{\label{fig:spatialmedc1}}
+		\end{subfigure} \\
+		
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_hyperplane_lssvm}
+			\caption{\label{fig:dmodel2}} 
+		\end{subfigure} 
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_hyperplane_lssvm.pdf}
+			\caption{\label{fig:spatialmedc2}}
+		\end{subfigure} 
+		\caption{Uiteindelijke oplossing na information transfer, waarbij de info van de reguliere observaties getransfereerd is naar de support vectors, weergegeven als 'd'. Ter vergelijking tonen we de de naive LS-SVM figuren c, d. De impact van de outliers op het LS-SVM hypervlak is duidelijk zichtbaar, in vergelijking met the proposed.}
+		\label{fig:results}
+	\end{figure}
+
+	
  The classier prediction equation finally boils down to:
 	\begin{equation}
 \hat{y}(x) = \mathrm{sign}\Big(\sum_{i=1}^{l} K(x, x_i)\hat{\beta}_i  + b\Big).	
