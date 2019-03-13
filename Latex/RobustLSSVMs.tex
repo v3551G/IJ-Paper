@@ -24,7 +24,6 @@
 \usepackage{subcaption}
 \usepackage[section]{placeins}
 \usepackage{mathtools}  
-\mathtoolsset{showonlyrefs}  
 
 \usepackage{amsthm}
 \newtheorem*{remark}{Remark}
@@ -110,20 +109,8 @@
 		\address[mebios]{KU Leuven, Division of Mechatronics, Biostatistics and Sensors, Kasteelpark Arenberg 30, BE-3001 Heverlee, Belgium}
 		
 		\begin{abstract}
-			(Abstract uit weighted LS-SVM, ter voorbeeld). Least squares support vector machines (LS-SVM) is an SVM version which involves
-			equality instead of inequality constraints and works with a least squares cost function.
-			In this way, the solution follows from a linear Karush–Kuhn–Tucker system instead of
-			a quadratic programming problem. However, sparseness is lost in the LS-SVM case and
-			the estimation of the support values is only optimal in the case of a Gaussian distribution
-			of the error variables. In this paper, we discuss a method which can overcome these two
-			drawbacks. We show how to obtain robust estimates for regression by applying a weighted
-			version of LS-SVM. We also discuss a sparse approximation procedure for weighted and
-			unweighted LS-SVM. It is basically a pruning method which is able to do pruning based
-			upon the physical meaning of the sorted support values....
-			
-			The methods of this paper are illustrated for RBF kernels and demonstrate how to obtain
-			robust estimates with selection of an appropriate number of hidden units, in the case of
-			outliers or non-Gaussian error distributions with heavy tails
+			Least squares support vector machines (LS-SVM) are popular methods to solve classification problems. The LS-SVM is an SVM version which involves equality instead of inequality constraints and works with a least squares cost function.
+			In this way, the solution follows from a linear system instead of a quadratic programming problem. However, sparseness  and robustness is lost in the LS-SVM case. In this paper, we discuss a method which can overcome these two drawbacks. Robustness is achieved by a kernel minimum covariance determinant, which is a highly robust estimator of multivariate location and scatter in feature space. Afterwards, the robust LS-SVM is pruned by sampling diverse points out of a region of interest, which consist of points close to the decision boundary.	Experiments show that the method is robust to contamination and extreme spareness is achieved without diminishing the performance. 
 			
 		\end{abstract}
 		
@@ -135,20 +122,20 @@
 	%\linenumbers
 	
 	%%%%%%%%%%%%%%%%%	Comment the following lines when the paper is finished
-	\tableofcontents
+	%\tableofcontents
 	\newpage
 	
 	%% main text
 	\section{Introduction}
 	
-	Least-squares support vector machines (LS-SVM) are powerful methods for solving pattern recognition and regression problems~\cite{suykens2002least}. The LS-SVM maps data to a higher dimensional space in which one constructs an optimal separating hyperplane. It has been applied to many real-world problems such as optimal control~\cite{suykens2001optimal}, financial time series prediction~\cite{van2001financial}, system identification~\cite{goethals2005identification}, electrical load forecasting~\cite{espinoza2006fixed} and many others. However, the classifier model has two major disadvantages. First, it is (very) sensitive to outliers, as the underlying system of equations lacks robustness. This results in the orientation of the separating hyperplane in the direction of anomalies which, in turn, might cause a huge amount of misclassification. The second disadvantage is that its solution also lacks sparseness, which hinders the application of LS-SVM models for  real-time prediction. \\
+	Least-squares support vector machines (LS-SVM) are powerful methods for solving pattern recognition and regression problems~\cite{suykens2002least}. The LS-SVM maps data to a higher dimensional space in which one constructs an optimal separating hyperplane. It has been applied to many real-world problems such as optimal control~\cite{suykens2001optimal}, financial time series prediction~\cite{van2001financial}, system identification~\cite{goethals2005identification}, electrical load forecasting~\cite{espinoza2006fixed} and many others. However, the classifier model has two major disadvantages. First, it is (very) sensitive to outliers, as the underlying system of equations lacks robustness. This results in the orientation of the separating hyperplane in the direction of anomalies which, in turn, might cause a large amount of misclassifications. The second disadvantage is that its solution lacks sparseness, which hinders the application of LS-SVM models for real-time prediction. \\
 	
-	To reduce the influence of outliers, Suykens et al.~\cite{suykens2002weighted} proposed the weighted LS-SVM. By iteratively assigning small weights to outliers and retraining, the method diminishes the effect of extreme values. Another solution was proposed by Yang et al.~\cite{yang2014robust}, where a truncated loss function is used in the objective that is solved by a concave-convex procedure and the newton algorithm. A third solution is suggested by Debruyne et al.~\cite{debruyne2009robustified}, which proposes a weighted LS-SVM classification where weights are equal to spatial rank with respect to the other feature vectors in the class.
+	To reduce the influence of outliers, Suykens et al.~\cite{suykens2002weighted} proposed the weighted LS-SVM. By iteratively assigning small weights to outliers and retraining, the method diminishes the effect of extreme values. Another solution was proposed by Yang et al.~\cite{yang2014robust}, where a truncated loss function is used in the objective that is solved by a concave-convex procedure and the newton algorithm. A third solution is suggested by Debruyne et al.~\cite{debruyne2009robustified}, which proposes a weighted LS-SVM classification where weights are equal to the spatial rank with respect to the other feature vectors in the class.
 	
 	In comparison to the standard support vector machines (SVM), the LS-SVM only requires solving a linear system, but it lacks sparseness in the number of solution terms. To solve this problem, Suykens et al.~\cite{suykens2000sparse} propose a method that iteratively prunes the datapoints with lowest support values and retrains. Yang et al.~\cite{yang2014sparse} propose a one-step compressive pruning strategy to reduce the number of support vectors. Fixed-size LS-SVM sparsifies the LS-SVM by selecting important point or landmark points based on the quadratic Renyi Entropy criterion~\cite{suykens2002least}. However the landmark points are fixed in advance and don't take into account information of the classification itself, which could lead to sub-optimal results. This is in contrast to the sparse LS-SVM~\cite{suykens2000sparse}, which chooses observations based on the impact on the classification boundary. A comparison of different pruning methods can be found in~\cite{hoegaerts2004comparison}. \\
 	
 	In this paper, we focus on tackling both problems at once.
-	Other methods are found in~\cite{chen2018sparse}, where a primal formulation of the LS-SVM with a truncated loss is introduced, sparseness is obtained by the Nystr\"{o}m approximation. A second method is the weighted LS-SVM of Suykens et al.~\cite{suykens2002weighted}. We propose a robust LS-SVM based on the Minimum covariance determinant (MCD)~\cite{hubert2010minimum}, which is known to be a highly robust 	estimator of multivariate location and scatter. However, in contrast to the original formulation, the location and scatter is determined in feature space using the kernel trick, which enables us to detect non-linear outliers. Afterwards extreme sparsity is obtained by determinantal point processes (DPP)~\cite{kulesza2012determinantal}, which are capable of selecting diverse samples. To summarize, our main contributions consist off:
+	Other methods are found in~\cite{chen2018sparse}, where a primal formulation of the LS-SVM with a truncated loss is introduced, sparseness is obtained by the Nystr\"{o}m approximation. A second method is the weighted LS-SVM of Suykens et al.~\cite{suykens2002weighted}. We propose a robust LS-SVM based on the minimum covariance determinant (MCD)~\cite{hubert2010minimum}, which is known to be a highly robust 	estimator of multivariate location and scatter. However, in contrast to the original formulation, the location and scatter is determined in feature space using the kernel trick, which enables the detection of non-linear outliers. Afterwards extreme sparsity is obtained by determinantal point processes (DPP)~\cite{kulesza2012determinantal} (or maximizing the quadratic Renyi entropy~\cite{suykens2002least}), which are capable of selecting diverse samples. To summarize, our main contributions consist off:
 	\begin{enumerate}
 		\item The development of a robust algorithm that is able to detect non-linear correlated outliers.
 		\item The development of a new LS-SVM support vector selection strategy, based on entropy and determinantal point processes.
@@ -177,7 +164,7 @@
 	
 	This constrained optimization problem is solved by the optimality conditions of its Lagrangian $\alpha$ as follows:
 	\begin{equation}
-	L(w,b,e;\alpha) = J(w,b,e) - \sum_{i=1}^{n} \alpha_i(y_i [ w^T \varphi(x_i) + b]-1 + e_i)
+	L(w,b,e;\alpha) = J(w,b,e) - \sum_{i=1}^{n} \alpha_i(y_i [ w^T \varphi(x_i) + b]-1 + e_i).
 	\label{eq:lagrangian}
 	\end{equation}
 	%Here, $\alpha_i$ is the Lagrange multiplier whose value can be either positive or negative, which is also different from the standard SVM proposed by Vapnik. 
@@ -191,14 +178,20 @@
 	Combining the first and last equation and defining $\Omega{(i,j)}$ using the kernel trick for two observations with index $i$ and $j$ as:
 	\begin{align}
 	\Omega{(i,j)} &= y_i y_j \varphi(x_i)^T \varphi(x_j) \\
-	&= y_i y_j K(x_i, x_j)
+	&= y_i y_j K(x_i, x_j).
 	\end{align}
-	Yields the following set of linear equations, where the kernel matrix $K$ transforms observations to the kernel feature space $\mathcal{H}$.
+	Common kernels are:
+	\begin{align}
+	\mathrm{Linear} \  \mathrm{kernel:} \ K(x,y) &= x^\mathrm{T}y \\
+	\mathrm{Polynomial} \ \mathrm{kernel:} \ K(x,y) &= (\tau + x^\mathrm{T}y)^d \\
+	\mathrm{RBF} \ \mathrm{kernel:} \ K(x,y) &= \mathrm{exp}\Big(-\frac{||x-y||_2^2}{\sigma^2}\Big) 
+	\end{align}
+	This results in the following set of linear equations, where the kernel matrix $K$ transforms observations to the kernel feature space $\mathcal{H}$.
 	
 	\begin{equation}
 	\begin{bmatrix}
-	0 & \mathbf{y} ^T \\
-	\mathbf{y} & \Omega + \gamma^{-1} \mathbf{I}
+	0 & y^T \\
+	y & \Omega + \gamma^{-1} \mathrm{I}
 	\end{bmatrix}	
 	\begin{bmatrix}
 	b \\
@@ -207,13 +200,13 @@
 	=
 	\begin{bmatrix}
 	0 \\
-	\mathbf{1}
+	1
 	\end{bmatrix},
 	\end{equation}
-	where $\mathbf{y}  = [y_1;...;y_n]$, $\mathbf{1} = [1;...;1]$ and $\mathbf{I}$ the identity matrix.
+	where $y  = [y_1;...;y_n]$, $1 = [1;...;1]$ and $\mathrm{I}$ the identity matrix.
 	The least squares solution of the aforementioned system of equations is then used to  obtain the Lagrange coefficients $\alpha$ and offset $b$, where the decision function used for test set prediction is defined as:
 	\begin{equation}
-	\hat{y}(x) = \mathrm{sign}\Big(\sum_{i=1}^{n} \alpha_i y_i K(x, x_j) + b\Big)	
+	\hat{y}(x) = \mathrm{sign}\Big(\sum_{i=1}^{n} \alpha_i y_i K(x, x_j) + b\Big).
 	\label{eq:classification}
 	\end{equation}
 %	Or, written in a more convenient matrix notation, short-writing $\beta_i= (\alpha_i \  y_i)$
@@ -231,22 +224,15 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	
 	%\subsection{Topology}
 	
-	We first start by laying out the main topology of our proposed method, where our classifier pre-and post-processing operations are shown in grey on figure [REF]. The classifier trainingset is first standardized (Step 1), followed by the outlier detection routine. Outliers are detected per class label $y \in \{+1, -1\}$ subset, which results in a parallel algorithm topology (Step 2-3, Step 4-5).
-	 The detected regular observations (the support vectors candidates) are then used to train a standard, LS-SVM classifier (step 6)). Because the solution lacks sparsity, a second algorithm is used (section [REF??]) to extract the support vectors based on an a priori chosen sampling methodology. Finally, the information of all regular observations is transferred to the support vectors to improve its classification efficiency (Step 11). \\
-
-	SECTIE BEINDIGEN MET ONDERSTAANDE OPMERKINGEN
-	
-	\begin{remark}
-		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
-		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.\\	
-	 	As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
-	 \end{remark}
+	We first start by laying out the main topology of our proposed method for a 2-class classification problem, where our classifier pre-and post-processing operations are shown in gray, on Figure~\ref{fig:pipeline}. The trainingset is first standardized (Step 1), followed by the outlier detection routine. Outliers are detected per class label $y \in \{+1, -1\}$ subset, which results in a parallel algorithm topology (Step 2-3, Step 4-5).
+	 The detected regular observations (the support vectors candidates) are then used to train a standard, LS-SVM classifier (step 6)). Because the solution lacks sparsity, a second algorithm is used (section \ref{sec:Sparseness}) to extract the support vectors based on an a priori chosen sampling methodology. Finally, the information of all regular observations is transferred to the support vectors to improve its classification efficiency (Step 11). \\
+Before continuing with the explanation of the methodology, it is important to first make some remarks. The first step of outlier detection is essential before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}. If the first step is omitted, there is a large chance of sampling outliers as landmark points. The same reasoning is present for the k-DPP. In order to promote diversity, points that have a high similarity have a low chance of being sampled together. Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled. Secondly the method is elaborated for a 2-class problem, however the outlier detection and landmark selection is done on each class separately. The proposed method is thus easily applicable in a multi-class classification setting. 
 	
 	\begin{figure}[!htb]
 		\centering
-		\label{fig:pipeline}
 		\centering\includegraphics[width=0.8\linewidth]{flow/gabstract.pdf}
 		\caption{Topological order of the LS-SVM pruning method. First, an outlier detection algorithm is used to extract regular observations; These samples are then used to build a classic LS-SVM model. As the classifier solution lacks sparsity, it is subjected to a sampling algorithm to extract support vectors. Finally, the trained model is converted to a sparse LS-SVM model by an information transfer step.  The outlier detection and landmark selection is done on each class separately which results in a parallel pipeline topology.} 
+		\label{fig:pipeline}
 	\end{figure}
 %	@Iwein: even duidelijk uitleggen wat de definities zijn, welke subsets (en welke benaming) we gebruiken, consistent door de paper. 
 %	\begin{enumerate}
@@ -269,8 +255,8 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 %	\end{enumerate} 
 	
 	%\newpage
-	\subsubsection{Outlier detection in kernel feature space}
-	 Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in  (Rousseeuw, 1984, 1985). This Mahalanobis distance based estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as refinement step. Robust two-step mechanisms (initial estimation $\rightarrow$ refinement) inherit the robustness of the MCD, but offers an improved statistical efficiency [see e.g. REF: DetS, detMM]. Deterministic variants and well know PCA-based applications are described in \cite{hubert2012deterministic} and \cite{hubert2005robpca} respectively. \\
+	\subsection{Outlier detection in kernel feature space}
+	 Modern multivariate robust statistical methods are frequently based on the Minimum Covariance Determinant (MCD) method, first introduced in~\cite{rousseeuw1985multivariate}. This Mahalanobis distance based estimator can withstand a substantial amount of trainingset contamination (up to 50\%), and is nowadays (also) employed as refinement step. Robust two-step mechanisms (initial estimation $\rightarrow$ refinement) inherit the robustness of the MCD, but offers an improved statistical efficiency [see e.g.~\cite{hubert2015dets}]. Deterministic variants and well know PCA-based applications are described in \cite{hubert2012deterministic} and \cite{hubert2005robpca} respectively. \\
 	
 	Given a trainingset $X$ of $n$ observations in $p$ dimensions, the MCD-objective is to find the $h$ observations whose sample covariance matrix has the lowest possible determinant, where the amount of regular observations $h < n$ is specified before the algorithm starts. The MCD-estimate of location $c_h$ is then the average of these $h$ points (the $h$-subset), whereas the scatter estimate is a multiple of their covariance matrix $\hat{\Sigma}_{h}$. 
 	
@@ -298,7 +284,7 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	Where $V$ is the matrix of eigenvectors $v^k$ and $D$ resembles the diagonal matrix of eigenvalues $\lambda^k$ for $k=1,2, \dots, h$. The relation between eigenvalues and eigenvectors follows the identity:
 	\begin{equation}
 	\label{eq:eigenrelation}
-	\Sigma_h v^k = \lambda^k v^k
+	\Sigma_h v^k = \lambda^k v^k.
 	\end{equation} 
 	From the definition of equation \eqref{eq:sigma}, it can be seen that each eigenvector is a linear combination of the observations $\phi(x_i)$ in kernel feature space:
 	\begin{equation}
@@ -308,11 +294,11 @@ Note that $\alpha$ satisfies the linear constraint $\sum_{i=1}^{n} \alpha_i  e_i
 	\begin{equation}
 	n \lambda^k \alpha^k = \tilde{K} \alpha^k.
 	\end{equation}
-	Here, $\tilde{K}$ denotes the symmetric kernel matrix of $h$ rows, centred in $\mathcal{H}$. The weights $\alpha$ are determined by solving the eigendecomposition problem. \\
+	Here, $\tilde{K}$ denotes the symmetric kernel matrix of $h$ rows, centered in $\mathcal{H}$. The weights $\alpha$ are determined by solving the eigendecomposition problem. \\
 	By refactoring $\Sigma^{-1}$ as $V^T D^{-1/2} D^{-1/2} V$ and exploiting reductant operations in the Mahalanobis distance formula, Nader et al.~\cite{nader2014mahalanobis} show that equation~\eqref{eq:smd} can be calculated in $\mathcal{H}$ as:
 	\begin{equation}
 	\label{eq:Mahal}
-	||\phi(x) - c_n||^2_{\Sigma} = \sum_{k=1}^{n} (\lambda^k)^{-1} \big( \sum_{k=1}^{n} \alpha^k \tilde{k}(x_i, x) \big)^2
+	||\phi(x) - c_n||^2_{\Sigma} = \sum_{k=1}^{n} (\lambda^k)^{-1} \big( \sum_{k=1}^{n} \alpha^k \tilde{k}(x_i, x) \big)^2.
 	\end{equation}	
 		
 Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf1998nonlinear}:
@@ -333,50 +319,56 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 	Start with the robust standardization of each observation: 
 	
 	\begin{equation}
-		z_i = \frac{(x_i - \hat{\mu}_{mcd})}{\hat{\sigma}_{mcd}} 
+		z_i = \frac{(x_i - \hat{\mu}_{mcd})}{\hat{\sigma}_{mcd}} ,
 	\end{equation}
 	
-	Where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD~\cite{rousseeuw1999fast}, estimated on the entire dataset. this procedure reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and our proposed  procedure is applied (per subset) to derive at an outlier free support vector candidate set, as follows:
+	where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD~\cite{rousseeuw1999fast}, estimated on the entire dataset. this procedure reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and our proposed  procedure is applied (per subset) to derive at an outlier free support vector candidate set, as follows:
 	
-	\begin{itemize}
-		\item [Step 1] Calculate the spatial median in $\mathcal{H}$, as introduced in~\cite{debruyne2010detecting}. The spatial median can be written as a linear combination of the feature vectors. Denote $\gamma = (\gamma_1, \dots, \gamma_n)^T$ the vector of coefficients, where  $\sum_{i=1}^{n} \phi(x_i) \gamma_i$ equals the spatial median in feature space. Initialise $\gamma = (1/n, 1/n, \dots)$ and recursively compute the normalized coefficients $\gamma = w / \sum_{i=1}^{n}w_i$, where $w_i$ for the observation with index $i$ is calculated as:
+	\begin{enumerate}
+		\item Calculate the spatial median in $\mathcal{H}$, as introduced in~\cite{debruyne2010detecting}. The spatial median can be written as a linear combination of the feature vectors. Denote $\gamma = (\gamma_1, \dots, \gamma_n)^T$ the vector of coefficients, where  $\sum_{i=1}^{n} \phi(x_i) \gamma_i$ equals the spatial median in feature space. Initialise $\gamma = (1/n, 1/n, \dots)$ and recursively compute the normalized coefficients $\gamma = w / \sum_{i=1}^{n}w_i$, where $w_i$ for the observation with index $i$ is calculated as:
 		\begin{equation}
 		w_i = \frac{1}{\sqrt{ K_{i,i} - 2 \gamma^T K_{., i} + \gamma^T K \gamma}}.
 		\end{equation}
 		Ten iterations are usually enough to obtain a good approximation.	
-		\item [Step 2] Calculate the Euclidean distance for each observation to the spatial median:
+		\item  Calculate the Euclidean distance for each observation to the spatial median:
 		\begin{align}
 		d_i &= || \phi(x_i) - \sum_{j=1}^N \gamma_j \phi(x_j)||^2 \\
 		&= || \phi(x_i)||^2 + || \sum_{j=1}^N \gamma_j \phi(x_j)||^2 - 2 <\phi(x_i),\sum_{j=1}^N \gamma_j \phi(x_j)> \\
 		&= K(x_i,x_i) + \sum_{j=1}^N \sum_{k=1}^N \gamma_j \gamma_k K(x_j,x_k) - 2 \sum_{j=1}^N\gamma_j K(x_i,x_j).
 		\end{align}
-		\item [Step 3] 	Sort these distances in ascending order. Define the initial $h$-subset by the $h_{init}$ observations with the lowest distance.	
+		\item 	Sort these distances in ascending order. Define the initial $h$-subset by the $h_{init}$ observations with the lowest distance.	
 		
-		\item [Step 4] Apply kernel C-step for a fixed amount of iterations as follows:
+		\item Apply kernel C-step for a fixed amount of iterations as follows:
 		
 		\begin{enumerate}
 			\item Calculate the kernel matrix $K_h$ for the given $h$-subset of observations.
 			\item Center $K_h$ in $\mathcal{H}$ by equation \ref{eq:centerKh}, obtaining $\tilde{K}_h$
 			\item Perform the singular value decomposition on $\tilde{K}_h$ to obtain the eigenvectors $\alpha$ and eigenvalue vector $L_d$.
-			\item Normalize each eigenvector $\mathbf{\alpha}^k$ by its corresponding eigenvalue $\lambda_k$:
+			\item Normalize each eigenvector $\alpha^k$ by its corresponding eigenvalue $\lambda_k$:
 			\begin{equation}
-			||\mathbf{\alpha}^k|| = \frac{1}{n\lambda_k}, \mathrm{for \enskip all \enskip components \enskip}k
+			||\alpha^k|| = \frac{1}{n\lambda_k}, \mathrm{for \enskip all \enskip components \enskip}k.
 			\end{equation}
 			\item Calculate the kernel matrix for the given $h$-subset of observations in $n$ features.
 			\item Center the kernel matrix by equation~\eqref{eq:centerKt} and obtain the Mahalanobis distances with equation~\eqref{eq:Mahal} or, expressed in vector notation:
 			\begin{equation}
-				d^2 = .....
+				d^2  = (\tilde{K_t}\alpha)^{\circ 2}\lambda^{-1},
 			\end{equation}
+			where  $d^2 \in \mathbb{R}^{n \times 1}$, $ \tilde{K_t} \in \mathbb{R}^{t \times n}$, $\lambda^{-1} = [\lambda_1^{-1} ,...,\lambda_k^{-1}]^\mathrm{T} \in \mathbb{R}^{k \times 1}$ , $\alpha \in \mathbb{R}^{n \times k}$ and $^{\circ 2}$ the 
+			element-wise square.
 			\item Sort the distance vector $d^2$ in ascending order and redefine the $h$-subset as the $h$ observations with smallest distance.
 			\item If the new $h$-subset is equal to the previous one, exit the C-step loop.
 		\end{enumerate}
 		
-		\item [Step 5] If the $h$-subset size is lower then $h_{end}$, increase the $h$-subset size by (say) 5\% and go back to step 4. 
-		\item [Step 6] Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
+		\item  If the $h$-subset size is lower then $h_{end}$, increase the $h$-subset size by (say) 5\% and go back to step 4. 
+		\item  Determine the final support vector candidate mask. Assign a binary weight to each observation $i$:
 		\begin{equation}
-			w(d^2) = \mathbf{1}_{(d^2 \le c)} + \mathbf{0}_{(d^2 > c)}
+			w(d^2)  =
+			\begin{cases}
+			1       & \quad \text{if } d^2 \leq c \\
+			0  & \quad \text{if } d^2 >c
+			\end{cases}
 		\end{equation}
-		Here, $c$ is a threshold which we choose here as $c = max(\chi_p^2(0.975), max(d_h^2) )$, with $d_h^2$ the distance vector of the observations in the $h$-subset. 
+		where $c$ is a threshold which we choose here as $c = max(\chi_p^2(0.975), max(d_h^2) )$, with $d_h^2$ the distance vector of the observations in the $h$-subset. 
 %		\begin{equation}
 %		w_i =
 %		\begin{cases}
@@ -384,26 +376,9 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 %		0, & \text{otherwise}
 %		\end{cases}
 %		\end{equation}
-	\end{itemize}
+	\end{enumerate}
 	
-	Finally, the weights $w$ are then used to train a weighted classifier model, as follows:
-	
-	\begin{equation}
-		\begin{bmatrix}
-		0 & \mathbf{y}_w^T \\
-		\mathbf{y_w} & \Omega + \gamma^{-1} \mathbf{w}
-		\end{bmatrix}	
-		\begin{bmatrix}
-		b \\
-		\alpha
-		\end{bmatrix}
-		=
-		\begin{bmatrix}
-		0 \\
-		\mathbf{1}
-		\end{bmatrix},
-	\end{equation}
-	Here $\mathbf{y_w}  = \mathbf{y} \circ \mathbf{w}$ denotes the element-wise product of the class labels with the weight vector. The algorithm workings are visualised in Figure \ref{fig:C-step}, where it can be seen that the initial estimate converges to the outlier free dataset.
+	Finally, the weights $w$ are then used to train a weighted LS-SVM, where only the points with a weight equal to 1 are used in training the model. The algorithm workings are visualised in Figure \ref{fig:C-step}, where it can be seen that the initial estimate converges to the outlier free dataset.
 	
 	
 	\begin{figure}[!htb]
@@ -450,53 +425,55 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 	
 	%Pruning implies that prediction formula (REF TO EQUATION) should be partitioned in a \textit{relevant} (the support vectors or landmark points, found by the pruning algorithm) - and \textit{irrelevant} part.  
 	%An overview of existing pruning methods can be found in Hoegaerts et al. \cite{hoegaerts2004comparison}. 
+	The next step in the algorithm is introducing sparseness by pruning the previously trained robust LS-SVM.
 	A first LS-SVM pruning approach was suggest by Suykens et al.~\cite{suykens2000sparse}, where  sparseness is imposed by pruning support values from the sorted support value spectrum resulting from the solution to the linear system.  The motivation comes from the fact that LS-SVM support values are proportional to the errors at datapoints. Thus omitting the points that contribute least to the training error. The values with a high $|\alpha_k|$ reside close to the decision boundary and are thus important to classify correctly. 
 	
 	However blindly taking the points with largest support value spectrum could lead to sub-optimal results. Firstly, when outliers are present, you want to be certain that these are not chosen. Secondly, points are chosen independently towards each other. This results in clumping of landmarks. The first problem is addressed by running a kernelized minimum covariance determinant, which detects and omits potential outliers.  \\
 	
-	[EXPLICIET VERWIJZEN NAAR FIGUUR OP DE VOLGENDE BLZ IN DE UITLEG uitleggen waarom het teken van alpha zin heeft ] \\
-	
 	The second problem is solved by introducing a subset for each class \newline $y \in \{+1,-1\}$ called the "region of interest" (ROI), which consist of points close to the decision boundary. Determining the ROI is done for each class and consists out of two steps:
 	\begin{enumerate}
 		\item Determine the subset which consists of all points belonging to the class and are not considered outliers by the kernel MCD procedure.
-		\item Reduce the subset even more by the selecting the $\beta$ percentage\footnote{In the experiments, a reduction rate $\beta = 0.25$ is used.} datapoints with highest value $\alpha_i$, where $\alpha_i$ is the support value. 
+		\item Reduce the subset by selecting the points where the sign of $\alpha_i$ is equal to sign of the currently analyzing class.
+		\item The subset is further reduced by selecting the points that satisfy:
+		\begin{equation}
+			|\alpha_i| \geq \mathrm{median}(|\alpha|), \mathrm{for} \enskip i = 1,...,j
+		\end{equation}
+		 where $\alpha = [\,|\alpha_1|,...,|\alpha_j|\,]^{\mathrm{T}}$ and $\alpha_i$ the support value of points in the subset of step 2 with cardinality $j$.
 	\end{enumerate}
 
 	\begin{figure}[!htb]
 	\centering
 	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_landm1.pdf}
-		\caption{\label{fig:dmodel1}} 
+		\caption{\label{fig:sparse1}} 
 	\end{subfigure}
 	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_landm1.pdf}
-		\caption{\label{fig:spatialmedc1}}
+		\caption{\label{fig:sparse2}}
 	\end{subfigure} \\
 	
 	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_landm2.pdf}
-		\caption{\label{fig:dmodel2}} 
+		\caption{\label{fig:ROI1}} 
 	\end{subfigure} 
 	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_landm2.pdf}
-		\caption{\label{fig:spatialmedc2}}
+		\caption{\label{fig:ROI2}}
 	\end{subfigure} \\
 	
 	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_landm3.pdf}
-		\caption{\label{fig:kcstepc1}}
+		\caption{\label{fig:DPP1}}
 	\end{subfigure}
 	\begin{subfigure}[b]{0.40\linewidth}
 		\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_landm3.pdf}
-		\caption{\label{fig:kcstepc2}}
+		\caption{\label{fig:DPP2}}
 	\end{subfigure}
-	\caption{...}
-	\label{fig:C-step}
+	\caption{An example of the sparsification procedure where the same datasets as in Figure \ref{fig:C-step} are analyzed. Figures \subref{fig:sparse1} and \subref{fig:sparse2} show step 2 of the ROI algorithm, where only points that have an equal sign to the corresponding class are selected. The subset if reduced even further by selecting points with the largest contribution to the decision boundary. This corresponds to step 3 of the ROI algorithm and is visible on Figures \subref{fig:ROI1} and \subref{fig:ROI2}. The final step is sampling diverse points out of the ROI. Figures \subref{fig:DPP1} and \subref{fig:DPP2} show the result of this procedure, where the ROI is nicely approximated and no clumping effect is visible.}
+	\label{fig:sparsensses}
 	\end{figure}
 
-	In contrast to the proposed pruning strategy by Suykens et al.~\cite{suykens2000sparse}, the sign of alphas is taken in consideration when determining the ROI. Potential landmark points are now points with large importance and that predict the right class. This is easily seen from the prediction equation \eqref{eq:classification}, where the contribution of a training point in the prediction a test point $x_t$ towards class $y \in \{+1,-1\}$ is proportional to $y \, w_i$ with $w_i = \alpha_iy_i$.
-	
-	The ROI represents a subset with points important for the decision boundary for every class. Using a sampling algorithm that promotes diversity, $l$ landmark points are selected for every class to represent the ROI. Due to the diversity, no clumping is possible.
+	In contrast to the proposed pruning strategy by Suykens et al.~\cite{suykens2000sparse}, the sign of alphas is taken in consideration when determining the ROI (step 2). Potential landmark points are now points with large importance and that predict the right class. This is easily seen from the prediction equation \eqref{eq:classification}, where the contribution of a training point in the prediction a test point $x_t$ towards class $y \in \{+1,-1\}$ is proportional to $y \, \mu_i$, where $\mu_i = \alpha_i \, y_i$. Figure \ref{fig:C-step} confirms this behavior, where the ROI represents a subset with points important for the decision boundary for every class. Using a sampling algorithm that promotes diversity, $l$ landmark points are selected for every class to represent the ROI. Due to the diversity, no clumping is possible.
 	
 	\subsubsection{Entropy}
 	Selection of the landmark points is based on quadratic Renyi entropy~\cite{girolami2002orthogonal} and the fixed size LS-SVM~\cite{suykens2002least}. The landmarks points are chosen to maximize the quadratic Renyi Entropy:
@@ -509,7 +486,7 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 	\label{eq:Entropy2}
 	\int \hat{p}(x)^2dx = \frac{1}{N^2} 1_v^\mathrm{T}\Omega 1_v,
 	\end{equation}
-	where $1_v = [1;1;...;1]$ and a normalized kernel is assumed with respect to density estimation. In the fixed-size LS-SVM approach, one chooses a fixed working set of size $M$ which is initialized randomly. Afterwards, random points are swapped in and out. If the entropy increases, the swapped point is accepted, otherwise the original subset is kept. This process continues until the change in entropy is small or a fixed number of iterations is reached. 
+	where $1_v = [1;1;...;1]$ and a normalized kernel is assumed with respect to density estimation. Entropy quantifies the diversity or randomness of a system, which is essential to select landmark points such that no clumping is possible . In the fixed-size LS-SVM approach, one chooses a fixed working set of size $M$ which is initialized randomly. Afterwards, random points are swapped in and out. If the entropy increases, the swapped point is accepted, otherwise the original subset is kept. This process continues until the change in entropy is small or a fixed number of iterations is reached. 
 	
 	In contrast to the original fixed-size LS-SVM formulation, which is used to find a representative subset for the Nystr\"{o}m approximation \cite{suykens2002least}. We propose to first determine to ROI, which includes the points that have the highest contribution to the robust LS-SVM model. On this reduced dataset, the fixed-size LS-SVM algorithm is used to select the $l$ landmark points. This ensures that the ROI is well approximated and there is no clumping effect present. The downsides of the entropy criteria are that a relatively large number of iterations are necessary to get a diversified selection, secondly only the Gaussian kernel can be used~\cite{girolami2002orthogonal}.
 	
@@ -556,58 +533,49 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 %		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.
 %	\end{remark}
 	
-Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the k-DPP selection algorithm is repeated for every class to select $l$ landmark points~\cite{kulesza2011k}:
+Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the k-DPP selection algorithm is repeated for every class to select $l$ landmark points~\cite{kulesza2011k}: 
 \begin{enumerate}
-	\item Calculate the eigenvector/value pairs $\{(\mathbf{v}_r,\lambda_r)\}$ from the L-ensemble matrix $L = K_{ROI}(I - K_{ROI} )^{-1}$, where $K_{ROI} \in \mathbb{R}^{N_{ROI} \times N_{ROI}} $ is the kernel matrix containing the points in the ROI.
-	\item Iterate over all components of the eigenvector/value pairs and include the component $r$ if $u \sim U[0, 1] < \lambda_r \frac{e_{k-1}^{r-1}}{e_k^r}$, where $k$ is number of components selected so far, iterator $r = N_{ROI},...,1$  and $k$ elementary polynomial $e_k^r = \sum_{\substack{J \subseteq \{1,...,r\}\} \\ |J| = k}}\prod_{n \in J} \lambda_n$ . Continue to the next step if you have selected $l$ components. The matrix $V$ is now equal to the eigenvectors of included components. 
-	\item Select a landmark point $x_i$ from ROI with $\mathrm{Pr}(x_i) = \frac{1}{|V|} \sum_{\mathbf{v} \in V} (\mathbf{v}^\mathrm{T} \mathbf{e}_i)^2$. The vector $\mathbf{e}_i$ is the $i$th standard basis, which is all zeros except for a one
+	\item Calculate the eigenvector/value pairs $\{(v_r,\lambda_r)\}$ from the L-ensemble matrix $L = K_{R}(I - K_{R} )^{-1}$, where $K_{R} \in \mathbb{R}^{N_{R} \times N_{R}} $ is the kernel matrix containing the points in the ROI.
+	\item Iterate over all components of the eigenvector/value pairs and include the component $r$ if:
+	\begin{equation}
+		u \sim U[0, 1] < \lambda_r \frac{e_{k-1}^{r-1}}{e_k^r},
+	\end{equation}
+	  where $k$ is number of components selected so far, iterator $r = N_{R},...,1$  and $k$ elementary polynomial $e_k^r = \sum_{\substack{J \subseteq \{1,...,r\}\} \\ |J| = k}}\prod_{n \in J} \lambda_n$ . Continue to the next step if you have selected $l$ components. The matrix $V$ is now equal to the eigenvectors of included components. 
+	\item Select a landmark point $x_i$ from ROI with probability:
+	\begin{equation}
+		\mathrm{Pr}(x_i) = \frac{1}{|V|} \sum_{v \in V} (v^\mathrm{T} e_i)^2.
+	\end{equation} 
+	The vector $e_i$ is the $i$th standard basis, which is all zeros except for a one
 	in the $i$th position.
-	\item Recalculate $V \leftarrow V_\perp$, an orthonormal basis for the subspace of $V$ orthogonal to $\mathbf{e}_i$. Afterwards go back to step 3 until $l$ landmark points are selected.
+	\item Recalculate $V \leftarrow V_\perp$, an orthonormal basis for the subspace of $V$ orthogonal to $e_i$. Afterwards go back to step 3 until $l$ landmark points are selected.
 \end{enumerate}
+
+%	\begin{remark}
+%		It is important to first omit outliers, before continuing with the entropy procedure. Large contributions to the entropy will come from elements that have little or no structure~\cite{girolami2002orthogonal}.
+%		It is important to first omit outliers, before continuing with the k-DPP sampling. In order to promote diversity, points that have a high similarity have a low chance of being sampled together (see equation \eqref{eq:KDPP}). Consequently outliers, that have a low similarity to any other point in the dataset, have a high chance of being sampled.\\	
+%		As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
+%	\end{remark}
 	
 	\subsection{Information transfer}
-	The information contained in the not selected support vectors can then be transferred to the selected support vectors, an idea originally introduced in~\cite{tao2009fast}. Starting from equation \eqref{eq:classification} for the outlierfree dataset, we get in matrix notation:	
+	The information contained in the not selected support vectors can then be transferred to the selected support vectors, an idea originally introduced in~\cite{tao2009fast}. Starting from equation \eqref{eq:classification} for the outlierfree dataset, we get in matrix notation:
 	\begin{equation}
-\hat{\mathbf{y}} = \mathrm{sign}(K\mathbf{\beta}  + b \mathbf{1}),
+\hat{y} = \mathrm{sign}(K\beta  + b 1),
 	\end{equation}
-with $\hat{\mathbf{y}} = [\hat{y}_1;...;\hat{y}_n]$ the prediction vector and $\mathbf{\beta} = [\alpha_i y_i ,...,\alpha_i y_{n_h}]^\mathrm{T}$, where $n_h$ is the number of points in the outlierfree dataset.
+with $\hat{y} = [\hat{y}_1;...;\hat{y}_h]$ the prediction vector and $\beta = [\alpha_i y_i ,...,\alpha_i y_{h}]^\mathrm{T}$, where $h$ is the number of points in the outlierfree dataset.
 We can partition this expression in the selected landmark part and non-selected support vectors:
 	\begin{equation}
-\hat{\mathbf{y}} = \mathrm{sign}(K_l\mathbf{\beta}_l + K_{nl}\beta_{nl}  + b \mathbf{1}),
+\hat{y} = \mathrm{sign}(K_l\beta_l + K_{nl}\beta_{nl}  + b 1),
 	\end{equation}
-	where $K_l $ is the matrix whose columns are selected from $K$ using the landmark selection while the other columns of $K$ form matrix $K_{nl}$, and $\mathbf{\beta}_l$ is a column vector whose elements are the multipliers corresponding to columns in $K_l $ while the other multipliers compose the vector $ \mathbf{\beta}_{nl}$.
-	Next, one transfers the information of $\mathbf{\beta}_{nl} K_{nl}$ using the update $\Delta\beta$: 
+	where $K_l $ is the matrix whose columns are selected from $K$ using the landmark selection while the other columns of $K$ form matrix $K_{nl}$, and $\beta_l$ is a column vector whose elements are the multipliers corresponding to columns in $K_l $ while the other multipliers compose the vector $ \beta_{nl}$.
+	Next, one transfers the information of $\beta_{nl} K_{nl}$ using the update $\Delta\beta$: 
 	\begin{align}
-	\Delta \mathbf{\beta} K_l &= K_{nl} \mathbf{\beta}_{nl}   \\
-	\Delta \mathbf{\beta} &= K^\dagger_l  K_{nl} \mathbf{\beta}_{nl} .
+	\Delta \beta K_l &= K_{nl} \beta_{nl}   \\
+	\Delta \beta &= K^\dagger_l  K_{nl} \beta_{nl} .
 	\end{align}
 	We now have obtained an explicit expression for the update of our Lagrange multipliers:
 	\begin{align}
-	\hat{\mathbf{\beta}}_l &=\mathbf{\beta}_l + \Delta \mathbf{\beta}.
+	\hat{\beta}_l &=\beta_l + \Delta \beta.
 	\end{align}
-	
-	\begin{figure}[!htb]
-		\centering
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_hyperplane_robsvm.pdf}
-			\caption{\label{fig:dmodel1}} 
-		\end{subfigure}
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_hyperplane_robsvm.pdf}
-			\caption{\label{fig:spatialmedc1}}
-		\end{subfigure} \\
-		
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_hyperplane_lssvm}
-			\caption{\label{fig:dmodel2}} 
-		\end{subfigure} 
-		\begin{subfigure}[b]{0.40\linewidth}
-			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_hyperplane_lssvm.pdf}
-			\caption{\label{fig:spatialmedc2}}
-		\end{subfigure} 
-		\caption{Uiteindelijke oplossing na information transfer, waarbij de info van de reguliere observaties getransfereerd is naar de support vectors, weergegeven als 'd'. Ter vergelijking tonen we de de naive LS-SVM figuren c, d. De impact van de outliers op het LS-SVM hypervlak is duidelijk zichtbaar, in vergelijking met the proposed.}
-		\label{fig:results}
-	\end{figure}
 
 	
  The classier prediction equation finally boils down to:
@@ -615,17 +583,39 @@ We can partition this expression in the selected landmark part and non-selected 
 \hat{y}(x) = \mathrm{sign}\Big(\sum_{i=1}^{l} K(x, x_i)\hat{\beta}_i  + b\Big).	
 	\end{equation}
 	
-	\paragraph{Algorithm 3--- summary selection of landmark points} 
+	\subsection{Summary Rob-LSSVM} 
 	\hfill \\\\
-	The following procedure is applied on the robust trained LS-SVM and outlierfree dataset:
+	The following procedure is applied on a contaminated dataset:
 	
+[INPUT high level algorithm here]
 
 
 
-%	\begin{remark}
-%		As the outlier detection and landmark selection is done on each class separately. The proposed method is easily applicable in a multi-class classification setting. 
-%	\end{remark}
+The final solution is visible on Figure~\ref{fig:results}, where extreme sparsity and a robust classification is achieved.
 
+
+	\begin{figure}[!htb]
+		\centering
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_hyperplane_robsvm.pdf}
+			\caption{\label{fig:solRob1}} 
+		\end{subfigure}
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_hyperplane_robsvm.pdf}
+			\caption{\label{fig:solRob2}}
+		\end{subfigure} \\
+		
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/normdatamodel_hyperplane_lssvm}
+			\caption{\label{fig:solNorm1}} 
+		\end{subfigure} 
+		\begin{subfigure}[b]{0.40\linewidth}
+			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_hyperplane_lssvm.pdf}
+			\caption{\label{fig:solNorm2}}
+		\end{subfigure} 
+		\caption{The final solution after applying Rob-LSSVM on the toy example is visible on Figures \subref{fig:solRob1} and \subref{fig:solRob2}. A robust classification is achieved, this while reducing the number of support vector to a bare minimum. The opposite effect is visible for the normal LS-SVM classification on Figure \subref{fig:solNorm1} and \subref{fig:solNorm2}. }
+		\label{fig:results}
+	\end{figure}
 	
 	\section{Experiments} 
 	\label{sec:exp}
