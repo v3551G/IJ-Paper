@@ -6,12 +6,13 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Simulate the breaking of an svm in the linear case
     clear;
+    close all;
     rng default;
     
-    C = 1e4;
+    C = 1e3;
     
     kModel = LinKernel();
-    pModel = DPPBasedPruning(8, kModel);
+    pModel = DPPBasedPruning(20, kModel);
     dModel = NormalDataModel(1500, 0.10);      
     fh=dModel.plot();    
     
@@ -29,7 +30,7 @@
     close all;
     rng default;
     
-    C = 120;
+    C = 1e3; %120;
     
     kModel = RbfKernel(0.5);
     %kModel = LinKernel();
@@ -38,7 +39,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Pruning strategy used
     %pModel = EntropyBasedPruning(10, kModel);
-    pModel = DPPBasedPruning(10, kModel);
+    pModel = DPPBasedPruning(20, kModel);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Data model used

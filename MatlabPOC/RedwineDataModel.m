@@ -6,7 +6,12 @@ classdef RedwineDataModel < DataModel
         end
     end
     
-    methods (Access = protected)
+    methods (Access = public)
+        
+        function fn = getfilename(~)
+           fn = 'redwine';
+        end
+        
         function [x, y, z] = generateDataModel(~, n, ~, eps)                        
             xx = csvread('datasets\winequality-red.csv');    
             x = xx(randperm(size(xx, 1), n), :);

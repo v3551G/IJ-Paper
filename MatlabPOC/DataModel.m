@@ -57,8 +57,9 @@ classdef DataModel < handle
         end
     end
     
-    methods (Abstract, Access = protected)
+    methods (Abstract, Access = public)
         generateDataModel(this, n, p, eps);
+        getfilename(this);
     end
     
 end

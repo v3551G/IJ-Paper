@@ -5,7 +5,7 @@ classdef DPPBasedPruning < handle
     properties
         nbrOfSupportVectors;
         kModel;
-        roi = 0.25;
+        %roi = 0.25;
     end
     
     methods
@@ -19,15 +19,16 @@ classdef DPPBasedPruning < handle
         end
         
         function svsSolutionsIndices = prune(this, x, a)            
-            [~, candidateIndices] = sort(a, 'descend');
-            candidateIndices = candidateIndices(1:ceil(numel(candidateIndices)*this.roi));
             
-            M = this.kModel.compute(x(candidateIndices, :));
+            medValue = median(abs(a));
+            indices = find(abs(a)>medValue);
+            
+            M = this.kModel.compute(x(indices, :));
             L.M = M;
             [V,D] = eig(M);
             L.V = real(V);
             L.D = real(diag(D));
-            svsSolutionsIndices = candidateIndices(sample_dpp(L, this.nbrOfSupportVectors));
+            svsSolutionsIndices = indices(sample_dpp(L, this.nbrOfSupportVectors));
         end
     end
     

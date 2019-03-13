@@ -6,6 +6,7 @@ classdef rLSSVM < handle
         kModel;
         pModel;
         supportVectorData;
+        supportVectorLabels;
         prunedAlphas;
     end
     
@@ -151,16 +152,32 @@ classdef rLSSVM < handle
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    How many outliers do we expect in out dataset
-            hInitial = 0.35;
+            hInitial = 0.20;
             hCstep = 0.85;
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process +1 class
-            w1 = this.trainSingleClass(dModel.x(dModel.y>0, :), hInitial, hCstep);
+            [w1, i1] = this.trainSingleClass(dModel.x(dModel.y>0, :), hInitial, hCstep);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Process -1 class
-            w2 = this.trainSingleClass(dModel.x(dModel.y<0, :), hInitial, hCstep);
+            [w2, i2] = this.trainSingleClass(dModel.x(dModel.y<0, :), hInitial, hCstep);
+            
+            m1 = find(dModel.y>0);
+            m2 = find(dModel.y<0);
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor', [0,0,0]+0.9); hold on;
+            plot(dModel.x(m1(i1), 1), dModel.x(m1(i1), 2), 'dm', 'MarkerSize', 4);  
+            plot(dModel.x(m2(i2), 1), dModel.x(m2(i2), 2), 'db', 'MarkerSize', 4);  
+            set(fh, 'Color', 'w');
+            export_fig([ dModel.getfilename() '_sm.pdf']);
+           
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor', [0,0,0]+0.9); hold on;
+            plot(dModel.x(m1(w1), 1), dModel.x(m1(w1), 2), 'dm', 'MarkerSize', 4);  
+            plot(dModel.x(m2(w2), 1), dModel.x(m2(w2), 2), 'db', 'MarkerSize', 4);  
+            set(fh, 'Color', 'w');
+            export_fig([ dModel.getfilename() '_kc.pdf']);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    Normalize weights to perform class balancing                    
@@ -173,11 +190,6 @@ classdef rLSSVM < handle
             weights(dModel.y>0) = w1;
             weights(dModel.y<0) = w2;         
             
-            % Visualize
-            figure; scatter(dModel.x(:,1),dModel.x(:,2),'filled');hold on;
-            scatter(dModel.x(weights,1),dModel.x(weights,2),'filled')
-            title('Outlier Detection')
-            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 4, Solve LS-SVM's SoE            
             solution = this.trainWeightedLSSVM(dModel.x(weights, :), dModel.y(weights), C);
@@ -185,112 +197,88 @@ classdef rLSSVM < handle
             alphas(weights) = solution(2:end);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%%     Step 5a, determine SVS's per class            
-            figure;             
-            scatter(dModel.x(weights, 1), dModel.x(weights, 2), [], alphas(weights), 'filled'); 
-            colorbar; title('Hard rejection weighted LS-SVM alphas'); colormap(bluewhitered);
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%
-            %%%     TODO: Step 5b, balance alphas to compensate for class skew            
-            
+            %%%     TODO: Step 5b, balance alphas to compensate for class skew                        
             %%%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             c1 = find(dModel.y>0 & weights & alphas>0);            
             c2 = find(dModel.y<0 & weights & alphas<0);
-            c11 = find(dModel.y>0 & weights);
-            c21 = find(dModel.y<0 & weights);
+           
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor', [0,0,0]+0.9); hold on;
+            plot(dModel.x(c1, 1), dModel.x(c1, 2), 'dm', 'MarkerSize', 4);  
+            plot(dModel.x(c2, 1), dModel.x(c2, 2), 'db', 'MarkerSize', 4);  
+            set(fh, 'Color', 'w');
+            export_fig([ dModel.getfilename() '_landm1.pdf']);
             
-            figure; 
-            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
-            plot(dModel.x(c11, 1), dModel.x(c11, 2), '*r');  
-            plot(dModel.x(c21, 1), dModel.x(c21, 2), '*g');  grid on;
-            title('C11 & C12')
+            m1 = c1(abs(alphas(c1))>median(abs(alphas(c1))));
+            m2 = c2(abs(alphas(c2))>median(abs(alphas(c2))));
             
-            figure; 
-            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
-            plot(dModel.x(c1, 1), dModel.x(c1, 2), '*r');  
-            plot(dModel.x(c2, 1), dModel.x(c2, 2), '*g');  grid on;
-            title('C1 & C2')
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor', [0,0,0]+0.9); hold on;
+            plot(dModel.x(m1, 1), dModel.x(m1, 2), 'dm', 'MarkerSize', 4);  
+            plot(dModel.x(m2, 1), dModel.x(m2, 2), 'db', 'MarkerSize', 4);  
+            set(fh, 'Color', 'w');
+            export_fig([ dModel.getfilename() '_landm2.pdf']);
             
-            svIndices1 = this.pModel.prune(dModel.x(c11, :), abs(alphas(c11)));
-            svIndices2 = this.pModel.prune(dModel.x(c21, :), abs(alphas(c21)));
             
-            figure; 
-            plot(dModel.x(:, 1), dModel.x(:, 2), '.'); hold on;
-            plot(dModel.x(c11(svIndices1), 1), dModel.x(c11(svIndices1), 2), '*r');  
-            plot(dModel.x(c21(svIndices2), 1), dModel.x(c21(svIndices2), 2), '*g');  grid on;
-            title('Landmark selection')
+            svIndices1 = this.pModel.prune(dModel.x(c1, :), abs(alphas(c1)));
+            svIndices2 = this.pModel.prune(dModel.x(c2, :), abs(alphas(c2)));
+            
+            fh = figure(); 
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor',[0,0,0]+0.9); hold on;
+            plot(dModel.x(c1(svIndices1), 1), dModel.x(c1(svIndices1), 2), 'dm', 'MarkerSize', 4, 'markerfacecolor', 'm');  
+            plot(dModel.x(c2(svIndices2), 1), dModel.x(c2(svIndices2), 2), 'db', 'MarkerSize', 4, 'markerfacecolor', 'b');  
+            set(fh, 'Color', 'w');
+            export_fig([ dModel.getfilename() '_landm3.pdf']);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%     Step 6, information transfer
             %%%            
             
-            %%%%    Retrain
-%             supportIndices = [c1(svIndices1); c2(svIndices2)];
-%             this.supportVectorData = dModel.x(supportIndices, :);            
-%             this.prunedAlphas = this.trainWeightedLSSVM(this.supportVectorData, dModel.y(supportIndices), C);
-            
-             K = this.kModel.compute(dModel.x);
-             
-%              mask = false(size(dModel.y));
-%              mask(c11) = true;
-%              mask(c1(svIndices1)) = false;
-% 
-%              delta_alpha = pinv(K(:, c1(svIndices1)))*K(:,mask)*alphas(mask, :);
-%              svAlphas1 =  alphas(c1(svIndices1), :) + delta_alpha;
-%              
-%              mask = false(size(dModel.y));
-%              mask(c21) = true;
-%              mask(c2(svIndices2)) = false;
-% 
-%              delta_alpha = pinv(K(:,c2(svIndices2)))*K(:,mask)*alphas(mask, :);
-%              svAlphas2 =  alphas(c2(svIndices2), :) + delta_alpha;          
+            K = this.kModel.compute(dModel.x);
+         
             supportVectorMask = false(size(dModel.y));
-            supportVectorMask(c11(svIndices1)) = true;
-            supportVectorMask(c21(svIndices2)) = true;
-            delta_alpha = pinv(K(:,supportVectorMask))*K(:,~supportVectorMask)*alphas(~supportVectorMask, :);
+            supportVectorMask(c1(svIndices1)) = true;
+            supportVectorMask(c2(svIndices2)) = true;
+            
+            c11 = dModel.y>0 & weights;
+            c21 = dModel.y<0 & weights;            
+            notsupportVectorMask = false(size(dModel.y));
+            notsupportVectorMask(c11) = true;
+            notsupportVectorMask(c21) = true;
+            notsupportVectorMask(supportVectorMask) = false;
+            
+            delta_alpha = pinv(K(:,supportVectorMask))*K(:,notsupportVectorMask)*alphas(notsupportVectorMask, :);
             svAlphas =  alphas(supportVectorMask, :) + delta_alpha;
             this.supportVectorData = dModel.x(supportVectorMask,:);
+            this.supportVectorLabels = dModel.y(supportVectorMask);
             this.prunedAlphas = [solution(1); svAlphas];
-             
-%              this.supportVectorData = [dModel.x(c1(svIndices1), :); dModel.x(c2(svIndices2), :);];
-%              this.prunedAlphas = [solution(1); svAlphas1; svAlphas2];
-            
+      
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%    That's all, folks!            
         end
         
-        function weights  = trainSingleClass(this, x, hInitial, hCstep)
-            lims = [-2, 2];
+        function [weights, initisalSubset]  = trainSingleClass(this, x, hInitial, hCstep)
             
-            initisalSubset  = this.spatialMedian(x, hInitial);
-            fh = figure(); 
-            plot(x(:, 1), x(:, 2), '.', 'MarkerSize', 12); hold on; 
-            plot(x(initisalSubset, 1), x(initisalSubset, 2), '.g', 'MarkerSize', 12);
-            xlim(lims); ylim(lims); set(fh, 'Color', 'w');
-            %export_fig('c2input.pdf');
-            
+            initisalSubset  = this.spatialMedian(x, hInitial);            
             weights = this.kernelCSteps(x, initisalSubset, hInitial, hCstep);            
-            fh = figure(); 
-            plot(x(:, 1), x(:, 2), '.', 'MarkerSize', 12); hold on; 
-            plot(x(weights, 1), x(weights, 2), '.g', 'MarkerSize', 12);
-            xlim(lims); ylim(lims); set(fh, 'Color', 'w');
-            %export_fig('c2output.pdf');
         end
     
         function plot(this, dModel)
-            [rr, cc] = meshgrid(-4:0.01:4);             
+            [rr, cc] = meshgrid(-4:0.05:4);             
             output = sign(this.predict([rr(:), cc(:)], dModel));    
             z=reshape(output, size(rr)); 
-            figure; 
-            contourf(rr, cc, z, [0 0]); hold on;            
-            plot(dModel.x(:, 1), dModel.x(:, 2), '.');            
-            plot(this.supportVectorData(:, 1), this.supportVectorData(:, 2), 'hg', 'MarkerFaceColor','g');
-            title('prototype svm');
-            colormap(bluewhitered);
-            %colorbar;
+            
+            m1=this.supportVectorLabels>0;            
+            fh = figure(); 
+            contour(rr, cc, z, [0 0]); hold on;                        
+            plot(dModel.x(:, 1), dModel.x(:, 2), '.', 'MarkerSize', 12, 'MarkerEdgeColor',[0,0,0]+0.9); hold on;
+            plot(this.supportVectorData(m1, 1), this.supportVectorData(m1, 2), 'dm', 'MarkerSize', 4, 'markerfacecolor', 'm');  
+            plot(this.supportVectorData(~m1, 1), this.supportVectorData(~m1, 2), 'db', 'MarkerSize', 4, 'markerfacecolor', 'b');  
+            set(fh, 'Color', 'w');
+            export_fig([ dModel.getfilename() '_hyperplane_robsvm.pdf']);
         end
         
         function prediction = predict(this, xTest, dModel)
