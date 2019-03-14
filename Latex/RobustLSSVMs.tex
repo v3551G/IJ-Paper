@@ -68,7 +68,7 @@
 	\begin{frontmatter}
 		
 		%% Title, authors and addresses
-		\title{Rob-LSSVM: Sparse and Robust Least Squares Support Vector Machines for Classification}
+		\title{RoS-LSSVM: Robust and Sparse Least Squares Support Vector Machines for Classification}
 		%\title{Sparse, Robust Least Squares Support Vector Machines for the Classification of noisy datasets}
 		
 		%% use the tnoteref command within \title for footnotes;
@@ -110,7 +110,7 @@
 		
 		\begin{abstract}
 			Least squares support vector machines (LS-SVM) are popular methods to solve classification problems. The LS-SVM is an SVM version which involves equality instead of inequality constraints and works with a least squares cost function.
-			In this way, the solution follows from a linear system instead of a quadratic programming problem. However, sparseness  and robustness is lost in the LS-SVM case. In this paper, we discuss a method which can overcome these two drawbacks. Robustness is achieved by a kernel minimum covariance determinant, which is a highly robust estimator of multivariate location and scatter in feature space. Afterwards, the robust LS-SVM is pruned by sampling diverse points out of a region of interest, which consist of points close to the decision boundary.	Experiments show that the method is robust to contamination and extreme spareness is achieved without diminishing the performance. 
+			In this way, the solution follows from a linear system instead of a quadratic programming problem. However, compared to normal SVM's, support vector sparseness is lost and the classifiers efficiency is highly influenced by outliers. In this paper, we discuss a method which can overcome these two drawbacks. Robustness is achieved by the kernel concentration steps, which allow us to estimate a robust estimator of multivariate location and scatter in feature space. Afterwards, the robust LS-SVM is pruned by sampling diverse points out of a region of interest, close to the decision boundary.	Experiments show that the method is highly robust against trainingset contamination, where extreme spareness simultaneous achieved without diminishing the performance. 
 			
 		\end{abstract}
 		
@@ -379,7 +379,7 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 %		\end{equation}
 	\end{enumerate}
 	
-	Finally, the weights $w$ are then used to train a weighted LS-SVM, where only the points with a weight equal to 1 are used in training the model. The algorithm workings are visualised in Figure \ref{fig:C-step}, where it can be seen that the initial estimate converges to the outlier free dataset.
+	Finally, the weights $w$ are then used to train a weighted LS-SVM, where only the points with a weight equal to 1 are used in training the model. The algorithm workings are visualised in Figure \ref{fig:C-step}, where it can be seen that the initial estimate converges to the (linear and non-linear) outlier free observation subset.
 	
 	
 	\begin{figure}[!htb]
@@ -471,7 +471,7 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 		\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_landm3.pdf}
 		\caption{\label{fig:DPP2}}
 	\end{subfigure}
-	\caption{An example of the sparsification procedure where the same datasets as in Figure \ref{fig:C-step} are analyzed. Figures \subref{fig:sparse1} and \subref{fig:sparse2} show step 2 of the ROI algorithm, where only points that have an equal sign to the corresponding class are selected. The subset if reduced even further by selecting points with the largest contribution to the decision boundary. This corresponds to step 3 of the ROI algorithm and is visible on Figures \subref{fig:ROI1} and \subref{fig:ROI2}. The final step is sampling diverse points out of the ROI. Figures \subref{fig:DPP1} and \subref{fig:DPP2} show the result of this procedure, where the ROI is nicely approximated and no clumping effect is visible.}
+	\caption{An example of the sparsification procedure where the same datasets as in Figure \ref{fig:C-step} are analysed. Figures \subref{fig:sparse1} and \subref{fig:sparse2} show step 2 of the ROI algorithm, where only points that have an equal sign to the corresponding class are selected. The subset if reduced even further by selecting points with the largest contribution to the decision boundary. This corresponds to step 3 of the ROI algorithm and is visible on Figures \subref{fig:ROI1} and \subref{fig:ROI2}. The final step is sampling diverse points out of the ROI. Figures \subref{fig:DPP1} and \subref{fig:DPP2} show the result of this procedure, where the ROI is nicely approximated and no clumping effect is visible.}
 	\label{fig:sparsensses}
 	\end{figure}
 
@@ -631,7 +631,7 @@ The final solution for the toy-datasets is visible on Figure~\ref{fig:results}, 
 			\centering\includegraphics[width=1\linewidth]{figures/yydatamodel_hyperplane_lssvm.pdf}
 			\caption{\label{fig:solNorm2}}
 		\end{subfigure} 
-		\caption{The final solution after applying Rob-LSSVM on the toy example is visible on Figures \subref{fig:solRob1} and \subref{fig:solRob2}. A robust classification is achieved, this while reducing the number of support vector to a bare minimum. The opposite effect is visible for the normal LS-SVM classification on Figure \subref{fig:solNorm1} and \subref{fig:solNorm2}. }
+		\caption{The final solution after applying RoS-LSSVM on the toy example is visible on Figures \subref{fig:solRob1} and \subref{fig:solRob2}. A robust classification is achieved, this while reducing the number of support vector to a bare minimum. The opposite effect is visible for the normal LS-SVM classification on Figure \subref{fig:solNorm1} and \subref{fig:solNorm2}. }
 		\label{fig:results}
 	\end{figure}
 	
@@ -661,9 +661,13 @@ The final solution for the toy-datasets is visible on Figure~\ref{fig:results}, 
 	\section{Conclusions and future work}
 	\label{sec:conc}
 	
+	We proposed a new, improved  LS-SVM model, coined RoS-LSSVM, inspired by the [WHAT, kernel C-steps, DPP, sampling, info transfer]-principle. We compared the performance of our prototype with other models by means of simulations for small, moderate and large UCI data sets. We found that our classifier model performed better than other models in terms of outlier robustness and classification accuracy. \\
+	
+	Further research should go to the extension of sparsity in the classifier training phase, as well as [???]. It would also be worthwhile to integrate an optimization routine to estimate the optimal $h$-subset size for a given problem, as no theoretical results can predict the contamination degree before the actual processing yet. 
+	
 	\section*{Acknowledgements}
 	
-	We thank Johan Speybrouck for providing us the industrial datasets and Tim Wynants for his feedback throughout this project. We also acknowledge the financial support of the VLAIO, grant HBC.2016.0208, for making this industrial research possible.
+	We thank Johan Speybrouck for providing us the industrial datasets, and Tim Wynants, Doug Reid for their feedback throughout this project. We also acknowledge the financial support of the VLAIO, grant HBC.2016.0208, for making this industrial research possible.
 	
 	%% The Appendices part is started with the command \appendix;
 	%% appendix sections are then done as normal sections
