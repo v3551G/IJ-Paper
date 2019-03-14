@@ -325,6 +325,7 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 	where $\hat{\mu}_{mcd}$ and $\hat{\sigma}_{mcd}$ are the univariate location and scale estimations of the univariate MCD~\cite{rousseeuw1999fast}, estimated on the entire dataset. this procedure reduces the impact of different feature scales. Next, the standardized dataset is split in two subsets according to its class label $y \in \{+1, -1\}$ and our proposed  procedure is applied (per subset) to derive at an outlier free support vector candidate set, as follows:
 	
 	\begin{enumerate}
+		\item[]\textbf{Algorithm 1: Outlier detection using kernel c-steps}
 		\item Calculate the spatial median in $\mathcal{H}$, as introduced in~\cite{debruyne2010detecting}. The spatial median can be written as a linear combination of the feature vectors. Denote $\gamma = (\gamma_1, \dots, \gamma_n)^T$ the vector of coefficients, where  $\sum_{i=1}^{n} \phi(x_i) \gamma_i$ equals the spatial median in feature space. Initialise $\gamma = (1/n, 1/n, \dots)$ and recursively compute the normalized coefficients $\gamma = w / \sum_{i=1}^{n}w_i$, where $w_i$ for the observation with index $i$ is calculated as:
 		\begin{equation}
 		w_i = \frac{1}{\sqrt{ K_{i,i} - 2 \gamma^T K_{., i} + \gamma^T K \gamma}}.
@@ -432,6 +433,7 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 	
 	The second problem is solved by introducing a subset for each class \newline $y \in \{+1,-1\}$ called the "region of interest" (ROI), which consist of points close to the decision boundary. Determining the ROI is done for each class and consists out of two steps:
 	\begin{enumerate}
+		\item[]\textbf{Algorithm 2: Determining the ROI}
 		\item Determine the subset which consists of all points belonging to the class and are not considered outliers by the kernel MCD procedure.
 		\item Reduce the subset by selecting the points where the sign of $\alpha_i$ is equal to sign of the currently analyzing class.
 		\item The subset is further reduced by selecting the points that satisfy:
@@ -497,6 +499,7 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 	
 	Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the entropy based selection algorithm is repeated for every class~\cite{suykens2002least}:
 	\begin{enumerate}
+		\item[]\textbf{Algorithm 3: Entropy based landmark selection}
 		\item Choose a working set of size $l$ by randomly selection support vector out of the ROI.
 		\item Randomly select a point out of the ROI and replace it by a random point in the working set.
 		\item Calculate the quadratic Renyi entropy for the new working set using equations \eqref{eq:Entropy1} and \eqref{eq:Entropy2}.
@@ -535,6 +538,7 @@ Finally, the centered kernel matrix $\tilde{K}$ is calculated as~\cite{scholkopf
 	
 Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the k-DPP selection algorithm is repeated for every class to select $l$ landmark points~\cite{kulesza2011k}: 
 \begin{enumerate}
+	\item[]\textbf{Algorithm 4: k-DPP based landmark selection}
 	\item Calculate the eigenvector/value pairs $\{(v_r,\lambda_r)\}$ from the L-ensemble matrix $L = K_{R}(I - K_{R} )^{-1}$, where $K_{R} \in \mathbb{R}^{N_{R} \times N_{R}} $ is the kernel matrix containing the points in the ROI.
 	\item Iterate over all components of the eigenvector/value pairs and include the component $r$ if:
 	\begin{equation}
@@ -564,34 +568,48 @@ Given the ROI of candidate support vectors for a class $y \in \{+1,-1\}$, the k-
 with $\hat{y} = [\hat{y}_1;...;\hat{y}_h]$ the prediction vector and $\beta = [\alpha_i y_i ,...,\alpha_i y_{h}]^\mathrm{T}$, where $h$ is the number of points in the outlierfree dataset.
 We can partition this expression in the selected landmark part and non-selected support vectors:
 	\begin{equation}
+	\label{eq:twoparts}
 \hat{y} = \mathrm{sign}(K_l\beta_l + K_{nl}\beta_{nl}  + b 1),
 	\end{equation}
 	where $K_l $ is the matrix whose columns are selected from $K$ using the landmark selection while the other columns of $K$ form matrix $K_{nl}$, and $\beta_l$ is a column vector whose elements are the multipliers corresponding to columns in $K_l $ while the other multipliers compose the vector $ \beta_{nl}$.
 	Next, one transfers the information of $\beta_{nl} K_{nl}$ using the update $\Delta\beta$: 
 	\begin{align}
 	\Delta \beta K_l &= K_{nl} \beta_{nl}   \\
-	\Delta \beta &= K^\dagger_l  K_{nl} \beta_{nl} .
+	\Delta \beta &= K^\dagger_l  K_{nl} \beta_{nl},
+	\label{eq:deltaBeta}
 	\end{align}
-	We now have obtained an explicit expression for the update of our Lagrange multipliers:
+	where $\dagger$ is the Moore-Penrose inverse. We now have obtained an explicit expression for the update of our Lagrange multipliers:
 	\begin{align}
+	\label{eq:deltaBetaAdd}
 	\hat{\beta}_l &=\beta_l + \Delta \beta.
-	\end{align}
-
-	
+	\end{align}	
  The classier prediction equation finally boils down to:
 	\begin{equation}
+	\label{eq:LastClass}
 \hat{y}(x) = \mathrm{sign}\Big(\sum_{i=1}^{l} K(x, x_i)\hat{\beta}_i  + b\Big).	
 	\end{equation}
 	
-	\subsection{Summary Rob-LSSVM} 
-	\hfill \\\\
-	The following procedure is applied on a contaminated dataset:
+Given the outlierfree dataset from algorithm 1, the trained LS-SVM model based on this outlierfree dataset and the selected support vectors based on algorithm 3, the information transfer is done in the following way: 
+	\begin{enumerate}
+		\item[]\textbf{Algorithm 5: Information transfer}
+		\item Split the prediction equation for the training set in two parts containing the selected support vectors and non-selected support vectors (see equation~\eqref{eq:twoparts}).
+		\item Determine the update for $\Delta \beta$ using equation \eqref{eq:deltaBeta}.
+		\item Update the support vectors using formula~\eqref{eq:deltaBetaAdd} to get the final prediction equation~\eqref{eq:LastClass}.
+	\end{enumerate}
 	
-[INPUT high level algorithm here]
+	\subsection{Summary Rob-LSSVM} 
+	To finalize this section, we summarize the steps of the proposed algorithm. The following procedure is applied on a contaminated dataset $\{x_i,y_i\}_{i=1}^N$, where $x_i \in \mathbb{R}^{p}$ denotes $i$-th input pattern and $y_i \in \{-1,1\}$ the $i$th label :
+	
+\begin{enumerate}
+	\item[]\textbf{Final algorithm: Rob-LSSVM}
+	\item Run Algorithm 1 (Outlier detection using kernel c-steps) on each class. This results is an outlierfree dataset $\{x_i,y_i\}_{i=1}^h$, where is the number of regular observations.
+	\item Train an LS-SVM classfier on this outlierfree dataset, which gives the support vector values $\{\alpha_i\}_{i=1}^h$ and bias term $b$. 
+	\item Based on the support vector values, determine the ROI for each class using Algorithm 2.
+	\item Select the final support vector values or landmark points for each class using a diverse sampling procedure (Algorithm 3 or 4). This results in $l$ landmark points for each class.
+	\item Transfer the information from the support vector values of not selected support vectors to the selected support vectors using algorithm 5. The result is the Rob-LSSVM classifier.
+\end{enumerate}
 
-
-
-The final solution is visible on Figure~\ref{fig:results}, where extreme sparsity and a robust classification is achieved.
+The final solution for the toy-datasets is visible on Figure~\ref{fig:results}, where extreme sparsity and a robust classification is achieved.
 
 
 	\begin{figure}[!htb]
